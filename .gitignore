@@ -27,6 +27,7 @@ pnpm-debug.log*
 
 # Build artifacts
 /dist/
+packages/*/dist/
 
 # Vault files (contain encrypted shares — never commit)
 *.seqrets
