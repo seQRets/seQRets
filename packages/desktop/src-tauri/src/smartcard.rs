@@ -134,6 +134,18 @@ fn connect_reader(reader_name: &str) -> Result<(Context, Card), String> {
     Ok((ctx, card))
 }
 
+/// If a PIN is provided, verify it on the current connection.
+/// This must be called in the same connection as the protected operation
+/// because PIN verification state is transient (cleared on applet re-select).
+fn verify_pin_if_needed(card: &Card, pin: &Option<String>) -> Result<(), String> {
+    if let Some(ref p) = pin {
+        if !p.is_empty() {
+            send_apdu(card, CLA, INS_VERIFY_PIN, 0x00, 0x00, p.as_bytes())?;
+        }
+    }
+    Ok(())
+}
+
 /// Write a data blob to the card in chunks, with type and label metadata.
 fn write_data_to_card(
     card: &Card,
@@ -197,9 +209,10 @@ pub fn list_readers() -> Result<Vec<String>, String> {
 
 /// Get the status of the card in the given reader.
 #[tauri::command]
-pub fn get_card_status(reader: String) -> Result<CardStatus, String> {
+pub fn get_card_status(reader: String, pin: Option<String>) -> Result<CardStatus, String> {
     let (_ctx, card) = connect_reader(&reader)?;
     select_applet(&card)?;
+    verify_pin_if_needed(&card, &pin)?;
 
     let resp = send_apdu(&card, CLA, INS_GET_STATUS, 0x00, 0x00, &[])?;
 
@@ -237,9 +250,10 @@ pub fn get_card_status(reader: String) -> Result<CardStatus, String> {
 
 /// Write a single Shamir share to the card.
 #[tauri::command]
-pub fn write_share_to_card(reader: String, share: String, label: String) -> Result<(), String> {
+pub fn write_share_to_card(reader: String, share: String, label: String, pin: Option<String>) -> Result<(), String> {
     let (_ctx, card) = connect_reader(&reader)?;
     select_applet(&card)?;
+    verify_pin_if_needed(&card, &pin)?;
     write_data_to_card(&card, share.as_bytes(), TYPE_SHARE, &label)
 }
 
@@ -249,17 +263,20 @@ pub fn write_vault_to_card(
     reader: String,
     vault_json: String,
     label: String,
+    pin: Option<String>,
 ) -> Result<(), String> {
     let (_ctx, card) = connect_reader(&reader)?;
     select_applet(&card)?;
+    verify_pin_if_needed(&card, &pin)?;
     write_data_to_card(&card, vault_json.as_bytes(), TYPE_VAULT, &label)
 }
 
 /// Read data from the card (share or vault).
 #[tauri::command]
-pub fn read_card(reader: String) -> Result<CardData, String> {
+pub fn read_card(reader: String, pin: Option<String>) -> Result<CardData, String> {
     let (_ctx, card) = connect_reader(&reader)?;
     select_applet(&card)?;
+    verify_pin_if_needed(&card, &pin)?;
 
     // Get status first to know how much data to read
     let status_resp = send_apdu(&card, CLA, INS_GET_STATUS, 0x00, 0x00, &[])?;
@@ -323,9 +340,10 @@ pub fn read_card(reader: String) -> Result<CardData, String> {
 
 /// Erase all data from the card.
 #[tauri::command]
-pub fn erase_card(reader: String) -> Result<(), String> {
+pub fn erase_card(reader: String, pin: Option<String>) -> Result<(), String> {
     let (_ctx, card) = connect_reader(&reader)?;
     select_applet(&card)?;
+    verify_pin_if_needed(&card, &pin)?;
     send_apdu(&card, CLA, INS_ERASE_DATA, 0x00, 0x00, &[])?;
     Ok(())
 }

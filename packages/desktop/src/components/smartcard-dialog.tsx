@@ -67,6 +67,7 @@ export function SmartCardDialog({
   const [newPinInput, setNewPinInput] = useState('');
   const [showPinSetup, setShowPinSetup] = useState(false);
   const [isPinVerifying, setIsPinVerifying] = useState(false);
+  const [verifiedPin, setVerifiedPin] = useState<string | null>(null);
 
   // Action state
   const [isWriting, setIsWriting] = useState(false);
@@ -103,6 +104,7 @@ export function SmartCardDialog({
       setCardStatus(null);
       setPinInput('');
       setNewPinInput('');
+      setVerifiedPin(null);
       setShowPinSetup(false);
       setShowEraseConfirm(false);
       setShowOverwriteConfirm(false);
@@ -113,13 +115,14 @@ export function SmartCardDialog({
 
   // ── Load card status when reader is selected ──────────────────────
 
-  const loadCardStatus = useCallback(async (reader?: string) => {
+  const loadCardStatus = useCallback(async (reader?: string, pinOverride?: string | null) => {
     const r = reader || selectedReader;
     if (!r) return;
     setIsLoadingStatus(true);
     setActionError(null);
     try {
-      const status = await getCardStatus(r);
+      const pinToUse = pinOverride !== undefined ? pinOverride : verifiedPin;
+      const status = await getCardStatus(r, pinToUse);
       setCardStatus(status);
     } catch (e: any) {
       setCardStatus(null);
@@ -127,7 +130,7 @@ export function SmartCardDialog({
     } finally {
       setIsLoadingStatus(false);
     }
-  }, [selectedReader]);
+  }, [selectedReader, verifiedPin]);
 
   useEffect(() => {
     if (selectedReader) {
@@ -143,10 +146,12 @@ export function SmartCardDialog({
     setActionError(null);
     try {
       await verifyPin(selectedReader, pinInput);
+      // Store verified PIN so subsequent commands can use it
+      setVerifiedPin(pinInput);
       toast({ title: 'PIN Verified', description: 'Smart card unlocked successfully.' });
+      // Reload status with the PIN so it shows as verified
+      await loadCardStatus(undefined, pinInput);
       setPinInput('');
-      // Reload status to reflect verified state
-      await loadCardStatus();
     } catch (e: any) {
       setActionError(e?.toString() || 'PIN verification failed');
     } finally {
@@ -189,9 +194,9 @@ export function SmartCardDialog({
 
     try {
       if (mode === 'write-share') {
-        await writeShareToCard(selectedReader, writeData, writeLabel);
+        await writeShareToCard(selectedReader, writeData, writeLabel, verifiedPin);
       } else if (mode === 'write-vault') {
-        await writeVaultToCard(selectedReader, writeData, writeLabel);
+        await writeVaultToCard(selectedReader, writeData, writeLabel, verifiedPin);
       }
       setActionComplete(true);
       toast({
@@ -213,7 +218,7 @@ export function SmartCardDialog({
     setActionError(null);
 
     try {
-      const data = await readCard(selectedReader);
+      const data = await readCard(selectedReader, verifiedPin);
       setActionComplete(true);
       toast({
         title: 'Read from Smart Card!',
@@ -241,8 +246,9 @@ export function SmartCardDialog({
     setShowEraseConfirm(false);
 
     try {
-      await eraseCard(selectedReader);
+      await eraseCard(selectedReader, verifiedPin);
       toast({ title: 'Card Erased', description: 'All data has been removed from the card.' });
+      setVerifiedPin(null);
       await loadCardStatus();
     } catch (e: any) {
       setActionError(e?.toString() || 'Erase failed');
@@ -253,7 +259,7 @@ export function SmartCardDialog({
 
   // ── Derived state ─────────────────────────────────────────────────
 
-  const needsPinVerification = cardStatus?.pin_set && !cardStatus?.pin_verified;
+  const needsPinVerification = cardStatus?.pin_set && !cardStatus?.pin_verified && !verifiedPin;
   const isWriteMode = mode === 'write-share' || mode === 'write-vault';
   const isReadMode = mode === 'read';
 
