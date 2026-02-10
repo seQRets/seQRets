@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SmartCardDialog, SmartCardMode } from '@/components/smartcard-dialog';
+import { saveFileNative, saveTextFileNative, dataUrlToUint8Array, PNG_FILTERS, TXT_FILTERS, ZIP_FILTERS, SEQRETS_FILTERS } from '@/lib/native-save';
 
 interface QrCodeDisplayProps {
   qrCodeData: CreateSharesResult;
@@ -41,22 +42,25 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
   useEffect(() => {
     vaultWorkerRef.current = new Worker(new URL('@/lib/crypto.worker.ts', import.meta.url), { type: 'module' });
     vaultWorkerRef.current.onmessage = (event: MessageEvent<{ type: string; payload: any }>) => {
-      const { type, payload } = event.data;
-      if (type === 'encryptVaultSuccess') {
-        const encryptedFile: EncryptedVaultFile = {
-          version: 2,
-          encrypted: true,
-          salt: payload.salt,
-          data: payload.data,
-        };
-        downloadVaultFile(JSON.stringify(encryptedFile, null, 2), true);
-        setIsEncryptingVault(false);
-        setIsVaultDialogOpen(false);
-        resetVaultDialog();
-      } else if (type === 'encryptVaultError') {
-        toast({ variant: 'destructive', title: 'Encryption Failed', description: payload.message || 'Could not encrypt the vault file.' });
-        setIsEncryptingVault(false);
-      }
+      const handleMessage = async () => {
+        const { type, payload } = event.data;
+        if (type === 'encryptVaultSuccess') {
+          const encryptedFile: EncryptedVaultFile = {
+            version: 2,
+            encrypted: true,
+            salt: payload.salt,
+            data: payload.data,
+          };
+          await downloadVaultFile(JSON.stringify(encryptedFile, null, 2), true);
+          setIsEncryptingVault(false);
+          setIsVaultDialogOpen(false);
+          resetVaultDialog();
+        } else if (type === 'encryptVaultError') {
+          toast({ variant: 'destructive', title: 'Encryption Failed', description: payload.message || 'Could not encrypt the vault file.' });
+          setIsEncryptingVault(false);
+        }
+      };
+      handleMessage();
     };
     return () => vaultWorkerRef.current?.terminate();
   }, []);
@@ -247,16 +251,18 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
     try {
         const canvas = await compositeQrOntoCard(elementToCapture, qrCodeUris[index], 4);
         const imageUri = canvas.toDataURL('image/png');
-        const link = document.createElement("a");
-        link.download = `${getShareTitle(index)}.png`;
-        link.href = imageUri;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        toast({
-            title: "Download Started",
-            description: `Downloading ${getShareTitle(index)}.png`,
-        });
+        const pngBytes = dataUrlToUint8Array(imageUri);
+        const savedPath = await saveFileNative(
+          `${getShareTitle(index)}.png`,
+          PNG_FILTERS,
+          pngBytes,
+        );
+        if (savedPath) {
+          toast({
+              title: "File Saved",
+              description: `Saved ${getShareTitle(index)}.png`,
+          });
+        }
     } catch (error) {
         console.error("Error generating image for download:", error);
         toast({
@@ -269,22 +275,25 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
     }
   };
 
-  const handleDownloadTxt = (index: number) => {
+  const handleDownloadTxt = async (index: number) => {
     const shareData = shares[index];
     const title = getShareTitle(index);
-    const blob = new Blob([shareData], { type: 'text/plain' });
-    const href = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = href;
-    link.download = `${title}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(href);
-    toast({
-        title: "Download Started",
-        description: `Downloading ${title}.txt`,
-    });
+    try {
+      const savedPath = await saveTextFileNative(`${title}.txt`, TXT_FILTERS, shareData);
+      if (savedPath) {
+        toast({
+            title: "File Saved",
+            description: `Saved ${title}.txt`,
+        });
+      }
+    } catch (error) {
+      console.error("Error saving text file:", error);
+      toast({
+          variant: "destructive",
+          title: "Save Failed",
+          description: "Could not save the text file.",
+      });
+    }
   };
 
 
@@ -322,17 +331,14 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
             zip.file('seqrets-instructions.json', instructionsContent);
         }
 
-        const content = await zip.generateAsync({ type: 'blob' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(content);
-        link.download = "seQRets-shares.zip";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        toast({
-            title: "Download Started",
-            description: "Creating and downloading seQRets-shares.zip",
-        });
+        const content = await zip.generateAsync({ type: 'uint8array' });
+        const savedPath = await saveFileNative('seQRets-shares.zip', ZIP_FILTERS, content);
+        if (savedPath) {
+          toast({
+              title: "File Saved",
+              description: "Saved seQRets-shares.zip",
+          });
+        }
     } catch (error) {
         console.error("Error creating zip file:", error);
         toast({
@@ -364,31 +370,25 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
     return JSON.stringify(vaultData, null, 2);
   };
 
-  const downloadVaultFile = (content: string, isEncrypted: boolean) => {
+  const downloadVaultFile = async (content: string, isEncrypted: boolean) => {
     const vaultLabel = qrCodeData.label || 'Untitled';
     const sanitizedLabel = (vaultLabel).replace(/[^a-zA-Z0-9_-]/g, '-');
     const filename = `${sanitizedLabel}-${new Date().toISOString().split('T')[0]}.seqrets`;
-    const blob = new Blob([content], { type: 'application/json' });
-    const href = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = href;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(href);
-    toast({
-      title: isEncrypted ? 'Encrypted Vault Exported!' : 'Vault Exported!',
-      description: `Saved as ${filename}. ${isEncrypted ? 'This file is password-protected.' : 'Store this file safely.'}`,
-    });
+    const savedPath = await saveTextFileNative(filename, SEQRETS_FILTERS, content);
+    if (savedPath) {
+      toast({
+        title: isEncrypted ? 'Encrypted Vault Exported!' : 'Vault Exported!',
+        description: `Saved as ${filename}. ${isEncrypted ? 'This file is password-protected.' : 'Store this file safely.'}`,
+      });
+    }
   };
 
   const handleExportVaultClick = () => {
     setIsVaultDialogOpen(true);
   };
 
-  const handleExportWithoutPassword = () => {
-    downloadVaultFile(getVaultJsonString(), false);
+  const handleExportWithoutPassword = async () => {
+    await downloadVaultFile(getVaultJsonString(), false);
     setIsVaultDialogOpen(false);
     resetVaultDialog();
   };

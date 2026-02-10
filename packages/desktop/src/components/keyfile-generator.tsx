@@ -4,6 +4,7 @@ import { CheckCircle, Download, File, Loader2, RefreshCw, TriangleAlert, Wand2, 
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Buffer } from 'buffer';
+import { saveFileNative, base64ToUint8Array, BIN_FILTERS } from '@/lib/native-save';
 
 interface KeyfileGeneratorProps {
   onKeyfileGenerated: (base64Keyfile: string | null) => void;
@@ -41,37 +42,24 @@ export function KeyfileGenerator({ onKeyfileGenerated }: KeyfileGeneratorProps) 
     }
   };
 
-  const handleDownload = (base64Data: string | null) => {
+  const handleDownload = async (base64Data: string | null) => {
     if (!base64Data) return;
-    
-    try {
-      const byteCharacters = atob(base64Data);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: 'application/octet-stream' });
-      const url = URL.createObjectURL(blob);
-      
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'seqrets-keyfile.bin';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
 
-      toast({
-        title: 'Keyfile Downloading',
-        description: 'Your keyfile "seqrets-keyfile.bin" is downloading. Save it somewhere safe!',
-      });
+    try {
+      const byteArray = base64ToUint8Array(base64Data);
+      const savedPath = await saveFileNative('seqrets-keyfile.bin', BIN_FILTERS, byteArray);
+      if (savedPath) {
+        toast({
+          title: 'Keyfile Saved',
+          description: 'Your keyfile "seqrets-keyfile.bin" has been saved. Store it somewhere safe!',
+        });
+      }
     } catch (e) {
-        console.error("Failed to download keyfile:", e);
+        console.error("Failed to save keyfile:", e);
         toast({
             variant: 'destructive',
-            title: 'Download Failed',
-            description: 'Could not prepare the keyfile for download.',
+            title: 'Save Failed',
+            description: 'Could not save the keyfile.',
         });
     }
   };

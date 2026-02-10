@@ -22,6 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import successSound from '@/assets/sound.mp3';
 import { SmartCardDialog } from '@/components/smartcard-dialog';
 import type { CardData } from '@/lib/smartcard';
+import { saveFileNative, base64ToUint8Array } from '@/lib/native-save';
 
 interface DecodedShare {
     id: string; // Use a unique ID for each share for stable rendering and removal
@@ -93,29 +94,21 @@ export function RestoreSecretForm() {
             });
              startRestoreTransition(() => {});
         } else if (type === 'decryptInstructionsSuccess') {
-            const { fileContent, fileName, fileType } = payload;
-            const byteCharacters = atob(fileContent);
-            const byteNumbers = new Array(byteCharacters.length);
-            for (let i = 0; i < byteCharacters.length; i++) {
-                byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
-            const blob = new Blob([byteArray], { type: fileType });
-
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-
-            toast({
-                title: 'Instructions Decrypted!',
-                description: `Your file "${fileName}" is downloading.`,
-            });
-            startDecryptTransition(() => {});
+            const handleInstructionsSave = async () => {
+              const { fileContent, fileName } = payload;
+              const byteArray = base64ToUint8Array(fileContent);
+              const ext = fileName.split('.').pop() || '*';
+              const filters = [{ name: `${ext.toUpperCase()} Files`, extensions: [ext] }];
+              const savedPath = await saveFileNative(fileName, filters, byteArray);
+              if (savedPath) {
+                toast({
+                    title: 'Instructions Decrypted!',
+                    description: `Saved "${fileName}" successfully.`,
+                });
+              }
+              startDecryptTransition(() => {});
+            };
+            handleInstructionsSave();
         } else if (type === 'decryptInstructionsError') {
             const errorMessage = payload.message || 'Could not decrypt the instructions file.';
             toast({

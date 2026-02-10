@@ -32,6 +32,8 @@
     "@radix-ui/react-tooltip": "1.1.8",
     "@seqrets/crypto": "*",
     "@tauri-apps/api": "^2.10.1",
+    "@tauri-apps/plugin-dialog": "^2",
+    "@tauri-apps/plugin-fs": "^2",
     "buffer": "^6.0.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
