@@ -166,6 +166,58 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
       }
   };
 
+  /**
+   * Render the card via html2canvas, then overdraw the QR region with the raw
+   * QR data-URL using nearest-neighbour scaling so every module stays crisp.
+   */
+  const compositeQrOntoCard = async (
+    elementToCapture: HTMLElement,
+    qrUri: string | null,
+    scale: number,
+  ): Promise<HTMLCanvasElement> => {
+    // 1. Find the QR <img> inside the card so we know where to overdraw
+    const qrImg = elementToCapture.querySelector('img[alt="QR Code"]') as HTMLImageElement | null;
+    let qrRect: { x: number; y: number; w: number; h: number } | null = null;
+    if (qrImg && qrUri) {
+      const cardRect = elementToCapture.getBoundingClientRect();
+      const imgRect = qrImg.getBoundingClientRect();
+      qrRect = {
+        x: (imgRect.left - cardRect.left) * scale,
+        y: (imgRect.top - cardRect.top) * scale,
+        w: imgRect.width * scale,
+        h: imgRect.height * scale,
+      };
+    }
+
+    // 2. Capture the full card (QR will be blurry — we'll fix that next)
+    const canvas = await html2canvas(elementToCapture, {
+      scale,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+    });
+
+    // 3. Overdraw the QR region with the raw data-URL at native resolution
+    if (qrRect && qrUri) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        const img = new window.Image();
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = reject;
+          img.src = qrUri;
+        });
+        // Clear the blurry QR area and redraw with nearest-neighbour
+        ctx.imageSmoothingEnabled = false;
+        ctx.clearRect(qrRect.x, qrRect.y, qrRect.w, qrRect.h);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(qrRect.x, qrRect.y, qrRect.w, qrRect.h);
+        ctx.drawImage(img, qrRect.x, qrRect.y, qrRect.w, qrRect.h);
+      }
+    }
+
+    return canvas;
+  };
+
   const handleDownload = async (index: number) => {
     if (!isTextOnly && isLoadingImages) {
         toast({ variant: "destructive", title: "Images not ready", description: "The Qard images have not been generated yet." });
@@ -190,7 +242,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
     }
 
     try {
-        const canvas = await html2canvas(elementToCapture, { scale: 4, useCORS: true, backgroundColor: '#ffffff' });
+        const canvas = await compositeQrOntoCard(elementToCapture, qrCodeUris[index], 4);
         const imageUri = canvas.toDataURL('image/png');
         const link = document.createElement("a");
         link.download = `${getShareTitle(index)}.png`;
@@ -253,8 +305,9 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
 
                 const elementToCapture = document.getElementById(`qard-to-print-${i}`);
                 if (elementToCapture) {
-                    const canvas = await html2canvas(elementToCapture, { scale: 4, useCORS: true, backgroundColor: '#ffffff' });
-                    const base64Data = canvas.toDataURL('image/png').substring(canvas.toDataURL('image/png').indexOf(',') + 1);
+                    const canvas = await compositeQrOntoCard(elementToCapture, qrCodeUris[i], 4);
+                    const pngDataUrl = canvas.toDataURL('image/png');
+                    const base64Data = pngDataUrl.substring(pngDataUrl.indexOf(',') + 1);
                     zip.file(`${title}.png`, base64Data, { base64: true });
                 }
                 document.body.removeChild(container);
