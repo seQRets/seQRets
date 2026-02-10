@@ -231,25 +231,37 @@ export function RestoreSecretForm() {
     }
   }
 
-  // Try decoding a QR code from an image at a given scale factor.
-  // Upscaling dense QR codes gives jsQR more pixel data per module.
-  const tryDecodeQR = (image: HTMLImageElement, scale: number): string | null => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    if (!ctx) return null;
+  // Decode a QR code from an image using the best available decoder.
+  // BarcodeDetector (native Chromium API) handles dense codes far better than jsQR.
+  const decodeQR = async (image: HTMLImageElement): Promise<string | null> => {
+    // Strategy 1: Native BarcodeDetector API (Chromium / Tauri)
+    if ('BarcodeDetector' in window) {
+      try {
+        const detector = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
+        const results = await detector.detect(image);
+        if (results.length > 0) return results[0].rawValue;
+      } catch (_) { /* fall through to jsQR */ }
+    }
 
-    canvas.width = image.naturalWidth * scale;
-    canvas.height = image.naturalHeight * scale;
-    ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    // Strategy 2: jsQR with upscaling fallback (for Firefox/Safari/older browsers)
+    for (const scale of [1, 2, 3]) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) continue;
+      canvas.width = image.naturalWidth * scale;
+      canvas.height = image.naturalHeight * scale;
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: 'attemptBoth',
+      });
+      if (code?.data) return code.data;
+    }
 
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(imageData.data, imageData.width, imageData.height, {
-      inversionAttempts: 'attemptBoth',
-    });
-    return code?.data ?? null;
+    return null;
   };
 
   const handleFilesAdded = (files: File[]) => {
@@ -261,12 +273,8 @@ export function RestoreSecretForm() {
         const reader = new FileReader();
         reader.onload = (e) => {
             const image = new Image();
-            image.onload = () => {
-                // Try native resolution, then 2x upscale, then 3x upscale
-                // Upscaling helps jsQR decode dense QR codes with small modules
-                const result = tryDecodeQR(image, 1)
-                            ?? tryDecodeQR(image, 2)
-                            ?? tryDecodeQR(image, 3);
+            image.onload = async () => {
+                const result = await decodeQR(image);
 
                 if (result) {
                     addShare(result, file.name, true);

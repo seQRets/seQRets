@@ -22,9 +22,16 @@ export function CameraScanner({ onScan }: CameraScannerProps) {
   useEffect(() => {
     let isComponentMounted = true;
     let stream: MediaStream | null = null;
+    let scanning = false;
 
-    const tick = () => {
-        if (!isComponentMounted || !videoRef.current || !videoRef.current.srcObject || videoRef.current.paused || videoRef.current.ended) {
+    // Create BarcodeDetector once if available (native Chromium API)
+    const barcodeDetector = ('BarcodeDetector' in window)
+      ? new (window as any).BarcodeDetector({ formats: ['qr_code'] })
+      : null;
+
+    const tick = async () => {
+        if (!isComponentMounted || scanning || !videoRef.current || !videoRef.current.srcObject || videoRef.current.paused || videoRef.current.ended) {
+            if (isComponentMounted) animationFrameId.current = requestAnimationFrame(tick);
             return;
         }
 
@@ -37,23 +44,42 @@ export function CameraScanner({ onScan }: CameraScannerProps) {
                 const ctx = canvas.getContext('2d', { willReadFrequently: true });
                 if(ctx) {
                     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    scanning = true;
                     try {
-                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                        // Tell scanner to check for inverted QR codes as well.
-                        const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                            inversionAttempts: 'attemptBoth',
-                        });
-                        if (code && code.data) {
-                            onScan(code.data);
+                        let decoded: string | null = null;
+
+                        // Strategy 1: Native BarcodeDetector (handles dense codes)
+                        if (barcodeDetector) {
+                            try {
+                                const results = await barcodeDetector.detect(canvas);
+                                if (results.length > 0) decoded = results[0].rawValue;
+                            } catch (_) { /* fall through to jsQR */ }
+                        }
+
+                        // Strategy 2: jsQR fallback
+                        if (!decoded) {
+                            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                            const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                                inversionAttempts: 'attemptBoth',
+                            });
+                            if (code?.data) decoded = code.data;
+                        }
+
+                        if (decoded) {
+                            onScan(decoded);
+                            scanning = false;
                             return; // Stop scanning once a code is found
                         }
                     } catch (e) {
-                       console.error("Could not get image data from canvas:", e);
+                       console.error("Could not decode from canvas:", e);
                     }
+                    scanning = false;
                 }
             }
         }
-        animationFrameId.current = requestAnimationFrame(tick);
+        if (isComponentMounted) {
+            animationFrameId.current = requestAnimationFrame(tick);
+        }
     };
 
     const getCameraPermission = async () => {
