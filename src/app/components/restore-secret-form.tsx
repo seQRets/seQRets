@@ -570,7 +570,7 @@ export function RestoreSecretForm() {
                         </Button>
                     </div>
                 </div>
-                <Button onClick={handleReset} className="text-white bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600">
+                <Button onClick={handleReset} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                   <RefreshCcw className="mr-2 h-4 w-4" /> Start Over
                 </Button>
             </div>
@@ -636,9 +636,9 @@ export function RestoreSecretForm() {
                       <div className="flex-grow border-t border-muted-foreground/20"></div>
                     </div>
 
-                    <div className="rounded-lg border border-dashed border-green-500/40 bg-green-50/50 dark:bg-green-950/20 p-4 space-y-2">
-                      <Button variant="outline" onClick={handleImportVaultFile} className="w-full border-green-500/50 hover:bg-green-100 dark:hover:bg-green-900/30">
-                        <FolderOpen className="mr-2 h-4 w-4 text-green-600" />
+                    <div className="rounded-lg border border-dashed border-accent bg-accent/10 dark:bg-accent/5 p-4 space-y-2">
+                      <Button variant="outline" onClick={handleImportVaultFile} className="w-full border-accent hover:bg-accent/20 dark:hover:bg-accent/10">
+                        <FolderOpen className="mr-2 h-4 w-4 text-foreground" />
                         Import Vault File (.seqrets)
                       </Button>
                       <p className="text-xs text-muted-foreground text-center">
@@ -673,7 +673,7 @@ export function RestoreSecretForm() {
 
                     {step === 1 && (
                         <div className="flex justify-end pt-2">
-                            <Button onClick={() => setStep(2)} disabled={decodedShares.filter(s => s.success).length === 0} className="text-white bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600">
+                            <Button onClick={() => setStep(2)} disabled={decodedShares.filter(s => s.success).length === 0} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                                 Next Step <ArrowDown className="ml-2 h-4 w-4" />
                             </Button>
                         </div>
@@ -730,7 +730,7 @@ export function RestoreSecretForm() {
                       )}
                        {step === 1 && (
                             <div className="flex justify-end pt-2">
-                                <Button onClick={() => setStep(2)} disabled={!instructionsFile} className="text-white bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600">
+                                <Button onClick={() => setStep(2)} disabled={!instructionsFile} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                                     Next Step <ArrowDown className="ml-2 h-4 w-4" />
                                 </Button>
                             </div>
@@ -801,7 +801,7 @@ export function RestoreSecretForm() {
                       )}
                     </div>
                      <div className="flex justify-end pt-2">
-                        <Button onClick={() => setStep(3)} disabled={!password || (useKeyfile && !keyfile)} className="text-white bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600">
+                        <Button onClick={() => setStep(3)} disabled={!password || (useKeyfile && !keyfile)} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                             Next Step <ArrowDown className="ml-2 h-4 w-4" />
                         </Button>
                     </div>
@@ -837,12 +837,12 @@ export function RestoreSecretForm() {
                             )}
                             <div className="flex justify-end">
                             {activeTab === 'secret' ? (
-                                <Button size="lg" onClick={handleRestore} disabled={isRestoreButtonDisabled} className="text-white bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600">
+                                <Button size="lg" onClick={handleRestore} disabled={isRestoreButtonDisabled} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                                     {isScanning || isRestoring ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Combine className="mr-2 h-5 w-5" />}
                                     {isScanning ? 'Scanning...' : isRestoring ? 'Restoring...' : `Restore Secret (${uniqueSharesCount} shares)`}
                                 </Button>
                             ) : (
-                                <Button size="lg" onClick={handleDecryptInstructions} disabled={isDecryptButtonDisabled} className="text-white bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600">
+                                <Button size="lg" onClick={handleDecryptInstructions} disabled={isDecryptButtonDisabled} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                                     {isDecrypting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <FileDown className="mr-2 h-5 w-5" />}
                                     {isDecrypting ? 'Decrypting...' : 'Decrypt & Download'}
                                 </Button>
@@ -860,7 +860,7 @@ export function RestoreSecretForm() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Lock className="h-5 w-5 text-orange-500" />
+              <Lock className="h-5 w-5 text-primary" />
               Encrypted Vault File
             </DialogTitle>
             <DialogDescription>
@@ -896,7 +896,7 @@ export function RestoreSecretForm() {
             </div>
           </div>
           <DialogFooter>
-            <Button onClick={handleDecryptVaultImport} disabled={isDecryptingVault || !vaultImportPassword} className="w-full bg-orange-600 hover:bg-orange-700 text-white">
+            <Button onClick={handleDecryptVaultImport} disabled={isDecryptingVault || !vaultImportPassword} className="w-full bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
               {isDecryptingVault ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Decrypting...</>
               ) : (

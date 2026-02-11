@@ -124,7 +124,7 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
                     disabled={isPending}
                     autoComplete="off"
                 />
-                <Button type="submit" size="icon" disabled={isPending || !message.trim()} className="text-white bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 flex-shrink-0">
+                <Button type="submit" size="icon" disabled={isPending || !message.trim()} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md flex-shrink-0">
                     <Send className="h-5 w-5" />
                 </Button>
             </form>

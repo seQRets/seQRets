@@ -46,7 +46,7 @@ public class SeQRetsApplet extends Applet {
     private static final byte MAX_LABEL_SIZE   = (byte) 64;
     private static final byte MAX_PIN_SIZE     = (byte) 16;
     private static final byte MIN_PIN_SIZE     = (byte) 8;
-    private static final byte MAX_PIN_RETRIES  = (byte) 3;
+    private static final byte MAX_PIN_RETRIES  = (byte) 5;
     private static final short CHUNK_SIZE      = (short) 240;
 
     // ── Data type constants ────────────────────────────────────────────

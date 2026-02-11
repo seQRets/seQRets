@@ -286,7 +286,7 @@ export function CreateSharesForm() {
                           </PopoverContent>
                       </Popover>
                   </div>
-                  <Button onClick={() => setShowSeedGenerator(!showSeedGenerator)} className="text-white bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600">
+                  <Button onClick={() => setShowSeedGenerator(!showSeedGenerator)} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                       <Wand className="mr-2 h-4 w-4" />
                       {showSeedGenerator ? 'Hide Generator' : 'Generate Seed Phrase'}
                   </Button>
@@ -355,7 +355,7 @@ export function CreateSharesForm() {
                         <Button
                             onClick={() => setStep(2)}
                             disabled={!secret.trim() || seedValidationStatus === 'invalid'}
-                            className="text-white bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600"
+                            className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md"
                         >
                             Next Step <ArrowDown className="ml-2 h-4 w-4" />
                         </Button>
@@ -421,7 +421,7 @@ export function CreateSharesForm() {
                              <Button
                                 onClick={() => setStep(3)}
                                 disabled={!isPasswordValid || (useKeyfile && !keyfile)}
-                                className="text-white bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600"
+                                className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md"
                             >
                                 Next Step <ArrowDown className="ml-2 h-4 w-4" />
                             </Button>
@@ -498,7 +498,7 @@ export function CreateSharesForm() {
               <CardFooter className="flex flex-col items-stretch gap-6 p-10 pt-0 animate-in fade-in duration-500">
                 <Separator />
                 <div className="flex flex-col sm:flex-row justify-end items-center gap-4 pt-6">
-                  <Button size="lg" onClick={handleGenerate} disabled={isGenerateButtonDisabled} className="w-full sm:w-auto text-white bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600">
+                  <Button size="lg" onClick={handleGenerate} disabled={isGenerateButtonDisabled} className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                     {isGenerating ? (
                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     ) : isTextOnly ? (
@@ -532,7 +532,7 @@ export function CreateSharesForm() {
                         </PopoverContent>
                     </Popover>
                 </div>
-                <Button onClick={handleReset} className="text-white bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600">
+                <Button onClick={handleReset} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                     <RefreshCcw className="mr-2 h-4 w-4" />
                     Start Over
                 </Button>

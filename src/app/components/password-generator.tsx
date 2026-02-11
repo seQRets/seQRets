@@ -121,7 +121,7 @@ export function PasswordGenerator({ value, onValueChange, onValidationChange }: 
           type="button"
           onClick={handleGenerate}
           disabled={isPending}
-          className="text-white bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 md:w-auto"
+          className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md md:w-auto"
         >
           {isPending ? (
             <Loader2 className="h-5 w-5 animate-spin" />

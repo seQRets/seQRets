@@ -11,11 +11,16 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { BobChatInterface } from "@/components/bob-chat-interface";
 import { BitcoinTicker } from "@/components/bitcoin-ticker";
 import { WelcomeGuide } from "@/components/welcome-guide";
-import appIcon from "@/assets/icons/icon-512x512.png";
+import { useTheme } from "@/components/theme-provider";
+import logoLight from "@/assets/icons/logo-light.png";
+import logoDark from "@/assets/icons/logo-dark.png";
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = React.useState<'create' | 'restore'>('create');
   const [searchParams] = useSearchParams();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const appIcon = isDark ? logoDark : logoLight;
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -52,8 +57,8 @@ export default function HomePage() {
         </div>
         <Header activeTab={activeTab} onTabChange={setActiveTab}/>
         <header className="text-center mb-6 pt-16 sm:pt-0">
-          <div className="flex justify-center items-center gap-4">
-            <img src={appIcon} alt="seQRets Logo" width={64} height={64} />
+          <div className="flex justify-center items-center gap-2.5">
+            <img src={appIcon} alt="seQRets Logo" width={144} height={144} className="self-start -mt-2" />
             <div>
               <h1 className="font-body text-5xl md:text-7xl font-black text-foreground tracking-tighter">
                 seQRets

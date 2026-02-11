@@ -62,7 +62,7 @@ export function FileUpload({ onFilesAdded, onCameraOpen, onManualOpen }: FileUpl
         <div
             className={cn(
                 'relative flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors duration-200 ease-in-out',
-                isDragging ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 hover:bg-muted'
+                isDragging ? 'border-primary bg-primary/10' : 'border-muted-foreground/40 hover:border-primary/50 hover:bg-muted'
             )}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}

@@ -70,7 +70,7 @@ export function WelcomeGuide({ activeTab }: WelcomeGuideProps) {
             </div>
         </div>
         <DialogFooter className="mt-4">
-          <Button onClick={handleClose} className="w-full text-white bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600">
+          <Button onClick={handleClose} className="w-full bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
             Let's Go!
           </Button>
         </DialogFooter>

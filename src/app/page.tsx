@@ -14,10 +14,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { BobChatInterface } from "./components/bob-chat-interface";
 import { BitcoinTicker } from "./components/bitcoin-ticker";
 import { WelcomeGuide } from "./components/welcome-guide";
+import { useTheme } from "next-themes";
 
 
 function App() {
   const [activeTab, setActiveTab] = React.useState<'create' | 'restore'>('create');
+  const { resolvedTheme } = useTheme();
+  const logoSrc = resolvedTheme === 'dark' ? '/icons/logo-dark.png' : '/icons/logo-light.png';
 
   const searchParams = useSearchParams();
 
@@ -57,8 +60,8 @@ function App() {
         </div>
         <Header activeTab={activeTab} onTabChange={setActiveTab}/>
         <header className="text-center mb-6 pt-16 sm:pt-0">
-          <div className="flex justify-center items-center gap-4">
-            <Image src="/icons/icon-512x512.png" alt="seQRets Logo" width={64} height={64} data-ai-hint="logo" priority />
+          <div className="flex justify-center items-center gap-2.5">
+            <Image src={logoSrc} alt="seQRets Logo" width={144} height={144} className="self-start -mt-2" data-ai-hint="logo" priority />
             <div>
               <h1 className="font-body text-5xl md:text-7xl font-black text-foreground tracking-tighter">
                 seQRets

@@ -40,6 +40,9 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/header';
+import { useTheme } from '@/components/theme-provider';
+import logoLight from '@/assets/icons/logo-light.png';
+import logoDark from '@/assets/icons/logo-dark.png';
 import { useToast } from '@/hooks/use-toast';
 import {
   listReaders,
@@ -53,6 +56,9 @@ import {
 
 export default function SmartCardPage() {
   const { toast } = useToast();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const appIcon = isDark ? logoDark : logoLight;
 
   // ── Reader state ─────────────────────────────────────────────────
   const [readers, setReaders] = useState<string[]>([]);
@@ -257,8 +263,7 @@ export default function SmartCardPage() {
   return (
     <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 md:p-12">
       <div className="w-full max-w-4xl mx-auto relative">
-        <Header />
-        <div className="mb-8 pt-16 sm:pt-0">
+        <div className="absolute top-4 left-4 z-50">
           <Button asChild variant="outline" size="sm">
             <Link to="/">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -266,11 +271,26 @@ export default function SmartCardPage() {
             </Link>
           </Button>
         </div>
+        <Header />
+
+        <header className="text-center mb-6 pt-16 sm:pt-0">
+          <div className="flex justify-center items-center gap-2.5">
+            <img src={appIcon} alt="seQRets Logo" width={144} height={144} className="self-start -mt-2" />
+            <div>
+              <h1 className="font-body text-5xl md:text-7xl font-black text-foreground tracking-tighter">
+                seQRets
+              </h1>
+              <p className="text-right text-base font-bold text-foreground tracking-wide">
+                Secure. Split. Share.
+              </p>
+            </div>
+          </div>
+        </header>
 
         {/* ── Page Title ── */}
         <div className="text-center mb-8">
           <div className="flex justify-center items-center gap-3 mb-4">
-            <CreditCard className="h-8 w-8 text-orange-500" />
+            <CreditCard className="h-8 w-8 text-primary" />
             <h1 className="text-3xl font-bold tracking-tight">Smart Card Manager</h1>
           </div>
           <p className="text-muted-foreground">
@@ -374,8 +394,8 @@ export default function SmartCardPage() {
                           </>
                         ) : (
                           <>
-                            <Lock className="h-4 w-4 text-orange-500" />
-                            <span className="text-sm font-medium text-orange-500">PIN Protected — Locked</span>
+                            <Lock className="h-4 w-4 text-primary" />
+                            <span className="text-sm font-medium text-primary">PIN Protected — Locked</span>
                           </>
                         )
                       ) : (
@@ -427,10 +447,10 @@ export default function SmartCardPage() {
               PIN Unlock (if card is locked)
               ═══════════════════════════════════════════════════════════ */}
           {cardStatus && needsPinUnlock && (
-            <Card className="border-orange-300 dark:border-orange-700">
+            <Card className="border-accent dark:border-accent/50">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Lock className="h-5 w-5 text-orange-500" />
+                  <Lock className="h-5 w-5 text-primary" />
                   Unlock Card
                 </CardTitle>
                 <CardDescription>
@@ -480,10 +500,10 @@ export default function SmartCardPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Warning */}
-                <Alert className="border-orange-300 bg-orange-50 dark:bg-orange-950/20">
-                  <AlertTriangle className="h-4 w-4 text-orange-500" />
+                <Alert className="border-accent bg-accent/10 dark:bg-accent/5">
+                  <AlertTriangle className="h-4 w-4 text-primary" />
                   <AlertDescription className="text-sm">
-                    <strong>Important:</strong> The card locks permanently after 3 wrong PIN attempts.
+                    <strong>Important:</strong> The card locks permanently after 5 wrong PIN attempts.
                     Your PIN cannot be recovered if forgotten — you will need to factory reset the card,
                     which erases all data.
                   </AlertDescription>
@@ -531,7 +551,7 @@ export default function SmartCardPage() {
                         disabled={isChangingPin}
                       />
                       {confirmChangePinInput && changePinInput !== confirmChangePinInput && (
-                        <p className="text-xs text-red-500">PINs do not match.</p>
+                        <p className="text-xs text-destructive">PINs do not match.</p>
                       )}
                     </div>
                     <Button
@@ -582,7 +602,7 @@ export default function SmartCardPage() {
                         disabled={isSettingPin}
                       />
                       {confirmPinInput && newPinInput !== confirmPinInput && (
-                        <p className="text-xs text-red-500">PINs do not match.</p>
+                        <p className="text-xs text-destructive">PINs do not match.</p>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">
@@ -615,9 +635,9 @@ export default function SmartCardPage() {
               D. Erase / Factory Reset
               ═══════════════════════════════════════════════════════════ */}
           {cardStatus && !needsPinUnlock && (
-            <Card className="border-red-200 dark:border-red-900">
+            <Card className="border-destructive/30 dark:border-destructive/40">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2 text-red-600">
+                <CardTitle className="text-lg flex items-center gap-2 text-destructive">
                   <Trash2 className="h-5 w-5" />
                   Factory Reset
                 </CardTitle>
@@ -629,11 +649,11 @@ export default function SmartCardPage() {
               <CardContent className="space-y-4">
                 {/* Show what will be destroyed */}
                 {(cardStatus.has_data || cardStatus.pin_set) && (
-                  <div className="rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/20 p-3 text-sm space-y-1">
-                    <p className="font-medium text-red-700 dark:text-red-400">
+                  <div className="rounded-lg border border-destructive/30 dark:border-destructive/40 bg-destructive/5 dark:bg-destructive/10 p-3 text-sm space-y-1">
+                    <p className="font-medium text-destructive">
                       The following will be permanently destroyed:
                     </p>
-                    <ul className="list-disc list-inside text-red-600 dark:text-red-400 space-y-0.5">
+                    <ul className="list-disc list-inside text-destructive space-y-0.5">
                       {cardStatus.has_data && (
                         <li>
                           <span className="capitalize">{cardStatus.data_type}</span> data
@@ -688,7 +708,7 @@ export default function SmartCardPage() {
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={handleErase}
-                        className="bg-red-600 hover:bg-red-700 text-white"
+                        className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                       >
                         Yes, Erase Everything
                       </AlertDialogAction>

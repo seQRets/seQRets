@@ -70,7 +70,7 @@ export function SeedPhraseGenerator({ onPhraseGenerated }: SeedPhraseGeneratorPr
                     <Label htmlFor="wc24">24 Words</Label>
                 </div>
             </RadioGroup>
-             <Button onClick={handleGenerate} className="text-white bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600">
+             <Button onClick={handleGenerate} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Generate New Phrase
             </Button>
@@ -112,7 +112,7 @@ export function SeedPhraseGenerator({ onPhraseGenerated }: SeedPhraseGeneratorPr
                         <Copy className="h-5 w-5" />
                         <span className="sr-only">Copy Phrase</span>
                     </Button>
-                     <Button onClick={handleUsePhrase} disabled={!isValid} className="bg-green-600 hover:bg-green-700 text-white">
+                     <Button onClick={handleUsePhrase} disabled={!isValid} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                         Use This Phrase
                         <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>

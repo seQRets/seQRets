@@ -4,14 +4,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft, Shield, Lock, Key, QrCode, Github } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/header";
-import appIcon from "@/assets/icons/icon-512x512.png";
+import { useTheme } from "@/components/theme-provider";
+import logoLight from "@/assets/icons/logo-light.png";
+import logoDark from "@/assets/icons/logo-dark.png";
 
 export default function AboutPage() {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const appIcon = isDark ? logoDark : logoLight;
+
     return (
         <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 md:p-12">
             <div className="w-full max-w-4xl mx-auto relative">
-                <Header />
-                <div className="mb-8 pt-16 sm:pt-0">
+                <div className="absolute top-4 left-4 z-50">
                     <Button asChild variant="outline" size="sm">
                         <Link to="/">
                             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -19,15 +24,16 @@ export default function AboutPage() {
                         </Link>
                     </Button>
                 </div>
+                <Header />
 
-                <div className="text-center mb-8">
-                    <div className="flex justify-center items-center gap-4 mb-4">
-                        <img src={appIcon} alt="seQRets Logo" width={48} height={48} />
+                <div className="text-center mb-10 pt-16 sm:pt-0">
+                    <div className="flex justify-center items-center gap-2.5 mb-6">
+                        <img src={appIcon} alt="seQRets Logo" width={144} height={144} className="self-start -mt-2" />
                         <div>
-                            <h1 className="font-body text-4xl md:text-5xl font-black text-foreground tracking-tighter">
+                            <h1 className="font-body text-5xl md:text-7xl font-black text-foreground tracking-tighter">
                                 seQRets
                             </h1>
-                            <p className="text-right text-sm font-bold text-foreground tracking-wide">
+                            <p className="text-right text-base font-bold text-foreground tracking-wide">
                                 Secure. Split. Share.
                             </p>
                         </div>
@@ -96,18 +102,15 @@ export default function AboutPage() {
                     <CardContent className="space-y-4 text-sm text-muted-foreground">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="p-4 rounded-lg border bg-muted/30 text-center">
-                                <div className="text-2xl font-bold text-primary mb-2">1</div>
-                                <p className="font-semibold text-foreground">Encrypt</p>
+                                <p className="text-xl font-bold mb-2"><span className="text-primary">1.</span> <span className="text-foreground">Secure</span></p>
                                 <p>Your secret is encrypted with a strong password (and optional keyfile) using military-grade cryptography.</p>
                             </div>
                             <div className="p-4 rounded-lg border bg-muted/30 text-center">
-                                <div className="text-2xl font-bold text-primary mb-2">2</div>
-                                <p className="font-semibold text-foreground">Split</p>
+                                <p className="text-xl font-bold mb-2"><span className="text-primary">2.</span> <span className="text-foreground">Split</span></p>
                                 <p>The encrypted data is split into multiple Qard backups using Shamir's Secret Sharing. No single Qard reveals anything.</p>
                             </div>
                             <div className="p-4 rounded-lg border bg-muted/30 text-center">
-                                <div className="text-2xl font-bold text-primary mb-2">3</div>
-                                <p className="font-semibold text-foreground">Distribute</p>
+                                <p className="text-xl font-bold mb-2"><span className="text-primary">3.</span> <span className="text-foreground">Share</span></p>
                                 <p>Print, download, or export your Qards. Give them to trusted family members, lawyers, or store in secure locations.</p>
                             </div>
                         </div>

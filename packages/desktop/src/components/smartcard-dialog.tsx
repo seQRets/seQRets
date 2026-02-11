@@ -276,7 +276,7 @@ export function SmartCardDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5 text-orange-500" />
+            <CreditCard className="h-5 w-5 text-primary" />
             {title}
           </DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -357,7 +357,7 @@ export function SmartCardDialog({
 
           {/* ── PIN Verification (if needed) ── */}
           {needsPinVerification && (
-            <div className="rounded-lg border border-orange-300 bg-orange-50 dark:bg-orange-950/20 p-3 space-y-2">
+            <div className="rounded-lg border border-accent bg-accent/10 dark:bg-accent/5 p-3 space-y-2">
               <Label htmlFor="pin-verify" className="text-sm font-medium">Enter PIN to unlock card</Label>
               <div className="flex gap-2">
                 <Input
@@ -386,7 +386,7 @@ export function SmartCardDialog({
           {cardStatus && !cardStatus.pin_set && !showPinSetup && !actionComplete && (
             <Button
               variant="outline"
-              className="w-full border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-400 dark:hover:bg-blue-950/30"
+              className="w-full border-accent text-foreground hover:bg-accent/20 dark:border-accent/50 dark:text-foreground dark:hover:bg-accent/10"
               onClick={() => setShowPinSetup(true)}
             >
               <ShieldCheck className="mr-2 h-4 w-4" />
@@ -395,7 +395,7 @@ export function SmartCardDialog({
           )}
 
           {showPinSetup && (
-            <div className="rounded-lg border border-blue-300 bg-blue-50 dark:bg-blue-950/20 p-3 space-y-2">
+            <div className="rounded-lg border border-accent bg-accent/10 dark:bg-accent/5 p-3 space-y-2">
               <Label htmlFor="pin-setup" className="text-sm font-medium">Set Card PIN (8-16 characters)</Label>
               <div className="flex gap-2">
                 <Input
@@ -424,15 +424,15 @@ export function SmartCardDialog({
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Use a mix of upper/lowercase, numbers, and symbols. The card locks after 3 wrong attempts.
+                Use a mix of upper/lowercase, numbers, and symbols. The card locks after 5 wrong attempts.
               </p>
             </div>
           )}
 
           {/* ── Overwrite Confirmation ── */}
           {showOverwriteConfirm && (
-            <Alert className="border-orange-300 bg-orange-50 dark:bg-orange-950/20">
-              <AlertTriangle className="h-4 w-4 text-orange-500" />
+            <Alert className="border-accent bg-accent/10 dark:bg-accent/5">
+              <AlertTriangle className="h-4 w-4 text-primary" />
               <AlertDescription>
                 This card already contains{' '}
                 <span className="font-medium">{cardStatus?.data_type}</span> data
@@ -496,7 +496,7 @@ export function SmartCardDialog({
                 !cardStatus ||
                 !!needsPinVerification
               }
-              className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white"
+              className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md"
             >
               {isWriting ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Writing...</>
@@ -517,7 +517,7 @@ export function SmartCardDialog({
                 !cardStatus.has_data ||
                 !!needsPinVerification
               }
-              className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white"
+              className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md"
             >
               {isReading ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Reading...</>

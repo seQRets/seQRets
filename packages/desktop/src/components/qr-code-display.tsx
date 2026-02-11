@@ -76,7 +76,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
         margin: 0;
         padding: 0;
         font-family: 'Inter', sans-serif;
-        background-color: #ffffff;
+        background-color: #fdfdfd;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
@@ -101,20 +101,20 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
     const pageBreakClass = forPrintAll && index < shares.length - 1 ? 'page-break' : '';
 
     return `
-      <div id="qard-to-print-${index}" class="a5-page ${pageBreakClass}" style="width: 14.8cm; height: 21cm; display: flex; justify-content: center; align-items: center; background-color: #ffffff; font-family: 'Inter', sans-serif;">
-        <div style="box-sizing: border-box; border: 1px solid #E5E7EB; padding: 20px 40px 50px 40px; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: space-between;">
+      <div id="qard-to-print-${index}" class="a5-page ${pageBreakClass}" style="width: 14.8cm; height: 21cm; display: flex; justify-content: center; align-items: center; background-color: #fdfdfd; font-family: 'Inter', sans-serif;">
+        <div style="box-sizing: border-box; border: 1px solid #d3cdc1; padding: 20px 40px 50px 40px; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: space-between;">
 
-            <h1 style="font-size: 24px; font-weight: 700; color: #111827; margin-top: 50px; margin-bottom: 40px;">Secret Qard Backup</h1>
+            <h1 style="font-size: 24px; font-weight: 700; color: #231f20; margin-top: 50px; margin-bottom: 40px;">Secret Qard Backup</h1>
 
-            <div style="border: 1px solid #E5E7EB; padding: 10px;">
-                ${qrUri ? `<img src="${qrUri}" alt="QR Code" style="width: 10cm; height: 10cm; image-rendering: pixelated;"/>` : `<div style="width: 10cm; height: 10cm; display: flex; align-items: center; justify-content: center; background: #f3f4f6; color: #6b7280; text-align: center;">QR Code not available.<br/>Data is too large.</div>`}
+            <div style="border: 1px solid #d3cdc1; padding: 10px;">
+                ${qrUri ? `<img src="${qrUri}" alt="QR Code" style="width: 10cm; height: 10cm; image-rendering: pixelated;"/>` : `<div style="width: 10cm; height: 10cm; display: flex; align-items: center; justify-content: center; background: #e8e5df; color: #6b6567; text-align: center;">QR Code not available.<br/>Data is too large.</div>`}
             </div>
 
             <div>
-                <h2 style="font-size: 20px; font-weight: 700; margin: 20px 0 5px 0; color: #111827;">Qard #${index + 1}</h2>
-                <p style="font-size: 14px; color: #6B7280; margin: 0 0 10px 0;">Set: <b style="font-weight: 500;">${setId}</b></p>
+                <h2 style="font-size: 20px; font-weight: 700; margin: 20px 0 5px 0; color: #231f20;">Qard #${index + 1}</h2>
+                <p style="font-size: 14px; color: #6b6567; margin: 0 0 10px 0;">Set: <b style="font-weight: 500;">${setId}</b></p>
 
-                <div style="font-size: 14px; color: #374151; line-height: 1.6; margin-bottom: 20px;">
+                <div style="font-size: 14px; color: #3e3739; line-height: 1.6; margin-bottom: 20px;">
                     ${label ? `Label: <b style="font-weight: 500;">${label}</b><br/>` : ''}
                     Created: <b style="font-weight: 500;">${createdDate}</b>
                 </div>
@@ -124,7 +124,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
                     <span>Store securely and separately from other qards</span>
                 </div>
 
-                <p style="font-size: 12px; color: #6B7280; margin: 0;">Scan QR with seQRets App to recover secret.</p>
+                <p style="font-size: 12px; color: #6b6567; margin: 0;">Scan QR with seQRets App to recover secret.</p>
             </div>
 
         </div>
@@ -452,11 +452,11 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
             {label && <p className="text-muted-foreground text-sm font-semibold">Label: {label}</p>}
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <Button onClick={handleDownloadAll} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white">
+            <Button onClick={handleDownloadAll} className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                 <FileArchive className="mr-2 h-4 w-4" /> Download All (ZIP)
             </Button>
             {!isTextOnly && (
-                <Button onClick={handlePrintAll} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white">
+                <Button onClick={handlePrintAll} className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                     <Printer className="mr-2 h-4 w-4" /> Print All
                 </Button>
             )}
@@ -474,7 +474,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
       )}
 
       {encryptedInstructions && (
-        <Alert className="mb-4 mx-4 border-blue-500/50 text-blue-800 dark:text-blue-300 [&>svg]:text-blue-500">
+        <Alert className="mb-4 mx-4 border-accent text-foreground dark:text-foreground [&>svg]:text-primary">
             <TriangleAlert className="h-4 w-4" />
             <AlertTitle>Encrypted Instructions File Included</AlertTitle>
             <AlertDescription>
@@ -492,8 +492,8 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
                    <div className="flex-grow flex flex-col items-center justify-center p-2 text-foreground">
                       <div className="w-20 h-20 text-muted-foreground mb-4" />
                       <p className="font-bold text-lg">Share #{index + 1}</p>
-                      <p className="text-sm text-gray-500">Set: <span className="font-semibold">{setId}</span></p>
-                      <div className="text-xs text-gray-500 leading-snug mt-2">
+                      <p className="text-sm text-muted-foreground">Set: <span className="font-semibold">{setId}</span></p>
+                      <div className="text-xs text-muted-foreground leading-snug mt-2">
 
                           <span>Created: <span className="font-semibold">{createdDate}</span></span>
                       </div>
@@ -509,7 +509,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
               ) : (
                 <div
                     className="p-4 rounded-lg border flex flex-col items-center text-center justify-between shadow-md transition-transform hover:shadow-xl hover:-translate-y-1 bg-card printable-qard"
-                    style={{ width: '252.7px', height: '361px', color: '#1f2937', fontFamily: 'Inter, sans-serif' }}
+                    style={{ width: '252.7px', height: '361px', color: '#231f20', fontFamily: 'Inter, sans-serif' }}
                 >
                     <div className="flex-grow flex flex-col items-center justify-center p-2 text-foreground">
                        {isLoadingImages ? (
@@ -517,7 +517,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
                              <Loader2 className="h-8 w-8 text-muted-foreground animate-spin"/>
                            </div>
                        ) : (
-                            <div className="p-1 border border-gray-200">
+                            <div className="p-1 border border-border">
                                 <img
                                     src={qrCodeUris[index]!}
                                     alt={`QR Code for Share ${index + 1}`}
@@ -529,8 +529,8 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
                        )}
                        <div className='mt-4'>
                             <p className="font-bold text-lg">Qard #{index + 1}</p>
-                            <p className="text-sm text-gray-500">Set: <span className="font-semibold">{setId}</span></p>
-                            <div className="text-xs text-gray-500 leading-snug mt-2">
+                            <p className="text-sm text-muted-foreground">Set: <span className="font-semibold">{setId}</span></p>
+                            <div className="text-xs text-muted-foreground leading-snug mt-2">
 
                                 <span>Created: <span className="font-semibold">{createdDate}</span></span>
                             </div>
@@ -569,7 +569,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
                             setSmartCardWriteLabel(getShareTitle(index));
                             setIsSmartCardOpen(true);
                           }}
-                          className={cn("col-span-full border-orange-400/50 text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-950/30")}
+                          className={cn("col-span-full border-accent text-foreground hover:bg-accent/20 dark:text-foreground dark:hover:bg-accent/10")}
                         >
                           <CreditCard className="mr-2 h-4 w-4" />
                           Smart Card
@@ -587,7 +587,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
                     It does <strong>not</strong> contain your secret &mdash; you still need your password to restore.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                  <Button size="lg" onClick={handleExportVaultClick} className="text-white bg-green-600 hover:bg-green-700 w-full sm:w-auto">
+                  <Button size="lg" onClick={handleExportVaultClick} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md w-full sm:w-auto">
                       <Save className="mr-2 h-5 w-5" /> Export Vault File
                   </Button>
                   <Button
@@ -599,7 +599,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
                       setSmartCardWriteLabel(qrCodeData.label || 'Vault');
                       setIsSmartCardOpen(true);
                     }}
-                    className="w-full sm:w-auto border-orange-400/50 text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-950/30"
+                    className="w-full sm:w-auto border-accent text-foreground hover:bg-accent/20 dark:text-foreground dark:hover:bg-accent/10"
                   >
                     <CreditCard className="mr-2 h-5 w-5" /> Write Vault to Smart Card
                   </Button>
@@ -622,7 +622,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-green-600" />
+                <ShieldCheck className="h-5 w-5 text-primary" />
                 Protect Your Vault File
               </DialogTitle>
               <DialogDescription>
@@ -668,7 +668,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
             </div>
             <DialogFooter className="flex flex-col gap-2 sm:flex-col">
               {vaultPassword ? (
-                <Button onClick={handleExportWithPassword} disabled={isEncryptingVault} className="w-full bg-green-600 hover:bg-green-700 text-white">
+                <Button onClick={handleExportWithPassword} disabled={isEncryptingVault} className="w-full bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                   {isEncryptingVault ? (
                     <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Encrypting...</>
                   ) : (
@@ -676,7 +676,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
                   )}
                 </Button>
               ) : (
-                <Button onClick={handleExportWithoutPassword} className="w-full bg-green-600 hover:bg-green-700 text-white">
+                <Button onClick={handleExportWithoutPassword} className="w-full bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                   <Save className="mr-2 h-4 w-4" /> Export Without Password
                 </Button>
               )}

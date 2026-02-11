@@ -85,7 +85,7 @@ The desktop app supports storing Shamir shares and encrypted vaults on **JCOP3 J
 ### Features
 - **Write individual shares** or **full vaults** to a card via APDU over PC/SC
 - **Read back** shares or vaults directly from a card into the restore workflow
-- **Optional PIN protection** (8-16 characters) — card locks after 3 wrong attempts
+- **Optional PIN protection** (8-16 characters) — card locks after 5 wrong attempts
 - **Data chunking** — automatically handles payloads larger than the 240-byte APDU limit
 - **Overwrite & erase** confirmations to prevent accidental data loss
 
