@@ -3,7 +3,7 @@
 
     <description>
         Build script for the seQRets JavaCard applet.
-        Requires: JDK 17, Apache Ant, ant-javacard.jar in lib/.
+        Requires: JDK 11–17, Apache Ant, ant-javacard.jar in lib/.
         The JavaCard 3.0.4 SDK is in sdks/oracle_javacard_sdks/jc304_kit/.
     </description>
 

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/icons/logo-light.png" alt="seQRets Logo" width="200" />
+</p>
+
 # seQRets: Secure. Split. Share.
 
 seQRets is a hyper-secure, open-source application designed to protect your most sensitive digital information — from crypto seed phrases and private keys to passwords and other confidential data. It uses **Shamir's Secret Sharing** to split your secret into multiple QR codes called **Qards**.
@@ -91,25 +95,29 @@ The desktop app supports storing Shamir shares and encrypted vaults on **JCOP3 J
 
 ### Applet Installation
 
-The SeQRets JavaCard applet must be installed on each card before use. Requires JDK 11, Apache Ant, and [GlobalPlatformPro](https://github.com/martinpaljak/GlobalPlatformPro):
+The SeQRets JavaCard applet must be installed on each card before use. All build tools (`ant-javacard.jar`, `gp.jar`, and the JavaCard 3.0.4 SDK) are included in the repository — no additional downloads are needed.
+
+**Requirements:** JDK 11–17 and Apache Ant.
 
 ```bash
 cd packages/javacard
 
-# Install build tools (macOS)
+# Install JDK and Ant (macOS — skip if already installed)
 brew install openjdk@11 ant
 
-# Download ant-javacard.jar and gp.jar into lib/
-# Clone oracle_javacard_sdks into sdks/
-
 # Build the applet
-export JAVA_HOME=/opt/homebrew/opt/openjdk@11
+export JAVA_HOME=/opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home
 export PATH="$JAVA_HOME/bin:$PATH"
-ant build
+ant clean build
 
-# Install on card (card must be in reader)
+# Install on card (card must be inserted in a PC/SC reader)
 java -jar lib/gp.jar --install build/SeQRetsApplet.cap
+
+# Verify installation
+java -jar lib/gp.jar --list
 ```
+
+> **Note:** Any JDK from version 11 through 17 will work. JDK 18+ is not supported by the JavaCard build toolchain. On macOS with Homebrew, you can also use `openjdk@17`.
 
 ### Applet AID
 `F0 53 51 52 54 53 01 00 00` — selected automatically by the desktop app.
@@ -151,6 +159,7 @@ seQRets/
 
 - **Node.js 18+** — [nodejs.org](https://nodejs.org/)
 - **Rust** (for desktop app only) — `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
+- **Xcode Command Line Tools** (macOS, for desktop app only) — `xcode-select --install`
 
 ### ⚙️ Setup
 
