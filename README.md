@@ -1,8 +1,10 @@
 <p align="center">
-  <img src="public/icons/logo-light.png" alt="seQRets Logo" width="200" />
+  <img src="public/icons/logo-dark.png" alt="seQRets Logo" width="200" />
 </p>
 
-# seQRets: Secure. Split. Share.
+<h1 align="center">seQRets</h1>
+
+**Secure. Split. Share.**
 
 seQRets is a hyper-secure, open-source application designed to protect your most sensitive digital information — from crypto seed phrases and private keys to passwords and other confidential data. It uses **Shamir's Secret Sharing** to split your secret into multiple QR codes called **Qards**.
 
