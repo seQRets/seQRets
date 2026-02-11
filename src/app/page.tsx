@@ -64,7 +64,7 @@ function App() {
             </h1>
           </div>
           <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-            <span className="font-normal">Crypto inheritance that actually works.</span>
+            <span className="font-normal">Secure. Split. Share.</span>
           </p>
         </header>
 

@@ -6,7 +6,7 @@ import { AskBobInput, AskBobInputSchema, AskBobOutput } from '@/lib/types';
 import { z } from 'zod';
 
 const readmeContent = `
-# seQRets: Crypto Inheritance That Actually Works
+# seQRets: Secure. Split. Share.
 
 seQRets is a hyper-secure, open-source application designed to protect your most sensitive digital information—from crypto seed phrases and private keys to passwords and other confidential data. It uses a powerful cryptographic technique called Shamir's Secret Sharing to split your secret into multiple QR codes, which we call "Qards."
 

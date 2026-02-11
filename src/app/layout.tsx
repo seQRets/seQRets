@@ -6,7 +6,7 @@ import React from 'react';
 
 export const metadata: Metadata = {
   title: 'seQRets',
-  description: 'Encrypt, split, and secure your secrets with QR codes. Automated crypto inheritance that works.',
+  description: 'Secure. Split. Share. Encrypt, split, and secure your secrets with QR codes using Shamir\'s Secret Sharing.',
 };
 
 export default function RootLayout({

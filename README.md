@@ -1,4 +1,4 @@
-# seQRets: Crypto Inheritance That Actually Works
+# seQRets: Secure. Split. Share.
 
 seQRets is a hyper-secure, open-source application designed to protect your most sensitive digital information — from crypto seed phrases and private keys to passwords and other confidential data. It uses **Shamir's Secret Sharing** to split your secret into multiple QR codes called **Qards**.
 
