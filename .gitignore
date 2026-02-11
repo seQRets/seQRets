@@ -29,6 +29,7 @@ pnpm-debug.log*
 # Build artifacts
 /dist/
 packages/*/dist/
+tsconfig.tsbuildinfo
 
 # Tauri build output
 packages/desktop/src-tauri/target/
