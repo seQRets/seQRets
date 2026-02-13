@@ -59,7 +59,7 @@ Version 0.9.0 "Pyre" — Available as a web app (Next.js) and native desktop app
 - **Password Generator** — cryptographically secure 32-character passwords.
 - **Seed Phrase Generator** — generate valid BIP-39 mnemonic phrases (12 or 24 words).
 - **Bitcoin Ticker** — live BTC/USD price display.
-- **Bob AI Assistant** — Google Gemini-powered AI for setup guidance and questions (optional, user-provided API key).
+- **Bob AI Assistant** — Google Gemini-powered AI for setup guidance and questions (optional, user-provided API key). Users can disconnect Bob and remove their API key at any time via the "Remove API Key" link at the bottom of the chat interface.
 
 ## How to Use seQRets
 

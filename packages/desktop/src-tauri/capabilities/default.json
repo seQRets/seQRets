@@ -11,6 +11,8 @@
     "dialog:allow-save",
     "fs:default",
     "fs:allow-write-text-file",
-    "fs:allow-write-file"
+    "fs:allow-write-file",
+    "opener:default",
+    "opener:allow-open-url"
   ]
 }

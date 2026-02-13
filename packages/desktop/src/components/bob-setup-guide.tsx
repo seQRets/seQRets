@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Bot, ExternalLink, Key, Check, AlertCircle } from 'lucide-react';
 import { setApiKey } from '@/lib/bob-api';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { openUrl } from '@tauri-apps/plugin-opener';
 
 interface BobSetupGuideProps {
   onKeyConfigured: () => void;
@@ -29,8 +30,8 @@ export function BobSetupGuide({ onKeyConfigured }: BobSetupGuideProps) {
   };
 
   return (
-    <div className="flex flex-col h-full items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-muted/50">
+    <div className="flex flex-col h-full items-center justify-center p-0 overflow-hidden">
+      <Card className="w-full bg-muted/50">
         <CardHeader className="text-center">
           <div className="mx-auto mb-3 h-12 w-12 rounded-full bg-muted flex items-center justify-center">
             <Bot className="h-6 w-6" />
@@ -46,14 +47,13 @@ export function BobSetupGuide({ onKeyConfigured }: BobSetupGuideProps) {
               <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">1</div>
               <p>
                 Go to{' '}
-                <a
-                  href="https://aistudio.google.com/apikey"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary underline inline-flex items-center gap-1"
+                <button
+                  type="button"
+                  onClick={() => openUrl('https://aistudio.google.com/api-keys')}
+                  className="text-primary underline inline-flex items-center gap-1 cursor-pointer"
                 >
                   Google AI Studio <ExternalLink className="h-3 w-3" />
-                </a>{' '}
+                </button>{' '}
                 and sign in with your Google account.
               </p>
             </div>

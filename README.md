@@ -52,7 +52,7 @@ To restore your original secret, you must bring a specific number of these Qards
 - **Password Generator** — cryptographically secure 32-character passwords (88-character charset)
 - **Seed Phrase Generator** — generate valid BIP-39 mnemonic phrases
 - **Bitcoin Ticker** — live BTC/USD price display
-- **Bob AI Assistant** — Google Gemini-powered AI for setup guidance and questions (optional, user-provided API key)
+- **Bob AI Assistant** — Google Gemini-powered AI for setup guidance and questions (optional, user-provided API key). Can be disconnected at any time by removing the API key from within the chat interface.
 
 ### 🧬 BIP-39 Optimization
 Seed phrases are automatically detected and converted to compact binary entropy before encryption. A 24-word phrase (~150 characters) becomes just 32 bytes, dramatically reducing QR code size.
@@ -219,7 +219,8 @@ Produces `seQRets_0.9.0_aarch64.dmg` in `packages/desktop/src-tauri/target/relea
 Bob is an AI assistant that can answer questions about seQRets, Bitcoin security, and inheritance planning. It's entirely optional.
 
 - **Web app:** Set `GEMINI_API_KEY` in a `.env.local` file at the project root
-- **Desktop app:** Click "Ask Bob" → follow the setup guide to enter your free Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+- **Desktop app:** Click "Ask Bob" → follow the setup guide to enter your free Gemini API key from [Google AI Studio](https://aistudio.google.com/api-keys)
+- **Remove API key:** Click "Remove API Key" at the bottom of the Bob chat to disconnect the assistant and delete the stored key. You can re-add a key at any time.
 
 Your API key is stored locally and never sent to any server other than Google's Gemini API.
 

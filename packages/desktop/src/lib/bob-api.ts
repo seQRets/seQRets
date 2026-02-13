@@ -54,7 +54,7 @@ Version 0.9.0 "Pyre" — Available as a web app (Next.js) and native desktop app
 - **Password Generator** — cryptographically secure 32-character passwords.
 - **Seed Phrase Generator** — generate valid BIP-39 mnemonic phrases (12 or 24 words).
 - **Bitcoin Ticker** — live BTC/USD price display.
-- **Bob AI Assistant** — Google Gemini-powered AI for setup guidance and questions (optional, user-provided API key).
+- **Bob AI Assistant** — Google Gemini-powered AI for setup guidance and questions (optional, user-provided API key). Users can disconnect Bob and remove their API key at any time via the "Remove API Key" link at the bottom of the chat interface.
 
 ## How to Use seQRets
 
@@ -182,8 +182,13 @@ export async function askBob(
     systemInstruction: SYSTEM_PROMPT,
   });
 
+  // Gemini requires the first history message to have role 'user'.
+  // Strip any leading 'model' messages (e.g. the UI welcome greeting).
+  const firstUserIdx = history.findIndex(m => m.role === 'user');
+  const trimmedHistory = firstUserIdx >= 0 ? history.slice(firstUserIdx) : [];
+
   const chat = model.startChat({
-    history: history.map(m => ({
+    history: trimmedHistory.map(m => ({
       role: m.role === 'model' ? 'model' : 'user',
       parts: [{ text: m.content }],
     })),
@@ -191,14 +196,47 @@ export async function askBob(
 
   try {
     const result = await chat.sendMessage(question);
-    return result.response.text();
+    const response = result.response;
+
+    // Check for blocked responses before calling .text()
+    if (response.promptFeedback?.blockReason) {
+      console.warn('Prompt blocked:', response.promptFeedback);
+      return "I'm sorry, I wasn't able to process that question. Could you try rephrasing it?";
+    }
+
+    const candidate = response.candidates?.[0];
+    if (!candidate) {
+      return "I'm sorry, I didn't get a response. Please try again.";
+    }
+
+    // Check for safety or other finish reason blocks
+    const finishReason = candidate.finishReason;
+    if (finishReason && !['STOP', 'MAX_TOKENS'].includes(finishReason)) {
+      console.warn('Response blocked, finishReason:', finishReason);
+      return "I'm sorry, I wasn't able to answer that question. Could you try rephrasing it?";
+    }
+
+    // Safely extract text
+    const text = candidate.content?.parts?.map(p => p.text).join('') || '';
+    if (!text) {
+      return "I'm sorry, I received an empty response. Please try again.";
+    }
+
+    return text;
   } catch (e: any) {
     console.error('Bob API error:', e);
-    if (e.message?.includes('API_KEY_INVALID') || e.message?.includes('401')) {
+    const msg = e.message || '';
+    if (msg.includes('API_KEY_INVALID') || msg.includes('401') || msg.includes('PERMISSION_DENIED')) {
       throw new Error('Invalid API key. Please check your Gemini API key and try again.');
     }
-    if (e.message?.includes('503')) {
-      throw new Error("I apologize, but the AI service is temporarily unavailable. Please try again in a few moments.");
+    if (msg.includes('429') || msg.includes('RATE_LIMIT') || msg.includes('RESOURCE_EXHAUSTED')) {
+      throw new Error("Too many requests. Please wait a moment and try again.");
+    }
+    if (msg.includes('503') || msg.includes('UNAVAILABLE')) {
+      throw new Error("The AI service is temporarily unavailable. Please try again in a few moments.");
+    }
+    if (msg.includes('404') || msg.includes('NOT_FOUND')) {
+      throw new Error("The AI model could not be found. The service may be updating — please try again later.");
     }
     throw new Error("I'm having trouble thinking right now. Please try asking your question again.");
   }

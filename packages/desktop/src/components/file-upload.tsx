@@ -1,15 +1,17 @@
 import { useState, useRef, DragEvent } from 'react';
 import { cn } from '@/lib/utils';
-import { Camera, FileUp, TextCursorInput } from 'lucide-react';
+import { Camera, CreditCard, FileUp, FolderOpen, TextCursorInput } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface FileUploadProps {
   onFilesAdded: (files: File[]) => void;
   onCameraOpen: () => void;
   onManualOpen: () => void;
+  onImportVault?: () => void;
+  onSmartCardRead?: () => void;
 }
 
-export function FileUpload({ onFilesAdded, onCameraOpen, onManualOpen }: FileUploadProps) {
+export function FileUpload({ onFilesAdded, onCameraOpen, onManualOpen, onImportVault, onSmartCardRead }: FileUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,7 +64,7 @@ export function FileUpload({ onFilesAdded, onCameraOpen, onManualOpen }: FileUpl
         <div
             className={cn(
                 'relative flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors duration-200 ease-in-out',
-                isDragging ? 'border-primary bg-primary/10' : 'border-muted-foreground/40 hover:border-primary/50 hover:bg-muted'
+                isDragging ? 'border-primary bg-primary/10' : 'border-muted-foreground/40 dark:border-[#827b6f] hover:border-primary/50 hover:bg-muted'
             )}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
@@ -82,16 +84,27 @@ export function FileUpload({ onFilesAdded, onCameraOpen, onManualOpen }: FileUpl
                 onChange={handleFileSelect}
             />
         </div>
-        <div className="flex justify-center items-center gap-2">
-            <p className="text-sm text-muted-foreground">or use another method:</p>
-             <Button variant="outline" onClick={onManualOpen}>
-                <TextCursorInput className="mr-2 h-4 w-4" />
-                Manual Text Entry
+        <div className="grid grid-cols-4 gap-2">
+            <Button variant="outline" onClick={onManualOpen} className="w-full text-xs px-2 dark:bg-[#232122] dark:text-white dark:border-[#232122] dark:hover:bg-[#605c53] dark:hover:text-white dark:hover:border-[#605c53]">
+                <TextCursorInput className="mr-1.5 h-4 w-4 shrink-0" />
+                Paste Text
             </Button>
-            <Button variant="outline" onClick={onCameraOpen}>
-                <Camera className="mr-2 h-4 w-4" />
-                Scan with Camera
+            <Button variant="outline" onClick={onCameraOpen} className="w-full text-xs px-2 dark:bg-[#232122] dark:text-white dark:border-[#232122] dark:hover:bg-[#605c53] dark:hover:text-white dark:hover:border-[#605c53]">
+                <Camera className="mr-1.5 h-4 w-4 shrink-0" />
+                Scan QR
             </Button>
+            {onImportVault && (
+              <Button variant="outline" onClick={onImportVault} className="w-full text-xs px-2 dark:bg-[#232122] dark:text-white dark:border-[#232122] dark:hover:bg-[#605c53] dark:hover:text-white dark:hover:border-[#605c53]">
+                  <FolderOpen className="mr-1.5 h-4 w-4 shrink-0" />
+                  Import Vault
+              </Button>
+            )}
+            {onSmartCardRead && (
+              <Button variant="outline" onClick={onSmartCardRead} className="w-full text-xs px-2 bg-[#cbc5ba] border-[#cbc5ba] hover:bg-[#b5ad9f] hover:border-[#b5ad9f] dark:bg-[#605c53] dark:text-white dark:border-black dark:hover:bg-[#232122] dark:hover:text-white dark:hover:border-black">
+                  <CreditCard className="mr-1.5 h-4 w-4 shrink-0" />
+                  Smart Card
+              </Button>
+            )}
         </div>
     </div>
   );

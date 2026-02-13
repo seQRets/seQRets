@@ -399,7 +399,9 @@ export function SmartCardDialog({
                     className={cn(
                       'w-full text-left text-sm flex items-center justify-between p-2 rounded-md transition-colors',
                       'hover:bg-muted/50',
-                      selectedItemIndex === item.index && 'bg-accent/20 border border-accent'
+                      selectedItemIndex === item.index
+                        ? 'bg-accent/30 border border-accent dark:bg-accent/20 dark:border-accent'
+                        : 'border border-transparent'
                     )}
                   >
                     <div className="flex items-center gap-2">

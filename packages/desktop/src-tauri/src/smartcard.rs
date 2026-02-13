@@ -31,10 +31,9 @@ const INS_SET_PIN: u8 = 0x22;
 /// Maximum bytes per APDU data field
 const CHUNK_SIZE: usize = 240;
 
-/// Data type constants
+/// Data type constants (applet-level; multi-item is detected by JSON parsing)
 const TYPE_SHARE: u8 = 0x01;
 const TYPE_VAULT: u8 = 0x02;
-const TYPE_MULTI: u8 = 0x03;
 
 /// Approximate usable card capacity in bytes
 const CARD_CAPACITY: usize = 8192;
@@ -255,8 +254,9 @@ fn read_raw_card_data(card: &Card) -> Result<(Vec<u8>, u8, String), String> {
     Ok((all_data, data_type_byte, label))
 }
 
-/// Parse card data into a list of CardItem, handling both legacy
-/// single-item format and new multi-item JSON array format.
+/// Parse card data into a list of CardItem.
+/// First tries to parse as a JSON array (multi-item format).
+/// Falls back to treating it as a legacy single-item blob.
 fn parse_card_items(raw_data: &[u8], type_byte: u8, label: &str) -> Result<Vec<CardItem>, String> {
     if raw_data.is_empty() {
         return Ok(Vec::new());
@@ -265,24 +265,24 @@ fn parse_card_items(raw_data: &[u8], type_byte: u8, label: &str) -> Result<Vec<C
     let data_string = String::from_utf8(raw_data.to_vec())
         .map_err(|_| "Card data is not valid UTF-8".to_string())?;
 
-    if type_byte == TYPE_MULTI {
-        // Multi-item format: JSON array of CardItem
-        let items: Vec<CardItem> = serde_json::from_str(&data_string)
-            .map_err(|e| format!("Failed to parse multi-item data: {}", e))?;
-        Ok(items)
-    } else {
-        // Legacy single-item format: wrap in a Vec
-        let item_type = match type_byte {
-            TYPE_SHARE => "share".to_string(),
-            TYPE_VAULT => "vault".to_string(),
-            _ => "unknown".to_string(),
-        };
-        Ok(vec![CardItem {
-            item_type,
-            label: label.to_string(),
-            data: data_string,
-        }])
+    // Try multi-item JSON array format first
+    if let Ok(items) = serde_json::from_str::<Vec<CardItem>>(&data_string) {
+        if !items.is_empty() {
+            return Ok(items);
+        }
     }
+
+    // Legacy single-item format: wrap in a Vec
+    let item_type = match type_byte {
+        TYPE_SHARE => "share".to_string(),
+        TYPE_VAULT => "vault".to_string(),
+        _ => "unknown".to_string(),
+    };
+    Ok(vec![CardItem {
+        item_type,
+        label: label.to_string(),
+        data: data_string,
+    }])
 }
 
 /// Serialize a list of CardItem to JSON, then write to card as TYPE_MULTI.
@@ -305,7 +305,7 @@ fn write_items_to_card(card: &Card, items: &[CardItem]) -> Result<(), String> {
         items.len(),
         if items.len() == 1 { "" } else { "s" }
     );
-    write_data_to_card(card, data_bytes, TYPE_MULTI, &summary_label)
+    write_data_to_card(card, data_bytes, TYPE_VAULT, &summary_label)
 }
 
 // ── Tauri commands ──────────────────────────────────────────────────────
