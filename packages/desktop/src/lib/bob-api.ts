@@ -18,11 +18,11 @@ Version 0.9.0 "Pyre" — Available as a web app (Next.js) and native desktop app
 - **Password Generator:** A built-in tool to generate a high-entropy, 32-character password. Passwords must be at least 24 characters and include uppercase, lowercase, numbers, and special characters. The password field shows green when valid, red when not.
 - **Seed Phrase Generator:** A tool to generate a new 12 or 24-word BIP-39 mnemonic seed phrase.
 - **BIP-39 Optimization:** Seed phrases are automatically detected and converted to compact binary entropy before encryption. A 24-word phrase (~150 characters) becomes just 32 bytes, dramatically reducing QR code size.
-- **Optional Keyfile:** For enhanced security, you can use any file as an additional "key." Both the password AND the keyfile are required for recovery.
+- **Optional Keyfile:** For enhanced security, you can use any file as an additional "key." Both the password AND the keyfile are required for recovery. Users can generate a keyfile and either download it or save it to a smart card. Keyfiles can also be loaded from a smart card anywhere keyfiles are accepted (desktop only).
 - **Export Vault File:** Export your encrypted Qards as a local .seqrets file for safekeeping in iCloud, Google Drive, or a USB drive.
 - **Import Vault File:** Import a previously exported .seqrets file to restore your Qards into the app.
 - **Flexible Backup Options:** Download your Qards as printable QR code images (PNG), as raw text files (TXT), or both.
-- **Write to JavaCard Smartcard:** Store individual shares or full vaults on JCOP3 hardware smartcards with optional PIN protection (desktop only).
+- **Write to JavaCard Smartcard:** Store individual shares, full vaults, or keyfiles on JCOP3 hardware smartcards with optional PIN protection (desktop only).
 - **Secure Memory Wipe:** seQRets automatically overwrites sensitive data in memory with random data immediately after use.
 
 ### Inheritance Plan
@@ -44,11 +44,12 @@ Version 0.9.0 "Pyre" — Available as a web app (Next.js) and native desktop app
 
 ### JavaCard Smartcard Support (Desktop Only)
 - Store Shamir shares, encrypted vaults, or inheritance plans on JCOP3 JavaCard smartcards (e.g., J3H145).
-- **Multi-item storage** — each card can hold multiple items (shares, vaults, instructions) up to ~8 KB total. New writes append to existing data on the card.
+- **Multi-item storage** — each card can hold multiple items (shares, vaults, keyfiles, instructions) up to ~8 KB total. New writes append to existing data on the card.
 - **Per-item management** — view stored items, select individual items for import, and delete individual items from the Smart Card Manager page.
+- **Keyfile smart card storage** — write keyfiles to a card from the Smart Card Manager page; load keyfiles from a card anywhere keyfiles are accepted (Secure Secret, Restore Secret, Inheritance Plan).
 - **Optional PIN protection** (8-16 characters) — card locks after 5 wrong attempts. A real-time PIN retry countdown (color-coded: gray → amber → red) warns users of remaining attempts.
 - **Generate PIN** button — uses CSPRNG to create a secure 16-character PIN (upper/lowercase, numbers, symbols) with copy-to-clipboard and reveal/hide toggle.
-- **Smart Card Manager** page for PIN management, per-item deletion, and factory reset.
+- **Smart Card Manager** page for PIN management, keyfile writing, per-item deletion, and factory reset.
 - Requires a PC/SC-compatible USB smart card reader.
 
 ### Helper Tools
@@ -136,7 +137,7 @@ const cryptoDetails = `
 
 *   **JavaCard Smartcard:**
     *   JCOP3 J3H145 cards with ~110KB usable EEPROM.
-    *   Maximum data per card: 8,192 bytes (8 KB). Each card can hold multiple items (shares, vaults, instructions) stored as a JSON array. New writes append to existing data.
+    *   Maximum data per card: 8,192 bytes (8 KB). Each card can hold multiple items (shares, vaults, keyfiles, instructions) stored as a JSON array. New writes append to existing data.
     *   Communication via APDU over PC/SC (Rust pcsc crate).
     *   Optional PIN protection (8-16 characters, 5 wrong attempts locks the card). Real-time PIN retry countdown displayed after each failed attempt.
     *   CSPRNG-powered Generate PIN button creates secure 16-character PINs with copy and reveal/hide support.
@@ -159,7 +160,7 @@ You MUST use the provided context from the seQRets documentation as your primary
 
 4.  **On Inheritance Planning:** Guide users on structuring their plan. The key is to eliminate single points of failure. Recommend the "Split Trust" model where Qards are distributed among multiple trusted parties. The password should NEVER be stored with the Qards. The Inheritance Plan feature allows users to encrypt a document (PDF, DOCX, etc.) with instructions for heirs — this is separate from the Qard splitting and uses the same XChaCha20-Poly1305 encryption. Users can save the encrypted plan as a file or write it to a smart card.
 
-5.  **On Smart Cards:** Each JavaCard smartcard can hold multiple items (shares, vaults, or inheritance plans) up to ~8 KB total. New writes append to existing data on the card. Users can view stored items, select individual items for import, and delete individual items from the Smart Card Manager page. PIN protection is optional but recommended. The card locks permanently after 5 wrong PIN attempts — the only recovery is a factory reset which erases all data. A real-time PIN retry countdown (color-coded warnings) is shown after each incorrect attempt, both on the Smart Card Manager page and in the smart card dialog. Users can generate a secure 16-character PIN using the built-in CSPRNG Generate PIN button.
+5.  **On Smart Cards:** Each JavaCard smartcard can hold multiple items (shares, vaults, keyfiles, or inheritance plans) up to ~8 KB total. New writes append to existing data on the card. Users can view stored items, select individual items for import, and delete individual items from the Smart Card Manager page. Keyfiles can be written to a card from the Smart Card Manager page and loaded from a card anywhere keyfiles are accepted (Secure Secret, Restore Secret, Inheritance Plan). PIN protection is optional but recommended. The card locks permanently after 5 wrong PIN attempts — the only recovery is a factory reset which erases all data. A real-time PIN retry countdown (color-coded warnings) is shown after each incorrect attempt, both on the Smart Card Manager page and in the smart card dialog. Users can generate a secure 16-character PIN using the built-in CSPRNG Generate PIN button.
 
 6.  **On Passwords:** The app requires passwords of at least 24 characters with uppercase, lowercase, numbers, and special characters. The built-in password generator creates 32-character passwords. The password field turns green when valid and red when invalid.
 

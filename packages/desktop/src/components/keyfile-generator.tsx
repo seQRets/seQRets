@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Download, File, Loader2, RefreshCw, TriangleAlert, Wand2, X } from 'lucide-react';
+import { CheckCircle, CreditCard, Download, File, Loader2, RefreshCw, TriangleAlert, Wand2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Buffer } from 'buffer';
@@ -8,30 +8,33 @@ import { saveFileNative, base64ToUint8Array, BIN_FILTERS } from '@/lib/native-sa
 
 interface KeyfileGeneratorProps {
   onKeyfileGenerated: (base64Keyfile: string | null) => void;
+  onSmartCardSave?: () => void;
 }
 
 const KEYFILE_BYTE_LENGTH = 32; // 256 bits, a standard size for cryptographic keys
 
-export function KeyfileGenerator({ onKeyfileGenerated }: KeyfileGeneratorProps) {
+export function KeyfileGenerator({ onKeyfileGenerated, onSmartCardSave }: KeyfileGeneratorProps) {
   const [keyfileData, setKeyfileData] = useState<string | null>(null);
   const [isGenerated, setIsGenerated] = useState(false);
   const { toast } = useToast();
+  const hasGenerated = useRef(false);
 
-  const handleGenerate = () => {
+  // Auto-generate keyfile on mount
+  useEffect(() => {
+    if (hasGenerated.current) return;
+    hasGenerated.current = true;
     try {
       const randomBytes = window.crypto.getRandomValues(new Uint8Array(KEYFILE_BYTE_LENGTH));
       const base64Keyfile = Buffer.from(randomBytes).toString('base64');
-      
+
       setKeyfileData(base64Keyfile);
       onKeyfileGenerated(base64Keyfile);
       setIsGenerated(true);
 
       toast({
         title: 'Keyfile Generated & Applied',
-        description: 'A new keyfile has been generated and is ready for the encryption process.',
+        description: 'Download the keyfile or save it to a smart card for safekeeping.',
       });
-      // Automatically trigger download
-      handleDownload(base64Keyfile);
     } catch (e) {
       console.error("Failed to generate random bytes for keyfile:", e);
       toast({
@@ -40,7 +43,7 @@ export function KeyfileGenerator({ onKeyfileGenerated }: KeyfileGeneratorProps) 
         description: 'Could not generate a secure keyfile. Your browser may not support the required cryptographic functions.',
       });
     }
-  };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDownload = async (base64Data: string | null) => {
     if (!base64Data) return;
@@ -83,8 +86,18 @@ export function KeyfileGenerator({ onKeyfileGenerated }: KeyfileGeneratorProps) 
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => handleDownload(keyfileData)}>
-                <Download className="mr-2 h-4 w-4" /> Download Again
+                <Download className="mr-2 h-4 w-4" /> Download
             </Button>
+            {onSmartCardSave && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onSmartCardSave}
+                className="bg-[#cbc5ba] border-[#cbc5ba] hover:bg-[#b5ad9f] hover:border-[#b5ad9f] dark:bg-[#605c53] dark:text-white dark:border-black dark:hover:bg-[#232122] dark:hover:text-white dark:hover:border-black"
+              >
+                <CreditCard className="mr-2 h-4 w-4" /> Smart Card
+              </Button>
+            )}
             <Button variant="ghost" size="icon" onClick={handleReset} className="h-8 w-8">
               <X className="h-5 w-5" />
               <span className="sr-only">Remove keyfile</span>
@@ -96,14 +109,9 @@ export function KeyfileGenerator({ onKeyfileGenerated }: KeyfileGeneratorProps) 
   }
 
   return (
-    <div className="space-y-3">
-        <p className="text-sm text-muted-foreground">
-            A keyfile is a file containing random data that acts as a second password. It provides a massive security boost.
-        </p>
-        <Button onClick={handleGenerate} className="w-full bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
-            <Wand2 className="mr-2 h-4 w-4" />
-            Generate & Download Secure Keyfile
-        </Button>
+    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <Loader2 className="h-4 w-4 animate-spin" />
+      Generating keyfile...
     </div>
   );
 }

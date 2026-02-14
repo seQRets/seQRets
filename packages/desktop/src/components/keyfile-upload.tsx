@@ -1,6 +1,6 @@
 import { useState, useRef, DragEvent, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { FileUp, File, X } from 'lucide-react';
+import { FileUp, File, X, CreditCard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 
@@ -8,9 +8,10 @@ interface KeyfileUploadProps {
   onFileRead: (fileContent: string | null) => void;
   onFileNameChange: (fileName: string | null) => void;
   fileName: string | null;
+  onSmartCardLoad?: () => void;
 }
 
-export function KeyfileUpload({ onFileRead, onFileNameChange, fileName }: KeyfileUploadProps) {
+export function KeyfileUpload({ onFileRead, onFileNameChange, fileName, onSmartCardLoad }: KeyfileUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -134,7 +135,7 @@ export function KeyfileUpload({ onFileRead, onFileNameChange, fileName }: Keyfil
     <div
       className={cn(
         'relative flex flex-col items-center justify-center w-full p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors duration-200 ease-in-out',
-        isDragging ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 hover:bg-muted'
+        isDragging ? 'border-primary bg-primary/10' : 'border-border dark:border-[#827b6f] dark:bg-muted hover:border-primary/50 hover:bg-muted dark:hover:bg-black dark:hover:border-[#827b6f]'
       )}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
@@ -152,6 +153,20 @@ export function KeyfileUpload({ onFileRead, onFileNameChange, fileName }: Keyfil
         onChange={handleFileSelect}
         accept=".bin,.key"
       />
+      {onSmartCardLoad && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onSmartCardLoad();
+          }}
+          className="mt-3 text-xs px-2 bg-[#cbc5ba] border-[#cbc5ba] hover:bg-[#b5ad9f] hover:border-[#b5ad9f] dark:bg-[#605c53] dark:text-white dark:border-black dark:hover:bg-[#232122] dark:hover:text-white dark:hover:border-black"
+        >
+          <CreditCard className="mr-1.5 h-3.5 w-3.5 shrink-0" />
+          Smart Card
+        </Button>
+      )}
     </div>
   );
 }

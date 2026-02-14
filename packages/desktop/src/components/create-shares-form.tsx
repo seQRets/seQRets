@@ -21,6 +21,8 @@ import { KeyfileGenerator } from './keyfile-generator';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { KeyfileUpload } from './keyfile-upload';
+import { SmartCardDialog } from '@/components/smartcard-dialog';
+import type { CardItem } from '@/lib/smartcard';
 
 
 const QR_CAPACITY_WARNING = 900;
@@ -41,6 +43,8 @@ export function CreateSharesForm() {
   const [useKeyfile, setUseKeyfile] = useState(false);
   const [keyfile, setKeyfile] = useState<string | null>(null);
   const [keyfileName, setKeyfileName] = useState<string | null>(null);
+  const [isKeyfileSmartCardOpen, setIsKeyfileSmartCardOpen] = useState(false);
+  const [showKeyfileWriteSmartCard, setShowKeyfileWriteSmartCard] = useState(false);
   const [showSeedGenerator, setShowSeedGenerator] = useState(false);
   const [seedValidationStatus, setSeedValidationStatus] = useState<'valid' | 'invalid' | 'unchecked'>('unchecked');
   const [estimatedShareSize, setEstimatedShareSize] = useState(0);
@@ -63,6 +67,21 @@ export function CreateSharesForm() {
     } finally {
         setTimeout(() => valueSetter(''), 50);
     }
+  };
+
+  const handleKeyfileSmartCardRead = (cardItem: CardItem) => {
+    if (cardItem.item_type !== 'keyfile') {
+      toast({
+        variant: 'destructive',
+        title: 'Wrong Item Type',
+        description: `Expected a keyfile but got "${cardItem.item_type}". Please select a keyfile item.`,
+      });
+      return;
+    }
+    setKeyfile(cardItem.data);
+    setKeyfileName(`Smart Card${cardItem.label ? ` (${cardItem.label})` : ''}`);
+    setIsKeyfileSmartCardOpen(false);
+    toast({ title: 'Keyfile Loaded', description: 'Keyfile loaded from smart card.' });
   };
 
   useEffect(() => {
@@ -255,6 +274,7 @@ export function CreateSharesForm() {
   }
 
   return (
+    <>
     <Card className="shadow-lg">
       {generatedQrData === null ? (
         <>
@@ -396,17 +416,17 @@ export function CreateSharesForm() {
                       </div>
                       {useKeyfile && (
                         <div className="pt-2">
-                          <Tabs defaultValue="generate" className="w-full">
-                            <TabsList className="grid w-full grid-cols-2">
-                              <TabsTrigger value="generate">Generate Keyfile</TabsTrigger>
-                              <TabsTrigger value="upload">Upload Keyfile</TabsTrigger>
+                          <Tabs className="w-full">
+                            <TabsList className="grid w-full grid-cols-2 gap-2 bg-transparent p-0 h-auto">
+                              <TabsTrigger value="generate" className="bg-white text-foreground border border-border rounded-md py-2 shadow-sm hover:bg-primary/80 hover:text-primary-foreground hover:shadow-md transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md dark:bg-[#e8e1d5] dark:text-black dark:border-[#cbc5ba] dark:hover:bg-primary/80 dark:hover:text-primary-foreground dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground">Generate Keyfile</TabsTrigger>
+                              <TabsTrigger value="upload" className="bg-white text-foreground border border-border rounded-md py-2 shadow-sm hover:bg-primary/80 hover:text-primary-foreground hover:shadow-md transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md dark:bg-[#e8e1d5] dark:text-black dark:border-[#cbc5ba] dark:hover:bg-primary/80 dark:hover:text-primary-foreground dark:data-[state=active]:bg-primary dark:data-[state=active]:text-primary-foreground">Upload Keyfile</TabsTrigger>
                             </TabsList>
                             <TabsContent value="generate" className="pt-4">
-                              <KeyfileGenerator onKeyfileGenerated={setKeyfile} />
+                              <KeyfileGenerator onKeyfileGenerated={setKeyfile} onSmartCardSave={() => setShowKeyfileWriteSmartCard(true)} />
                             </TabsContent>
                             <TabsContent value="upload" className="pt-4">
                               <p className="text-sm text-muted-foreground mb-2">Select a file from your device to use as a keyfile. Any file will work, but larger, more random files are more secure.</p>
-                              <KeyfileUpload onFileRead={setKeyfile} onFileNameChange={setKeyfileName} fileName={keyfileName} />
+                              <KeyfileUpload onFileRead={setKeyfile} onFileNameChange={setKeyfileName} fileName={keyfileName} onSmartCardLoad={() => setIsKeyfileSmartCardOpen(true)} />
                             </TabsContent>
                           </Tabs>
                         </div>
@@ -542,6 +562,23 @@ export function CreateSharesForm() {
         </>
       )}
     </Card>
+
+    <SmartCardDialog
+      open={isKeyfileSmartCardOpen}
+      onOpenChange={setIsKeyfileSmartCardOpen}
+      mode="read"
+      onDataRead={handleKeyfileSmartCardRead}
+    />
+
+    <SmartCardDialog
+      open={showKeyfileWriteSmartCard}
+      onOpenChange={setShowKeyfileWriteSmartCard}
+      mode="write-vault"
+      writeData={keyfile || undefined}
+      writeLabel="Keyfile"
+      writeItemType="keyfile"
+    />
+    </>
   );
 }
 

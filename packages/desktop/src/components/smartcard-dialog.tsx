@@ -235,7 +235,7 @@ export function SmartCardDialog({
       setActionComplete(true);
       toast({
         title: 'Read from Smart Card!',
-        description: `${item.item_type === 'share' ? 'Share' : item.item_type === 'vault' ? 'Vault' : 'Item'} loaded from card${item.label ? ` (${item.label})` : ''}.`,
+        description: `${item.item_type === 'share' ? 'Share' : item.item_type === 'vault' ? 'Vault' : item.item_type === 'keyfile' ? 'Keyfile' : item.item_type === 'instructions' ? 'Instructions' : 'Item'} loaded from card${item.label ? ` (${item.label})` : ''}.`,
       });
       onDataRead?.(item);
     } catch (e: any) {
@@ -289,7 +289,7 @@ export function SmartCardDialog({
 
   const description = isWriteMode
     ? `Save your ${writeLabel ? writeLabel.toLowerCase() : (mode === 'write-share' ? 'Shamir share' : 'encrypted vault')} to a JavaCard smartcard for secure physical backup.`
-    : 'Load a share or vault from a JavaCard smartcard.';
+    : 'Load data from a JavaCard smartcard.';
 
   // Estimate whether the new item will fit
   const newItemJsonOverhead = 80;

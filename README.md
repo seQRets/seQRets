@@ -25,10 +25,11 @@ To restore your original secret, you must bring a specific number of these Qards
 ### 🔒 Secure Your Secret
 - Enter any text-based secret (seed phrases, private keys, passwords, etc.)
 - Encrypt with a strong password (24+ characters required)
-- Optionally add a **keyfile** as a second factor — both password AND keyfile are required for recovery
+- Optionally add a **keyfile** as a second factor — both password AND keyfile are required for recovery; generate a keyfile and **download** or **save to Smart Card** (desktop only)
+- **Keyfile smart card storage** — write keyfiles to JavaCard for tamper-resistant physical backup; load keyfiles from a smart card anywhere keyfiles are accepted (desktop only)
 - Split into configurable Qards (e.g., 2-of-3, 3-of-5 threshold)
 - Download Qards as QR code images or export as a `.seqrets` vault file
-- **Write to JavaCard smartcard** — store individual shares, full vaults, or encrypted inheritance plans on JCOP3 hardware (desktop only)
+- **Write to JavaCard smartcard** — store individual shares, full vaults, keyfiles, or encrypted inheritance plans on JCOP3 hardware (desktop only)
 
 ### 🔓 Restore Your Secret
 - **Drag & drop** QR code images from your file system
@@ -120,9 +121,9 @@ The desktop app supports storing Shamir shares, encrypted vaults, and encrypted 
 - **Reader:** Any PC/SC-compatible USB smart card reader
 
 ### Features
-- **Write individual shares**, **full vaults**, or **encrypted inheritance plans** to a card via APDU over PC/SC
-- **Read back** shares or vaults directly from a card into the restore workflow
-- **Multi-item storage** — store multiple items (shares, vaults, instructions) on a single card up to ~8 KB; new writes append to existing data
+- **Write individual shares**, **full vaults**, **keyfiles**, or **encrypted inheritance plans** to a card via APDU over PC/SC
+- **Read back** shares, vaults, or keyfiles directly from a card into the restore workflow
+- **Multi-item storage** — store multiple items (shares, vaults, keyfiles, instructions) on a single card up to ~8 KB; new writes append to existing data
 - **Per-item management** — view, select, and delete individual items from the Smart Card Manager page
 - **Optional PIN protection** (8-16 characters) — card locks after 5 wrong attempts
 - **PIN retry countdown** — real-time display of remaining PIN attempts (color-coded: gray → amber → red) across both the Smart Card Manager page and the smart card dialog

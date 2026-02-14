@@ -54,6 +54,7 @@ export default function InstructionsPage() {
   const [isEncrypting, startEncryptTransition] = useTransition();
   const [encryptedResult, setEncryptedResult] = useState<EncryptedInstruction | null>(null);
   const [showSmartCardDialog, setShowSmartCardDialog] = useState(false);
+  const [showEncryptKeyfileSmartCard, setShowEncryptKeyfileSmartCard] = useState(false);
 
   // ── Decrypt state ──
   const [decryptStep, setDecryptStep] = useState(1);
@@ -66,6 +67,7 @@ export default function InstructionsPage() {
   const [decryptUseKeyfile, setDecryptUseKeyfile] = useState(false);
   const [decryptKeyfile, setDecryptKeyfile] = useState<string | null>(null);
   const [decryptKeyfileName, setDecryptKeyfileName] = useState<string | null>(null);
+  const [showDecryptKeyfileSmartCard, setShowDecryptKeyfileSmartCard] = useState(false);
   const [isDecrypting, startDecryptTransition] = useTransition();
 
   const cryptoWorkerRef = useRef<Worker>();
@@ -189,6 +191,28 @@ export default function InstructionsPage() {
     setDecryptFileName(`Smart Card: ${cardItem.label || 'Inheritance Plan'}`);
     setShowDecryptSmartCardDialog(false);
     toast({ title: 'Loaded from Smart Card', description: 'Encrypted instructions loaded successfully.' });
+  };
+
+  const handleEncryptKeyfileSCRead = (cardItem: CardItem) => {
+    if (cardItem.item_type !== 'keyfile') {
+      toast({ variant: 'destructive', title: 'Wrong Item Type', description: `Expected a keyfile but got "${cardItem.item_type}".` });
+      return;
+    }
+    setEncryptKeyfile(cardItem.data);
+    setEncryptKeyfileName(`Smart Card${cardItem.label ? ` (${cardItem.label})` : ''}`);
+    setShowEncryptKeyfileSmartCard(false);
+    toast({ title: 'Keyfile Loaded', description: 'Keyfile loaded from smart card.' });
+  };
+
+  const handleDecryptKeyfileSCRead = (cardItem: CardItem) => {
+    if (cardItem.item_type !== 'keyfile') {
+      toast({ variant: 'destructive', title: 'Wrong Item Type', description: `Expected a keyfile but got "${cardItem.item_type}".` });
+      return;
+    }
+    setDecryptKeyfile(cardItem.data);
+    setDecryptKeyfileName(`Smart Card${cardItem.label ? ` (${cardItem.label})` : ''}`);
+    setShowDecryptKeyfileSmartCard(false);
+    toast({ title: 'Keyfile Loaded', description: 'Keyfile loaded from smart card.' });
   };
 
   const handleDecrypt = () => {
@@ -319,7 +343,7 @@ export default function InstructionsPage() {
                           </div>
                           {encryptUseKeyfile && (
                             <div className="pt-2">
-                              <KeyfileUpload onFileRead={setEncryptKeyfile} onFileNameChange={setEncryptKeyfileName} fileName={encryptKeyfileName} />
+                              <KeyfileUpload onFileRead={setEncryptKeyfile} onFileNameChange={setEncryptKeyfileName} fileName={encryptKeyfileName} onSmartCardLoad={() => setShowEncryptKeyfileSmartCard(true)} />
                             </div>
                           )}
                         </div>
@@ -469,7 +493,7 @@ export default function InstructionsPage() {
                         <div
                           className={cn(
                             'relative flex flex-col items-center justify-center w-full p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors duration-200 ease-in-out',
-                            isDragging ? 'border-primary bg-primary/10' : 'border-muted-foreground/25 bg-muted/60 hover:border-primary/50 hover:bg-muted'
+                            isDragging ? 'border-primary bg-primary/10' : 'border-muted-foreground/25 bg-muted/60 dark:border-[#827b6f] dark:bg-muted hover:border-primary/50 hover:bg-muted dark:hover:bg-black dark:hover:border-[#827b6f]'
                           )}
                           onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); }}
                           onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); }}
@@ -573,7 +597,7 @@ export default function InstructionsPage() {
                           </div>
                           {decryptUseKeyfile && (
                             <div className="pt-2">
-                              <KeyfileUpload onFileRead={setDecryptKeyfile} onFileNameChange={setDecryptKeyfileName} fileName={decryptKeyfileName} />
+                              <KeyfileUpload onFileRead={setDecryptKeyfile} onFileNameChange={setDecryptKeyfileName} fileName={decryptKeyfileName} onSmartCardLoad={() => setShowDecryptKeyfileSmartCard(true)} />
                             </div>
                           )}
                         </div>
@@ -649,6 +673,22 @@ export default function InstructionsPage() {
         onOpenChange={setShowDecryptSmartCardDialog}
         mode="read"
         onDataRead={handleDecryptSmartCardRead}
+      />
+
+      {/* Smart Card Dialog for loading keyfile (encrypt tab) */}
+      <SmartCardDialog
+        open={showEncryptKeyfileSmartCard}
+        onOpenChange={setShowEncryptKeyfileSmartCard}
+        mode="read"
+        onDataRead={handleEncryptKeyfileSCRead}
+      />
+
+      {/* Smart Card Dialog for loading keyfile (decrypt tab) */}
+      <SmartCardDialog
+        open={showDecryptKeyfileSmartCard}
+        onOpenChange={setShowDecryptKeyfileSmartCard}
+        mode="read"
+        onDataRead={handleDecryptKeyfileSCRead}
       />
     </main>
   );

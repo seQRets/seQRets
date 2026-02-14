@@ -41,6 +41,7 @@ import {
   Eye,
   EyeOff,
   Copy,
+  Key,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/header';
@@ -48,6 +49,8 @@ import { useTheme } from '@/components/theme-provider';
 import logoLight from '@/assets/icons/logo-light.png';
 import logoDark from '@/assets/icons/logo-dark.png';
 import { useToast } from '@/hooks/use-toast';
+import { KeyfileUpload } from '@/components/keyfile-upload';
+import { SmartCardDialog } from '@/components/smartcard-dialog';
 import {
   listReaders,
   getCardStatus,
@@ -100,6 +103,11 @@ export default function SmartCardPage() {
   // ── Delete item state ──────────────────────────────────────────
   const [isDeletingItem, setIsDeletingItem] = useState(false);
   const [deletingItemIndex, setDeletingItemIndex] = useState<number | null>(null);
+
+  // ── Keyfile write state ─────────────────────────────────────────
+  const [keyfileData, setKeyfileData] = useState<string | null>(null);
+  const [keyfileName, setKeyfileName] = useState<string | null>(null);
+  const [showKeyfileSmartCard, setShowKeyfileSmartCard] = useState(false);
 
   // ── General state ────────────────────────────────────────────────
   const [actionError, setActionError] = useState<string | null>(null);
@@ -557,6 +565,38 @@ export default function SmartCardPage() {
           )}
 
           {/* ═══════════════════════════════════════════════════════════════
+              C. Write Keyfile to Card
+              ═══════════════════════════════════════════════════════════ */}
+          {cardStatus && !needsPinUnlock && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Key className="h-5 w-5" />
+                  Write Keyfile to Card
+                </CardTitle>
+                <CardDescription>
+                  Store a keyfile (.bin) on this smart card for secure physical backup.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <KeyfileUpload
+                  onFileRead={setKeyfileData}
+                  onFileNameChange={setKeyfileName}
+                  fileName={keyfileName}
+                />
+                <Button
+                  onClick={() => setShowKeyfileSmartCard(true)}
+                  disabled={!keyfileData}
+                  className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md"
+                >
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Write to Card
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* ═══════════════════════════════════════════════════════════════
               PIN Unlock (if card is locked)
               ═══════════════════════════════════════════════════════════ */}
           {cardStatus && needsPinUnlock && (
@@ -951,6 +991,23 @@ export default function SmartCardPage() {
           )}
         </div>
       </div>
+
+      {/* ── Smart Card Dialog for writing keyfile ── */}
+      <SmartCardDialog
+        open={showKeyfileSmartCard}
+        onOpenChange={(open) => {
+          setShowKeyfileSmartCard(open);
+          if (!open) {
+            setKeyfileData(null);
+            setKeyfileName(null);
+            loadCardStatus();
+          }
+        }}
+        mode="write-vault"
+        writeData={keyfileData || undefined}
+        writeLabel={keyfileName || 'Keyfile'}
+        writeItemType="keyfile"
+      />
     </main>
   );
 }
