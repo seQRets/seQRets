@@ -29,6 +29,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "createUpdaterArtifacts": true,
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -38,6 +39,17 @@
     ],
     "macOS": {
       "entitlements": "./Entitlements.plist"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDRGRkI0OENBRUQ1NkNENDQKUldSRXpWYnR5a2o3VDJNR1hjdUxIYUdGMU9TZnliK2dTRFBLK1JJeXlCQjZhNEtnWWN6WEJJcmkK",
+      "endpoints": [
+        "https://github.com/jalapeno4332/seQRets-Releases/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
     }
   }
 }

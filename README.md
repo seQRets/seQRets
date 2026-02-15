@@ -20,6 +20,50 @@ To restore your original secret, you must bring a specific number of these Qards
 
 **Your security is your responsibility.** seQRets gives you full control over your digital assets. Misplacing your password or the required number of Qards can result in the **permanent loss** of your secret. The developers have no access to your data, cannot recover your password, and cannot restore your secrets. Manage your Qards and password with extreme care.
 
+## 📦 Get seQRets
+
+### 🌐 Web App (Free)
+Use seQRets directly in your browser — no installation required.
+
+**[Launch seQRets Web App →](https://seqrets.app)**
+
+### 🖥️ Desktop App
+
+| | Build It Yourself (Free) | Official Signed Release |
+|---|---|---|
+| **Cost** | Free | TBD |
+| **Source** | Compile from this repo | Signed pre-built binary |
+| **Platforms** | Any (with Rust + Node.js) | macOS, Windows, Linux |
+| **Auto-updates** | ✗ | ✓ |
+| **Code signed** | ✗ | ✓ |
+| **Smart card** | ✗ | ✓ Included |
+| **Portable card reader** | ✗ | ✓ Included |
+
+#### Build It Yourself
+
+Clone this repo and compile the desktop app — it's fully open source under AGPLv3:
+
+```bash
+git clone https://github.com/jalapeno4332/seQRets.git
+cd seQRets/packages/desktop
+npm install
+npm run desktop:build
+```
+
+#### Official Signed Release
+
+Purchase an official release and receive:
+- ✅ Code-signed binary for your platform (macOS, Windows, or Linux)
+- ✅ Automatic updates — always stay on the latest version
+- ✅ A complementary JavaCard-based smart card for secure key storage
+- ✅ A portable USB smart card reader
+
+**[Purchase Official Release →](https://seqrets.app/purchase)**
+
+> 💡 **Why pay when it's open source?** You're paying for the convenience of signed builds with automatic updates, plus physical hardware (smart card + reader) shipped to your door. The source code is and always will be free.
+
+---
+
 ## ✨ Features
 
 ### 🔒 Secure Your Secret
