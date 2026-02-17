@@ -1,13 +1,14 @@
 
 'use client';
 
-import React, { useState, useRef, useEffect, useTransition } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Bot, Loader2, Send, User, ExternalLink, Eraser } from "lucide-react";
+import { Bot, Loader2, Send, User, ExternalLink, KeyRound, Eraser } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { askBob } from '@/ai/flows/ask-bob-flow';
+import { askBob, removeApiKey } from '@/ai/flows/ask-bob-flow';
 import { AskBobInput } from '@/lib/types';
+import { BobSetupGuide } from '@/app/components/bob-setup-guide';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -20,6 +21,14 @@ type ChatMessage = {
 };
 
 const CHAT_HISTORY_KEY = 'bob-chat-history';
+
+function getApiKey(): string | null {
+    try {
+        return localStorage.getItem('gemini-api-key');
+    } catch {
+        return null;
+    }
+}
 
 function getChatHistory(): ChatMessage[] {
     try {
@@ -59,8 +68,12 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
         return [];
     });
     const [message, setMessage] = useState('');
-    const [isPending, startTransition] = useTransition();
+    const [isPending, setIsPending] = useState(false);
     const viewportRef = useRef<HTMLDivElement>(null);
+    const [hasApiKey, setHasApiKey] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        return !!getApiKey();
+    });
 
     // Scroll the chat viewport to the bottom
     const scrollToBottom = () => {
@@ -101,6 +114,17 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
         return () => window.removeEventListener('storage', handleStorage);
     }, []);
 
+    if (!hasApiKey) {
+        return <BobSetupGuide onKeyConfigured={() => setHasApiKey(true)} />;
+    }
+
+    const handleDisconnect = () => {
+        removeApiKey();
+        clearChatHistory();
+        setConversation([]);
+        setHasApiKey(false);
+    };
+
     const handleClearChat = () => {
         clearChatHistory();
         const fresh: ChatMessage[] = initialMessage
@@ -110,37 +134,41 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
         saveChatHistory(fresh);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!message.trim()) return;
 
         const userMessage: ChatMessage = { role: 'user', content: message };
-        setConversation(prev => [...prev, userMessage]);
+        const updatedHistory = [...conversation, userMessage];
+        setConversation(updatedHistory);
 
         const currentQuestion = message;
         setMessage('');
 
-        startTransition(async () => {
+        setIsPending(true);
+        try {
             const flowInput: AskBobInput = {
-                history: conversation,
+                history: updatedHistory,
                 question: currentQuestion,
             };
-
-            try {
-                const response = await askBob(flowInput);
-                const bobMessage: ChatMessage = { role: 'model', content: response };
-                setConversation(prev => [...prev, bobMessage]);
-            } catch (error) {
-                console.error("AI Error:", error);
-                const errorMessage: ChatMessage = { role: 'model', content: "Sorry, I ran into an unexpected error. Please try again." };
-                setConversation(prev => [...prev, errorMessage]);
-                toast({
-                    variant: "destructive",
-                    title: "AI Error",
-                    description: "Could not get a response from the assistant.",
-                });
-            }
-        });
+            const response = await askBob(flowInput);
+            const bobMessage: ChatMessage = { role: 'model', content: response };
+            setConversation(prev => [...prev, bobMessage]);
+        } catch (error: any) {
+            console.error("AI Error:", error);
+            const errorMessage: ChatMessage = {
+                role: 'model',
+                content: error?.message || "Sorry, I ran into an unexpected error. Please try again."
+            };
+            setConversation(prev => [...prev, errorMessage]);
+            toast({
+                variant: "destructive",
+                title: "AI Error",
+                description: error?.message || "Could not get a response from the assistant.",
+            });
+        } finally {
+            setIsPending(false);
+        }
     };
 
 
@@ -156,7 +184,9 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
                             </Avatar>
                         )}
                         <div className={cn("max-w-sm p-3 rounded-lg text-sm",
-                            chat.role === 'user' ? "bg-primary text-white" : "bg-muted"
+                            chat.role === 'user'
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted dark:bg-[#4a4446]"
                         )}>
                             <ReactMarkdown
                               components={{
@@ -181,7 +211,7 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
                             <Avatar className="h-8 w-8">
                             <AvatarFallback><Bot size={20}/></AvatarFallback>
                         </Avatar>
-                        <div className="max-w-sm p-3 rounded-lg bg-muted">
+                        <div className="max-w-sm p-3 rounded-lg bg-muted dark:bg-[#4a4446]">
                             <Loader2 className="h-5 w-5 animate-spin" />
                         </div>
                     </div>
@@ -219,6 +249,15 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
                 >
                     <Eraser className="mr-1 h-3 w-3" />
                     Clear Chat
+                </Button>
+                <Button
+                    variant="link"
+                    size="sm"
+                    onClick={handleDisconnect}
+                    className="text-muted-foreground hover:text-destructive"
+                >
+                    <KeyRound className="mr-1 h-3 w-3" />
+                    Remove API Key
                 </Button>
             </div>
         </div>
