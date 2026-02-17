@@ -273,7 +273,7 @@ export function CreateSharesForm() {
                 <h3 className="text-xl font-semibold">Enter Your Secret</h3>
               </div>
               <div className="sm:pl-11 space-y-4">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-wrap justify-between items-center gap-2">
                     <div className="flex items-center gap-2">
                       <Label htmlFor="secret">Your Secret Text</Label>
                       <Popover>
@@ -285,9 +285,9 @@ export function CreateSharesForm() {
                           </PopoverContent>
                       </Popover>
                   </div>
-                  <Button onClick={() => setShowSeedGenerator(!showSeedGenerator)} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
-                      <Wand className="mr-2 h-4 w-4" />
-                      {showSeedGenerator ? 'Hide Generator' : 'Generate Seed Phrase'}
+                  <Button size="sm" onClick={() => setShowSeedGenerator(!showSeedGenerator)} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
+                      <Wand className="mr-1.5 h-3.5 w-3.5" />
+                      {showSeedGenerator ? 'Hide' : 'Generate Seed'}
                   </Button>
                 </div>
                 {showSeedGenerator && (

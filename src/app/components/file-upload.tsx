@@ -85,16 +85,18 @@ export function FileUpload({ onFilesAdded, onCameraOpen, onManualOpen }: FileUpl
                 onChange={handleFileSelect}
             />
         </div>
-        <div className="flex justify-center items-center gap-2">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
             <p className="text-sm text-muted-foreground">or use another method:</p>
-             <Button variant="outline" onClick={onManualOpen}>
-                <TextCursorInput className="mr-2 h-4 w-4" />
-                Manual Text Entry
-            </Button>
-            <Button variant="outline" onClick={onCameraOpen}>
-                <Camera className="mr-2 h-4 w-4" />
-                Scan with Camera
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={onManualOpen}>
+                  <TextCursorInput className="mr-1.5 h-4 w-4" />
+                  Manual Entry
+              </Button>
+              <Button variant="outline" size="sm" onClick={onCameraOpen}>
+                  <Camera className="mr-1.5 h-4 w-4" />
+                  Scan Camera
+              </Button>
+            </div>
         </div>
     </div>
   );
