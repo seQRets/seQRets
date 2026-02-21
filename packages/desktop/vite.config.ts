@@ -16,14 +16,6 @@ export default defineConfig({
   optimizeDeps: {
     include: ['buffer', '@seqrets/crypto', 'shamirs-secret-sharing-ts'],
   },
-  worker: {
-    format: 'es' as const,
-    rollupOptions: {
-      output: {
-        inlineDynamicImports: true,
-      },
-    },
-  },
   clearScreen: false,
   server: {
     port: 5173,
