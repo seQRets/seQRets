@@ -138,7 +138,7 @@ const cryptoDetails = `
     *   **Web:** `@noble/hashes randomBytes()` wraps `crypto.getRandomValues()` and is used for salts, nonces, and BIP-39 entropy.
     *   Password generation: `window.crypto.getRandomValues(new Uint32Array(32))` mapped to an 88-character charset.
     *   Keyfile generation: `window.crypto.getRandomValues(new Uint8Array(32))` — 256 bits of raw random data.
-    *   Seed phrase entropy: 128 bits (12 words) or 256 bits (24 words) via `@scure/bip39's generateMnemonic()`.
+    *   Seed phrase entropy: 128 bits (12 words) or 256 bits (24 words) via @scure/bip39's generateMnemonic().
     *   Encryption salt: 16 random bytes per operation. Encryption nonce: 24 random bytes per operation.
     *   No `Math.random()` or any weak PRNG is used for any security-critical operation.
 
