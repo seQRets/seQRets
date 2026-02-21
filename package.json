@@ -21,7 +21,7 @@
     "deps:outdated": "npm outdated",
     "deps:update": "npm update",
     "build:analyze": "ANALYZE=true npm run build",
-    "desktop:dev": "npm run build:crypto && npm run tauri:dev --workspace=@seqrets/desktop",
+    "desktop:dev": "npm run build:crypto && npm run tauri:dev:fresh --workspace=@seqrets/desktop",
     "desktop:build": "npm run build:crypto && npm run tauri:build --workspace=@seqrets/desktop"
   },
   "dependencies": {

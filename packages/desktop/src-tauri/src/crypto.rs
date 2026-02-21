@@ -238,3 +238,80 @@ pub fn crypto_decrypt_blob(
 
     String::from_utf8(decompressed).map_err(|e| format!("UTF-8 decode error: {e}"))
 }
+
+// ── Unit tests ────────────────────────────────────────────────────────────────
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Round-trip: encrypt then decrypt must return the original plaintext.
+    #[test]
+    fn test_blob_roundtrip_no_keyfile() {
+        let payload = r#"{"secret":"hello world","label":"test","isMnemonic":false}"#.to_string();
+        let password = "s3cur3P@ssw0rd!".to_string();
+
+        let result = crypto_encrypt_blob(payload.clone(), password.clone(), None)
+            .expect("encrypt_blob should not fail");
+
+        let decrypted = crypto_decrypt_blob(result.salt, result.data, password, None)
+            .expect("decrypt_blob should not fail");
+
+        assert_eq!(decrypted, payload, "decrypted payload must match original");
+    }
+
+    #[test]
+    fn test_blob_roundtrip_with_keyfile() {
+        let payload = r#"{"secret":"seed phrase here","label":"wallet","isMnemonic":true}"#.to_string();
+        let password = "another-password".to_string();
+        // 32 random bytes encoded as base64
+        let keyfile_b64 = Some(STANDARD.encode(b"0123456789abcdef0123456789abcdef"));
+
+        let result = crypto_encrypt_blob(payload.clone(), password.clone(), keyfile_b64.clone())
+            .expect("encrypt_blob with keyfile should not fail");
+
+        let decrypted = crypto_decrypt_blob(result.salt, result.data, password, keyfile_b64)
+            .expect("decrypt_blob with keyfile should not fail");
+
+        assert_eq!(decrypted, payload);
+    }
+
+    #[test]
+    fn test_wrong_password_fails() {
+        let payload = r#"{"secret":"my secret","isMnemonic":false}"#.to_string();
+        let result = crypto_encrypt_blob(payload, "correct-password".to_string(), None)
+            .expect("encrypt should succeed");
+
+        let err = crypto_decrypt_blob(result.salt, result.data, "wrong-password".to_string(), None);
+        assert!(err.is_err(), "decryption with wrong password must fail");
+    }
+
+    #[test]
+    fn test_create_restore_roundtrip() {
+        let payload = r#"{"secret":"wallet seed","label":"cold storage","isMnemonic":false}"#.to_string();
+        let password = "test-password-123".to_string();
+
+        let created = crypto_create(payload.clone(), password.clone(), None)
+            .expect("crypto_create should succeed");
+
+        let restored = crypto_restore(created.salt, created.data, password, None)
+            .expect("crypto_restore should succeed");
+
+        assert_eq!(restored, payload);
+    }
+
+    #[test]
+    fn test_different_encryptions_produce_different_ciphertext() {
+        // Same plaintext + password should produce different (salt, data) each time
+        // due to random salt and nonce.
+        let payload = r#"{"secret":"test","isMnemonic":false}"#.to_string();
+        let password = "pw".to_string();
+
+        let r1 = crypto_encrypt_blob(payload.clone(), password.clone(), None).unwrap();
+        let r2 = crypto_encrypt_blob(payload, password, None).unwrap();
+
+        // Different salts means different keys means different ciphertext
+        assert_ne!(r1.salt, r2.salt);
+        assert_ne!(r1.data, r2.data);
+    }
+}

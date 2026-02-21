@@ -16,7 +16,10 @@
 import { invoke } from '@tauri-apps/api/core';
 import { split, combine } from 'shamirs-secret-sharing-ts';
 import { buildSharePayload, parseSharePayload } from '@seqrets/crypto';
-import { Buffer } from 'buffer';
+// buffer-setup MUST be imported before any call to split/combine:
+// shamirs-secret-sharing-ts uses Buffer as a bare global (Node.js style) and
+// WKWebView (macOS) does not provide it. buffer-setup patches globalThis.Buffer.
+import { Buffer } from './buffer-setup';
 import type {
     CreateSharesRequest,
     CreateSharesResult,
