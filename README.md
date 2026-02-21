@@ -134,7 +134,7 @@ All cryptographic operations run **entirely on your device**. Your secrets never
 | **Splitting** | Shamir's Secret Sharing | Threshold-based secret splitting into Qards |
 | **Compression** | Gzip (level 9) | Reduce payload size before encryption |
 | **RNG** | Web Crypto API CSPRNG (`crypto.getRandomValues()`) | All random bytes — salts, nonces, passwords, seed entropy, keyfiles |
-| **Memory** | Secure wipe | Overwrite sensitive data with random bytes after use |
+| **Memory** | Buffer zeroing | Derived keys, decrypted plaintext, and keyfile bytes are zeroed via `fill(0)` in `finally` blocks after each operation. Note: JavaScript strings (e.g. passwords) cannot be cryptographically zeroed — an inherent browser/JS limitation. |
 
 ### 🔗 Encrypt-First Architecture (Security by Design)
 
@@ -298,13 +298,12 @@ Produces `seQRets_1.0.1_aarch64.dmg` in `packages/desktop/src-tauri/target/relea
 
 ### 🤖 Optional: Bob AI Assistant
 
-Bob is an AI assistant that can answer questions about seQRets, Bitcoin security, and inheritance planning. It's entirely optional.
+Bob is an AI assistant that can answer questions about seQRets and inheritance planning. It's entirely optional and disabled by default.
 
-- **Web app:** Set `GEMINI_API_KEY` in a `.env.local` file at the project root
-- **Desktop app:** Click "Ask Bob" → follow the setup guide to enter your free Gemini API key from [Google AI Studio](https://aistudio.google.com/api-keys)
+> ⚠️ **Privacy notice:** Bob sends your chat messages to Google's Gemini API. Never enter seed phrases, passwords, private keys, or any sensitive data in the Bob chat. Bob is for app support and inheritance planning guidance only.
+
+- **Web & Desktop:** Click "Ask Bob" → follow the in-app setup guide to enter your free Gemini API key from [Google AI Studio](https://aistudio.google.com/api-keys). Your key is stored in your browser's local storage and never sent anywhere except Google's Gemini API.
 - **Remove API key:** Click "Remove API Key" at the bottom of the Bob chat to disconnect the assistant and delete the stored key. You can re-add a key at any time.
-
-Your API key is stored locally and never sent to any server other than Google's Gemini API.
 
 ## 📜 Available Scripts
 
