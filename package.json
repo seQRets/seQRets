@@ -12,7 +12,6 @@
     "genkit:watch": "dotenv -e .env -- tsx --watch src/ai/dev.ts",
     "build": "npm run build:crypto && next build",
     "start": "next start",
-    "lint": "next lint",
     "type-check": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",

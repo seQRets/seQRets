@@ -436,7 +436,6 @@ Bob is an AI assistant that can answer questions about seQRets and inheritance p
 | `npm run build:crypto` | Build the shared crypto package |
 | `npm run desktop:dev` | Run Tauri desktop app in dev mode |
 | `npm run desktop:build` | Build desktop .dmg installer |
-| `npm run lint` | Run linter |
 | `npm run type-check` | TypeScript type checking |
 
 ## 🤝 Contributing
