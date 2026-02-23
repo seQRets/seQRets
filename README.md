@@ -14,7 +14,7 @@ seQRets **encrypts** and splits your most sensitive secrets — seed phrases, pr
 
 Recovering a secret requires combining a configurable threshold of Qards (e.g., 2 of 3) — no single Qard holds enough to restore anything on its own, eliminating the single point of failure that plagues traditional backups. Nothing is stored online: no accounts, no KYC, no data shared with anyone you don't choose. The desktop app includes **EAL6+ JavaCard smartcard support** for tamper-resistant, simple physical distribution of Qards and inheritance plans.
 
-> 🛡️ **Your secrets never leave your device.** All encryption, splitting, and decryption happens entirely in your browser (web) or on your machine (desktop). No servers, no cloud, no accounts, no telemetry. seQRets is [open source](https://github.com/jalapeno4332/seQRets) — audit every line.
+> 🛡️ **Your secrets never leave your device.** All encryption, splitting, and decryption happens entirely in your browser (web) or on your machine (desktop). No servers, no cloud, no accounts, no telemetry. seQRets is <a href="https://github.com/jalapeno4332/seQRets" target="_blank" rel="noopener noreferrer">open source</a> — audit every line.
 
 ## ⚠️ Warning
 
@@ -27,7 +27,7 @@ Recovering a secret requires combining a configurable threshold of Qards (e.g., 
 ### 🌐 Web App (Free)
 Use seQRets directly in your browser — no installation required.
 
-**[Launch seQRets Web App →](https://app.seqrets.app)**
+**<a href="https://app.seqrets.app" target="_blank" rel="noopener noreferrer">Launch seQRets Web App →</a>**
 
 ### 🖥️ Desktop App
 
@@ -53,7 +53,7 @@ Purchase an official release and receive:
 - ✅ A complementary JavaCard-based smart card for secure key storage
 - ✅ A portable USB smart card reader
 
-**[Purchase Official Release →](https://seqrets.app)**
+**<a href="https://seqrets.app" target="_blank" rel="noopener noreferrer">Purchase Official Release →</a>**
 
 > 💡 **Why pay when it's open source?** You're paying for the convenience of signed builds with automatic updates, plus physical hardware (smart card + reader) shipped to your door. The source code is and always will be free.
 
