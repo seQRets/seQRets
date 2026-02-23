@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
-import { Bot, ArrowDown, Sparkles } from 'lucide-react';
+import { Shield, Sparkles, AlertTriangle, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-const WELCOME_GUIDE_KEY = 'seQRets_welcomeGuideShown_v1';
+const WELCOME_GUIDE_KEY = 'seQRets_welcomeGuideShown_v2';
 
 interface WelcomeGuideProps {
   activeTab: 'create' | 'restore';
@@ -11,6 +12,7 @@ interface WelcomeGuideProps {
 
 export function WelcomeGuide({ activeTab }: WelcomeGuideProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [step, setStep] = useState(0);
 
   useEffect(() => {
     try {
@@ -18,9 +20,7 @@ export function WelcomeGuide({ activeTab }: WelcomeGuideProps) {
       if (!hasSeenGuide) {
         setIsOpen(true);
       }
-    } catch (error) {
-      console.warn('Could not read from localStorage:', error);
-      // If localStorage is blocked, we'll just show the guide once per session.
+    } catch {
       setIsOpen(true);
     }
   }, []);
@@ -28,53 +28,126 @@ export function WelcomeGuide({ activeTab }: WelcomeGuideProps) {
   const handleClose = () => {
     try {
       localStorage.setItem(WELCOME_GUIDE_KEY, 'true');
-    } catch (error) {
-      console.warn('Could not write to localStorage:', error);
-    }
+    } catch { /* ignore */ }
     setIsOpen(false);
+    setStep(0);
   };
 
-  const createContent = {
-    title: "Let's Secure Your First Secret!",
-    description: "Just follow the three steps on this page, clicking the 'Next Step' button to advance.",
-  };
+  const steps = [
+    // ── Card 1: Welcome ──────────────────────────────────────────
+    {
+      icon: <Shield className="h-8 w-8 text-amber-400" />,
+      title: 'Welcome to seQRets',
+      body: (
+        <p className="text-sm leading-relaxed text-[hsl(37,10%,75%)]">
+          seQRets helps you protect your most sensitive information today — and
+          make sure the right people can access it tomorrow. Encrypt, split, and
+          store your secrets using military-grade encryption and Shamir&apos;s
+          Secret Sharing. Nothing stored online. No accounts. No KYC. Nothing
+          shared with anyone you don&apos;t choose.
+        </p>
+      ),
+      button: 'Next',
+    },
+    // ── Card 2: Features ─────────────────────────────────────────
+    {
+      icon: <Sparkles className="h-8 w-8 text-amber-400" />,
+      title: 'What Can You Do?',
+      body: (
+        <ul className="space-y-1.5 text-sm text-[hsl(37,10%,75%)]">
+          <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span>Encrypt secrets with native Rust crypto (XChaCha20-Poly1305 + Argon2id)</li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span>Split into Shamir shares as scannable QR &ldquo;Qards&rdquo;</li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span>Restore by scanning, uploading, or pasting Qards</li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span>View restored secrets as Data QR or SeedQR (BIP-39)</li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span>Store shares, vaults, keyfiles, and inheritance plans on EAL6+ JavaCard smart cards</li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span>Build structured inheritance plans in-app</li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span>Clone smart cards for redundant physical backups</li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span>Generate secure passwords and BIP-39 seed phrases</li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span>Ask Bob, your AI assistant, for guidance</li>
+        </ul>
+      ),
+      button: 'Next',
+    },
+    // ── Card 3: Security ─────────────────────────────────────────
+    {
+      icon: <AlertTriangle className="h-8 w-8 text-amber-400" />,
+      title: 'Before You Begin',
+      body: (
+        <>
+          <div className="rounded-md border border-green-500/30 bg-green-950/20 p-3 space-y-2">
+            <p className="text-sm font-semibold text-green-300">
+              You&apos;re using the desktop app — the most secure way to run seQRets:
+            </p>
+            <ul className="space-y-1 text-sm text-[hsl(37,10%,75%)]">
+              <li className="flex items-start gap-2"><span className="text-green-400 mt-0.5">•</span>Native Rust cryptography with guaranteed key zeroization</li>
+              <li className="flex items-start gap-2"><span className="text-green-400 mt-0.5">•</span>No browser extensions, no CDN, no shared JavaScript environment</li>
+              <li className="flex items-start gap-2"><span className="text-green-400 mt-0.5">•</span>Runs fully offline — no network required after installation</li>
+              <li className="flex items-start gap-2"><span className="text-green-400 mt-0.5">•</span>EAL6+ smart card support for tamper-resistant physical backups</li>
+            </ul>
+          </div>
+          <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-950/20 p-3 space-y-2">
+            <p className="text-sm text-amber-300">
+              <strong>Your security is your responsibility.</strong> If you lose
+              your password or the required number of Qards, your secret is gone
+              forever. The developers cannot recover your data.
+            </p>
+            <p className="text-sm text-amber-300 flex items-start gap-2">
+              <AlertTriangle className="h-4 w-4 text-amber-400 mt-0.5 shrink-0" />
+              <span>For maximum security, disconnect from the internet before handling
+              secrets.</span>
+            </p>
+          </div>
+        </>
+      ),
+      button: 'I Understand & Accept',
+    },
+  ];
 
-  const restoreContent = {
-    title: "Ready to Restore Your Secret?",
-    description: "Just follow the numbered steps on this page to add your backups and provide your credentials, using the 'Next Step' button to move forward.",
-  };
-
-  const content = activeTab === 'create' ? createContent : restoreContent;
+  const current = steps[step];
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center text-2xl gap-3">
-             <Sparkles className="h-8 w-8 text-primary" />
-            {content.title}
-          </DialogTitle>
-          <DialogDescription className="pt-2 text-center font-bold">
-            {content.description}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="rounded-lg bg-muted/50 p-4 mt-2">
-            <div className="flex items-start gap-4">
-                <Bot className="h-10 w-10 text-muted-foreground mt-1 flex-shrink-0" />
-                <div>
-                    <h4 className="font-semibold">Meet Bob, Your AI Assistant</h4>
-                    <p className="text-sm text-muted-foreground">
-                        Have questions about security, inheritance planning, or how to use the app? Just click the "Ask Bob" button at the top of the page.
-                    </p>
-                </div>
-            </div>
-        </div>
-        <DialogFooter className="mt-4">
-          <Button onClick={handleClose} className="w-full bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
-            Let's Go!
+    <DialogPrimitive.Root open={isOpen}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <DialogPrimitive.Content
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
+          aria-describedby={undefined}
+          className="fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] rounded-lg border border-[hsl(340,4%,20%)] bg-[hsl(0,5%,8%)] text-[hsl(37,10%,89%)] p-6 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]"
+        >
+          {/* Step indicator */}
+          <div className="flex justify-center gap-2 mb-4">
+            {steps.map((_, i) => (
+              <div
+                key={i}
+                className={cn(
+                  'h-2 w-2 rounded-full transition-colors',
+                  i <= step ? 'bg-amber-400' : 'bg-[hsl(340,4%,30%)]'
+                )}
+              />
+            ))}
+          </div>
+
+          {/* Header */}
+          <div className="flex items-center justify-center gap-3 mb-3">
+            {current.icon}
+            <DialogPrimitive.Title className="text-2xl font-bold">{current.title}</DialogPrimitive.Title>
+          </div>
+
+          {/* Body */}
+          <div className="mb-6">{current.body}</div>
+
+          {/* Action */}
+          <Button
+            onClick={step < steps.length - 1 ? () => setStep(step + 1) : handleClose}
+            className="w-full bg-[hsl(340,4%,23%)] text-[hsl(37,10%,89%)] ring-1 ring-[hsl(340,4%,30%)] hover:bg-black font-semibold"
+          >
+            {current.button}
+            {step < steps.length - 1 && <ChevronRight className="ml-1 h-4 w-4" />}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 }
