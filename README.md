@@ -53,7 +53,7 @@ Purchase an official release and receive:
 - ✅ A complementary JavaCard-based smart card for secure key storage
 - ✅ A portable USB smart card reader
 
-**[Purchase Official Release →](https://seqrets.app/purchase)**
+**[Purchase Official Release →](https://seqrets.app)**
 
 > 💡 **Why pay when it's open source?** You're paying for the convenience of signed builds with automatic updates, plus physical hardware (smart card + reader) shipped to your door. The source code is and always will be free.
 
