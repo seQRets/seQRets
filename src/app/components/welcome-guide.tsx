@@ -59,7 +59,7 @@ export function WelcomeGuide({ activeTab }: WelcomeGuideProps) {
         <>
           <ul className="space-y-1.5 text-sm text-[hsl(37,10%,75%)]">
             <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span>Encrypt secrets with XChaCha20-Poly1305 + Argon2id</li>
-            <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span>Split into Shamir shares as scannable QR &ldquo;Qards&rdquo;</li>
+            <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span>Split into Shamir shares as scannable QR &ldquo;Qards&rdquo; — print them, store digitally, or distribute to trusted people</li>
             <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span>Restore by scanning, uploading, or pasting Qards</li>
             <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span>View restored secrets as Data QR or SeedQR (BIP-39)</li>
             <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">•</span>Encrypt inheritance plans for your heirs</li>
@@ -154,7 +154,7 @@ export function WelcomeGuide({ activeTab }: WelcomeGuideProps) {
           {/* Action */}
           <Button
             onClick={step < steps.length - 1 ? () => setStep(step + 1) : handleClose}
-            className="w-full bg-[hsl(340,4%,23%)] text-[hsl(37,10%,89%)] ring-1 ring-[hsl(340,4%,30%)] hover:bg-black font-semibold"
+            className="w-full bg-[hsl(340,4%,23%)] text-[hsl(37,10%,89%)] border-0 ring-1 ring-[hsl(340,4%,30%)] hover:bg-black font-semibold outline-none focus-visible:ring-1 focus-visible:ring-[hsl(340,4%,30%)] focus-visible:ring-offset-0"
           >
             {current.button}
             {step < steps.length - 1 && <ChevronRight className="ml-1 h-4 w-4" />}
