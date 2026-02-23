@@ -280,14 +280,16 @@ Disconnecting from the network after the page has loaded provides limited but re
 | Threat | Web | Desktop |
 |--------|-----|---------|
 | **Browser extension attack surface** | ✗ Unmitigated | ✓ Tauri WebView runs without browser extensions |
-| **JS string memory** | ✗ Password persists in V8 heap | ✓ Password passed to Rust; derived key never in JS heap |
+| **JS string memory** | ✗ Password persists in V8 heap | ⚠️ Password transits JS heap via IPC, but derived key stays entirely in Rust |
 | **Key zeroization** | ⚠️ `fill(0)` — optimizer may elide | ✓ Rust `zeroize` crate — compiler-fence guaranteed |
-| **CDN / supply chain** | ✗ Per-load risk | ✓ Code-signed binary, integrity verified at install |
+| **CDN / supply chain** | ✗ Per-load risk | ✓ Official release is code-signed with integrity verified at install |
 | **Constant-time operations** | ✗ No guarantee | ✓ Rust crypto crates are constant-time by design |
 | **Clipboard** | ✗ OS-shared | ✗ Same |
 | **Screen recording** | ⚠️ Partial (masked by default) | ⚠️ Same |
 
 The two most impactful threats — browser extensions and JS memory — are both substantially closed by the desktop app. The remaining risks (clipboard, screen recording) are OS-level and cannot be fully solved by any software.
+
+> ⚠️ **Self-built binaries are not code-signed.** The CDN/supply-chain protections in the table above apply only to the official signed release. If you compile from source, you are responsible for verifying the integrity of your own build. Self-built binaries will trigger OS gatekeeper warnings and do not receive automatic updates.
 
 > **Bottom line:** The web app is appropriate for users who understand the threat model, use a clean browser profile with no untrusted extensions, and are comfortable with client-side-only JavaScript cryptography. For maximum security — especially for high-value seed phrases — use the desktop app.
 
