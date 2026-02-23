@@ -133,6 +133,15 @@ const cryptoDetails = `
     *   The splitting happens *after* encryption. The raw, unencrypted secret is never split directly.
     *   This is a critical security design choice — a stolen Qard is computationally indistinguishable from random noise.
 
+*   **Why Not Just Encrypt a USB Drive?**
+    Encrypting a USB drive is better than nothing, but it has critical weaknesses that seQRets solves:
+    *   **Single point of failure:** An encrypted USB drive is one object — lost, damaged, or stolen means everything is gone. seQRets splits across multiple Qards, surviving the loss of any piece.
+    *   **One password = full access:** Anyone with the USB drive password gets everything. seQRets requires the threshold of Qards AND the password — layered defense.
+    *   **Inheritance:** A USB drive means trusting one person with the drive + password. seQRets lets you distribute Qards to multiple people/locations so no single person has full access.
+    *   **Disaster resilience:** One fire, flood, or theft can destroy the only copy of a USB drive. Qards distributed across locations survive localized disasters.
+    *   **Stolen share:** With a USB drive it's all-or-nothing. A single stolen Qard is indistinguishable from random noise without the other Qards + password.
+    The core insight: seQRets doesn't just encrypt your secret — it eliminates single points of failure by splitting the encrypted data so that no single person, location, or device holds enough to compromise it.
+
 *   **Random Number Generation (CSPRNG):**
     *   All randomness is sourced from a Cryptographically Secure Pseudo-Random Number Generator (CSPRNG) backed by the OS entropy pool.
     *   **Desktop:** Rust rand::thread_rng() (OS entropy) generates encryption salts and nonces. All other operations (passwords, keyfiles, BIP-39 entropy) use window.crypto.getRandomValues().
