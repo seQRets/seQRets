@@ -544,8 +544,22 @@ export function SmartCardDialog({
         </div>
 
         {/* ── Action Buttons ── */}
-        <DialogFooter className="flex flex-col gap-2 sm:flex-row">
-          {/* Write button */}
+        <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between">
+          {/* Erase button — far left to avoid accidental clicks */}
+          {(cardStatus?.has_data || (cardStatus?.pin_set && needsPinVerification)) && !actionComplete && !showEraseConfirm && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleErase}
+              disabled={isErasing}
+              className="text-red-600 border-red-300 hover:bg-red-50 dark:border-red-500/40 dark:hover:bg-red-500/10"
+            >
+              <Trash2 className="mr-1 h-3 w-3" />
+              {needsPinVerification ? 'Factory Reset' : 'Erase Card'}
+            </Button>
+          )}
+
+          {/* Write button — far right */}
           {isWriteMode && !actionComplete && (
             <Button
               onClick={handleWrite}
@@ -555,7 +569,7 @@ export function SmartCardDialog({
                 !cardStatus ||
                 !!needsPinVerification
               }
-              className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md"
+              className="w-full sm:w-auto sm:ml-auto bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md"
             >
               {isWriting ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Writing...</>
@@ -565,7 +579,7 @@ export function SmartCardDialog({
             </Button>
           )}
 
-          {/* Read button */}
+          {/* Read button — far right */}
           {isReadMode && !actionComplete && (
             <Button
               onClick={handleRead}
@@ -577,27 +591,13 @@ export function SmartCardDialog({
                 selectedItemIndex === null ||
                 !!needsPinVerification
               }
-              className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md"
+              className="w-full sm:w-auto sm:ml-auto bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md"
             >
               {isReading ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Reading...</>
               ) : (
                 <><CreditCard className="mr-2 h-4 w-4" /> Read from Card</>
               )}
-            </Button>
-          )}
-
-          {/* Erase button (always available when card has data or is locked) */}
-          {(cardStatus?.has_data || (cardStatus?.pin_set && needsPinVerification)) && !actionComplete && !showEraseConfirm && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleErase}
-              disabled={isErasing}
-              className="text-red-600 border-red-300 hover:bg-red-50 dark:border-red-500/40 dark:hover:bg-red-500/10"
-            >
-              <Trash2 className="mr-1 h-3 w-3" />
-              {needsPinVerification ? 'Factory Reset' : 'Erase Card'}
             </Button>
           )}
 
