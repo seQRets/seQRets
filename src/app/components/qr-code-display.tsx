@@ -224,8 +224,9 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
 
   // Synchronous click handler — uses pre-generated card images so Safari
   // doesn't lose the user-gesture context (which blocks programmatic downloads).
+  // Falls back to the raw QR code image if html2canvas failed (e.g. Safari).
   const handleDownload = (index: number) => {
-    const dataUrl = cardDataUrls[index];
+    const dataUrl = cardDataUrls[index] || qrCodeUris[index];
     if (!dataUrl) {
       toast({ variant: "destructive", title: "Image not ready", description: "The Qard image is still being generated. Please try again in a moment." });
       return;
@@ -273,7 +274,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
 
 
   const handleDownloadAll = async () => {
-    if (!isTextOnly && cardDataUrls.length !== shares.length) {
+    if (!isTextOnly && qrCodeUris.length !== shares.length) {
         toast({ variant: "destructive", title: "Images not ready", description: "Not all Qard images have been generated yet." });
         return;
     }
@@ -283,8 +284,9 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
             const title = getShareTitle(i);
             zip.file(`${title}.txt`, shares[i]);
 
-            if (!isTextOnly && cardDataUrls[i]) {
-                const base64Data = cardDataUrls[i]!.substring(cardDataUrls[i]!.indexOf(',') + 1);
+            const pngDataUrl = !isTextOnly ? (cardDataUrls[i] || qrCodeUris[i]) : null;
+            if (pngDataUrl) {
+                const base64Data = pngDataUrl.substring(pngDataUrl.indexOf(',') + 1);
                 zip.file(`${title}.png`, base64Data, { base64: true });
             }
         }
@@ -555,7 +557,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
                     <p className="font-semibold text-sm">Share {index + 1} of {totalShares}</p>
                     <div className={cn("grid grid-cols-1 gap-2 mt-2 w-full max-w-[252.7px]", isTextOnly || !qrCodeUris[index] ? "grid-cols-1" : "grid-cols-2")}>
                         {!isTextOnly && qrCodeUris[index] && (
-                            <Button variant="outline" size="sm" onClick={() => handleDownload(index)} disabled={!cardDataUrls[index]} className="col-span-1">
+                            <Button variant="outline" size="sm" onClick={() => handleDownload(index)} disabled={!cardDataUrls[index] && !qrCodeUris[index]} className="col-span-1">
                                 PNG
                             </Button>
                         )}
