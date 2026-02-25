@@ -619,8 +619,8 @@ export function RestoreSecretForm() {
                 </div>
 
                 <div className="rounded-lg border border-dashed border-accent bg-accent/10 dark:bg-accent/5 p-4 space-y-2">
-                  <Button variant="outline" onClick={handleImportVaultFile} className="w-full border-accent hover:bg-accent/20 dark:hover:bg-accent/10">
-                    <FolderOpen className="mr-2 h-4 w-4 text-foreground" />
+                  <Button variant="outline" onClick={handleImportVaultFile} className="w-full border-accent hover:bg-accent hover:text-accent-foreground">
+                    <FolderOpen className="mr-2 h-4 w-4" />
                     Import Vault File (.seqrets)
                   </Button>
                   <p className="text-xs text-muted-foreground text-center">
