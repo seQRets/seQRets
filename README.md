@@ -14,7 +14,7 @@ seQRets **encrypts** and splits your most sensitive secrets — seed phrases, pr
 
 Recovering a secret requires combining a configurable threshold of Qards (e.g., 2 of 3) — no single Qard holds enough to restore anything on its own, eliminating the single point of failure that plagues traditional backups. Nothing is stored online: no accounts, no KYC, no data shared with anyone you don't choose. The desktop app includes **EAL6+ JavaCard smartcard support** for tamper-resistant, simple physical distribution of Qards and inheritance plans.
 
-> 🛡️ **Your secrets never leave your device.** All encryption, splitting, and decryption happens entirely in your browser (web) or on your machine (desktop). No servers, no cloud, no accounts, no telemetry. seQRets is <a href="https://github.com/seQRets/seQRets" target="_blank" rel="noopener noreferrer">open source</a> — audit every line.
+> 🛡️ **Your secrets never leave your device.** All encryption, splitting, and decryption happens entirely in your browser (web) or on your machine (desktop). No servers, no cloud, no accounts, no telemetry. seQRets is <a href="https://github.com/seQRets/seQRets-app" target="_blank" rel="noopener noreferrer">open source</a> — audit every line.
 
 ## ⚠️ Warning
 
@@ -326,7 +326,7 @@ Source is available for security audit and self-compilation under AGPLv3. See [B
 
 ## 🤝 Contributing
 
-We rely on GitHub for bug tracking. Before reporting a new bug, please take a moment to search the [existing issues](https://github.com/seQRets/seQRets/issues) to see if your problem has already been addressed. If you can't find an existing report, feel free to create a new issue.
+We rely on GitHub for bug tracking. Before reporting a new bug, please take a moment to search the [existing issues](https://github.com/seQRets/seQRets-app/issues) to see if your problem has already been addressed. If you can't find an existing report, feel free to create a new issue.
 
 We encourage contributions to the project by submitting pull requests to improve the codebase or introduce new features. All pull requests will be thoroughly reviewed. Your contributions are invaluable to us! Please read our [Contributing Guide](CONTRIBUTING.md) before submitting a pull request.
 
