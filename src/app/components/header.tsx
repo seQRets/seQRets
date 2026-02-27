@@ -12,6 +12,7 @@ import {
   Info,
   Home,
   FileText,
+  Rocket,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
@@ -104,6 +105,12 @@ function MobileMenu({ activeTab, onTabChange }: HeaderProps) {
                     <Info className="h-5 w-5" />
                     <span>About</span>
                 </Link>
+                <div className="border-t mt-2 pt-2">
+                    <Link href="/go-pro" className="flex items-center gap-3 p-2 rounded-md hover:bg-muted text-primary font-medium" onClick={() => handleLinkClick()}>
+                        <Rocket className="h-5 w-5" />
+                        <span>Go Pro</span>
+                    </Link>
+                </div>
             </nav>
             <div className="mt-auto p-4 border-t space-y-2">
                  <DropdownMenu>
@@ -205,6 +212,13 @@ function DesktopMenu({ activeTab, onTabChange }: HeaderProps) {
             <Link href="/about">
               <Info className="mr-2 h-4 w-4" />
               <span>About</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link href="/go-pro" className="text-primary font-medium">
+              <Rocket className="mr-2 h-4 w-4" />
+              <span>Go Pro</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSub>
