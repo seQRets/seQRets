@@ -85,8 +85,8 @@ export default function AboutPage() {
                             </p>
                             <p className="font-semibold text-foreground">Built with:</p>
                             <ul className="list-disc pl-4 space-y-1">
-                                <li>Tauri + React + Vite</li>
-                                <li>@noble/ciphers & @noble/hashes</li>
+                                <li>Tauri v2 + React + Vite</li>
+                                <li>Rust: argon2, chacha20poly1305, zeroize</li>
                                 <li>@scure/bip39 (BIP-39 mnemonic support)</li>
                                 <li>shamirs-secret-sharing-ts</li>
                                 <li>Tailwind CSS + Radix UI</li>

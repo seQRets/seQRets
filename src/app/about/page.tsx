@@ -87,7 +87,7 @@ export default function AboutPage() {
                             <p className="font-semibold text-foreground">Built with:</p>
                             <ul className="list-disc pl-4 space-y-1">
                                 <li>Next.js + React</li>
-                                <li>Electron (desktop)</li>
+                                <li>Tauri v2 + Rust (desktop)</li>
                                 <li>@noble/ciphers & @noble/hashes</li>
                                 <li>@scure/bip39 (BIP-39 mnemonic support)</li>
                                 <li>shamirs-secret-sharing-ts</li>
