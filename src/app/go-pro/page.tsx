@@ -122,13 +122,13 @@ export default function GoProPage() {
                                             <td className="p-3 text-muted-foreground">{f.name}</td>
                                             <td className="p-3 text-center">
                                                 {f.web
-                                                    ? <Check className="h-4 w-4 text-green-500 mx-auto" />
+                                                    ? <Check className="h-4 w-4 text-green-600 mx-auto" strokeWidth={3} />
                                                     : <Minus className="h-4 w-4 text-muted-foreground/40 mx-auto" />
                                                 }
                                             </td>
                                             <td className="p-3 text-center">
                                                 {f.desktop
-                                                    ? <Check className="h-4 w-4 text-green-500 mx-auto" />
+                                                    ? <Check className="h-4 w-4 text-green-600 mx-auto" strokeWidth={3} />
                                                     : <Minus className="h-4 w-4 text-muted-foreground/40 mx-auto" />
                                                 }
                                             </td>
@@ -151,19 +151,19 @@ export default function GoProPage() {
                     <CardContent className="text-sm text-muted-foreground space-y-3">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex items-start gap-2">
-                                <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" strokeWidth={3} />
                                 <p><span className="font-semibold text-foreground">In-app Inheritance Plan builder</span> &mdash; structured 7-section form for creating detailed recovery instructions. Encrypts as compact JSON that fits on a smart card.</p>
                             </div>
                             <div className="flex items-start gap-2">
-                                <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" strokeWidth={3} />
                                 <p><span className="font-semibold text-foreground">JavaCard smart card support</span> &mdash; store shares, vaults, keyfiles, and inheritance plans on JCOP3 hardware with optional PIN protection.</p>
                             </div>
                             <div className="flex items-start gap-2">
-                                <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" strokeWidth={3} />
                                 <p><span className="font-semibold text-foreground">Native Rust crypto</span> &mdash; all key derivation and encryption runs in Rust via Tauri IPC. Keys never enter the JS heap and are zeroized with compiler-fence guarantees.</p>
                             </div>
                             <div className="flex items-start gap-2">
-                                <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" strokeWidth={3} />
                                 <p><span className="font-semibold text-foreground">Clone card &amp; Smart Card Manager</span> &mdash; manage PINs, clone cards between readers, delete individual items, and factory reset from a dedicated management page.</p>
                             </div>
                         </div>
