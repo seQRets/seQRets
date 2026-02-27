@@ -5,13 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Lock, KeyRound, Eye, EyeOff, Paperclip, HelpCircle, Loader2, CheckCircle2, X, FileDown, ArrowDown, ShieldCheck, Download } from 'lucide-react';
+import { ArrowLeft, Lock, KeyRound, Eye, EyeOff, Paperclip, HelpCircle, Loader2, CheckCircle2, X, FileDown, ArrowDown, ShieldCheck, Download, TriangleAlert } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { Header } from '../components/header';
 import { InstructionsFileUpload } from '../components/instructions-file-upload';
 import { KeyfileUpload } from '../components/keyfile-upload';
+import { KeyfileGenerator } from '../components/keyfile-generator';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { PasswordGenerator } from '../components/password-generator';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
@@ -286,13 +288,19 @@ export default function InstructionsPage() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
                               <Paperclip className="h-5 w-5" />
-                              <Label htmlFor="use-keyfile-encrypt" className="text-base font-medium">Keyfile</Label>
+                              <Label htmlFor="use-keyfile-encrypt" className="text-base font-medium">Use a Keyfile</Label>
                               <Popover>
                                 <PopoverTrigger asChild>
                                   <button><HelpCircle className="h-4 w-4 text-primary" /></button>
                                 </PopoverTrigger>
                                 <PopoverContent className="text-sm">
-                                  Optional: add a keyfile for additional security. You will need this same keyfile to decrypt.
+                                  <Alert variant="destructive" className="border-red-500/50 text-red-500 dark:border-red-500 [&>svg]:text-red-500">
+                                    <TriangleAlert className="h-4 w-4" />
+                                    <AlertTitle className="font-bold">CRITICAL: Back Up Your Keyfile!</AlertTitle>
+                                    <AlertDescription>
+                                      You MUST save the keyfile. It is required for recovery and **cannot be generated again.** Store it safely, separate from your Qards. For better obscurity, you can rename the file.
+                                    </AlertDescription>
+                                  </Alert>
                                 </PopoverContent>
                               </Popover>
                             </div>
@@ -300,7 +308,19 @@ export default function InstructionsPage() {
                           </div>
                           {encryptUseKeyfile && (
                             <div className="pt-2">
-                              <KeyfileUpload onFileRead={setEncryptKeyfile} onFileNameChange={setEncryptKeyfileName} fileName={encryptKeyfileName} />
+                              <Tabs defaultValue="generate" className="w-full">
+                                <TabsList className="grid w-full grid-cols-2">
+                                  <TabsTrigger value="generate">Generate Keyfile</TabsTrigger>
+                                  <TabsTrigger value="upload">Upload Keyfile</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="generate" className="pt-4">
+                                  <KeyfileGenerator onKeyfileGenerated={setEncryptKeyfile} />
+                                </TabsContent>
+                                <TabsContent value="upload" className="pt-4">
+                                  <p className="text-sm text-muted-foreground mb-2">Select a file from your device to use as a keyfile. Any file will work, but larger, more random files are more secure.</p>
+                                  <KeyfileUpload onFileRead={setEncryptKeyfile} onFileNameChange={setEncryptKeyfileName} fileName={encryptKeyfileName} />
+                                </TabsContent>
+                              </Tabs>
                             </div>
                           )}
                         </div>
@@ -463,7 +483,7 @@ export default function InstructionsPage() {
                                   <button><HelpCircle className="h-4 w-4 text-primary" /></button>
                                 </PopoverTrigger>
                                 <PopoverContent className="text-sm">
-                                  If a keyfile was used when encrypting the instructions, enable this and upload the same keyfile.
+                                  If you attached a keyfile for extra security when encrypting the plan, you must enable this and upload the exact same file now to decrypt.
                                 </PopoverContent>
                               </Popover>
                             </div>
@@ -471,6 +491,7 @@ export default function InstructionsPage() {
                           </div>
                           {decryptUseKeyfile && (
                             <div className="pt-2">
+                              <p className="text-sm text-muted-foreground mb-2">Select the exact same keyfile that was used to encrypt this plan. It will be a `.bin` file if generated by this app.</p>
                               <KeyfileUpload onFileRead={setDecryptKeyfile} onFileNameChange={setDecryptKeyfileName} fileName={decryptKeyfileName} />
                             </div>
                           )}
