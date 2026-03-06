@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { invoke } from '@tauri-apps/api/core';
 
 const readmeContent = `
 # seQRets: Secure. Split. Share.
@@ -106,7 +107,7 @@ const cryptoDetails = `
 
 *   **Key Derivation Function (KDF):**
     *   **Algorithm:** Argon2id
-    *   **Iterations (Time Cost):** 3
+    *   **Iterations (Time Cost):** 4
     *   **Memory Cost:** 65536 (64 MB)
     *   **Parallelism:** 1
     *   **Salt Length:** 16 bytes (cryptographically random, generated per operation)
@@ -352,16 +353,35 @@ ${inheritancePlanningGuide}
 
 ${securityGuide}`;
 
-export function getApiKey(): string | null {
-  return localStorage.getItem('gemini-api-key');
+const KEYCHAIN_KEY = 'gemini-api-key';
+const MIGRATION_FLAG = 'gemini-key-migrated-to-keychain';
+
+/**
+ * One-time migration: move API key from localStorage to OS keychain.
+ * Called once on first mount of BobChatInterface. Idempotent.
+ */
+export async function migrateApiKeyToKeychain(): Promise<void> {
+  if (localStorage.getItem(MIGRATION_FLAG)) return;
+
+  const legacyKey = localStorage.getItem(KEYCHAIN_KEY);
+  if (legacyKey) {
+    await invoke('keychain_set', { key: KEYCHAIN_KEY, value: legacyKey });
+    localStorage.removeItem(KEYCHAIN_KEY);
+  }
+  localStorage.setItem(MIGRATION_FLAG, 'true');
 }
 
-export function setApiKey(key: string) {
-  localStorage.setItem('gemini-api-key', key);
+export async function getApiKey(): Promise<string | null> {
+  const result = await invoke<string | null>('keychain_get', { key: KEYCHAIN_KEY });
+  return result ?? null;
 }
 
-export function removeApiKey() {
-  localStorage.removeItem('gemini-api-key');
+export async function setApiKey(key: string): Promise<void> {
+  await invoke('keychain_set', { key: KEYCHAIN_KEY, value: key });
+}
+
+export async function removeApiKey(): Promise<void> {
+  await invoke('keychain_delete', { key: KEYCHAIN_KEY });
   clearChatHistory();
 }
 
@@ -400,7 +420,7 @@ export async function askBob(
   history: { role: 'user' | 'model'; content: string }[],
   question: string
 ): Promise<string> {
-  const apiKey = getApiKey();
+  const apiKey = await getApiKey();
   if (!apiKey) throw new Error('No API key configured. Please add your Gemini API key in settings.');
 
   const genAI = new GoogleGenerativeAI(apiKey);

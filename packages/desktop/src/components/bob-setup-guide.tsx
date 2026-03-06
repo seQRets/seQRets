@@ -15,7 +15,7 @@ export function BobSetupGuide({ onKeyConfigured }: BobSetupGuideProps) {
   const [apiKey, setApiKeyInput] = useState('');
   const [error, setError] = useState('');
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const trimmed = apiKey.trim();
     if (!trimmed) {
       setError('Please enter an API key.');
@@ -25,8 +25,12 @@ export function BobSetupGuide({ onKeyConfigured }: BobSetupGuideProps) {
       setError('This doesn\'t look like a valid Gemini API key. Keys typically start with "AIza".');
       return;
     }
-    setApiKey(trimmed);
-    onKeyConfigured();
+    try {
+      await setApiKey(trimmed);
+      onKeyConfigured();
+    } catch (err: unknown) {
+      setError(`Failed to save API key: ${err instanceof Error ? err.message : String(err)}`);
+    }
   };
 
   return (

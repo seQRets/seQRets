@@ -114,7 +114,7 @@ The application demonstrates excellent cryptographic engineering with proper alg
 | **Nonce Size** | 192-bit (24 bytes) | Extended nonce, safe for random generation | ✅ Excellent |
 | **KDF** | Argon2id | Winner of Password Hashing Competition | ✅ Excellent |
 | **KDF Memory** | 64 MB | OWASP recommends 19–64 MB | ✅ Strong |
-| **KDF Iterations** | 3 | OWASP minimum: 2–3 | ⚠️ Acceptable |
+| **KDF Iterations** | 4 | OWASP minimum: 2–3 | ✅ Above minimum |
 | **KDF Parallelism** | 1 | Standard single-thread | ✅ Standard |
 | **Salt Size** | 128-bit (16 bytes) | NIST minimum: 128-bit | ✅ Standard |
 | **Secret Sharing** | Shamir's SSS | Information-theoretically secure | ✅ Excellent |
@@ -127,9 +127,9 @@ The application demonstrates excellent cryptographic engineering with proper alg
 ┌──────────────────────────────────────────────────────────────────┐
 │                    BRUTE FORCE RESISTANCE                        │
 │                                                                  │
-│  Argon2id (64 MB, 3 iterations)                                  │
+│  Argon2id (64 MB, 4 iterations)                                  │
 │  ────────────────────────────────                                │
-│  Each password guess requires 64 MB of RAM + 3 full passes.     │
+│  Each password guess requires 64 MB of RAM + 4 full passes.     │
 │  At $0.10/hr for GPU instances:                                  │
 │                                                                  │
 │  Password Entropy     Estimated Cost to Crack                    │
@@ -229,11 +229,11 @@ The desktop app runs all cryptographic operations in native Rust, providing guar
 ```
   CRITICAL  ██░░░░░░░░░░░░░░░░░░  1 found → ✅ 1 fixed
   HIGH      ██░░░░░░░░░░░░░░░░░░  1 found → ✅ 1 fixed
-  MEDIUM    ████████░░░░░░░░░░░░  4 found → ✅ 3 fixed, ⚠️ 1 partial
+  MEDIUM    ████████░░░░░░░░░░░░  4 found → ✅ 4 fixed
   LOW       ██████░░░░░░░░░░░░░░  3 found → ✅ 2 fixed, ⚠️ 1 partial
-  INFO      ████░░░░░░░░░░░░░░░░  2 findings (accepted risk)
+  INFO      ████░░░░░░░░░░░░░░░░  2 found → ✅ 1 fixed, 1 accepted risk
             ────────────────────
-            Total: 11 findings, 7 fixed
+            Total: 11 findings, 9 fixed
 ```
 
 ### Detailed Findings
@@ -259,11 +259,12 @@ The desktop app runs all cryptographic operations in native Rust, providing guar
 | # | Finding | Component | Impact | Fixable? |
 |:-:|---------|-----------|--------|:--------:|
 | M1 | ~~No clipboard auto-clear after copying secrets~~ | Frontend | ~~Copied passwords/seeds persist indefinitely~~ | ✅ **Fixed** |
-| M2 | Bob AI API key stored plaintext in localStorage | `bob-api.ts` | If app is somehow compromised, API key is readable (not a crypto secret, but an auth token) | ⚠️ Partial |
+| M2 | ~~Bob AI API key stored plaintext in localStorage~~ | `bob-api.ts` | ~~API key readable in localStorage~~ | ✅ **Fixed** |
 | M3 | ~~`console.error` in production crypto code~~ | `crypto.ts` | ~~Stack traces visible in developer console~~ | ✅ **Fixed** |
 | M4 | ~~Source maps shipped in crypto package~~ | `tsup.config.ts` | ~~Exposes original TypeScript source~~ | ✅ **Fixed** |
 
 > **M1 Resolved:** All 10 clipboard copy sites now use `copyWithAutoClear()` — clipboard auto-clears after 60 seconds if contents haven't changed. Toast messages inform users.
+> **M2 Resolved:** Desktop app now stores the API key in the OS keychain (macOS Keychain / Windows Credential Store) via the `keyring` crate and Tauri IPC. Existing keys are auto-migrated from localStorage on first launch. Web app retains localStorage (accepted tradeoff — no OS keychain available).
 > **M3 Resolved:** `console.error` removed; error is re-thrown with a user-friendly message.
 > **M4 Resolved:** `sourcemap: false` in tsup config; no `.map` files in production builds.
 
@@ -282,7 +283,7 @@ The desktop app runs all cryptographic operations in native Rust, providing guar
 
 | # | Finding | Component | Notes |
 |:-:|---------|-----------|-------|
-| I1 | Argon2id iterations at lower OWASP bound (t=3) | Crypto core | Acceptable per OWASP; increasing to t=4-5 would add margin |
+| I1 | ~~Argon2id iterations at lower OWASP bound~~ | Crypto core | ~~t=3 at lower OWASP bound~~ — now t=4 |
 | I2 | `shamirs-secret-sharing-ts` lacks public audit | Dependency | Algorithm is sound; implementation quality is unverified by third party |
 
 ---
@@ -466,14 +467,14 @@ The desktop app runs all cryptographic operations in native Rust, providing guar
 | M4 | Source maps disabled in production builds | `tsup.config.ts` | ✅ Done |
 | L1 | `Zeroizing<String>` for password parameter | `crypto.rs` | ✅ Done |
 | L2 | UTF-8 boundary-aware label truncation | `smartcard.rs` | ✅ Done |
+| M2 | API key moved to OS keychain (desktop) | `keychain.rs`, `bob-api.ts` | ✅ Done |
+| I1 | Argon2id iterations increased to t=4 | `crypto.rs`, `crypto.ts` | ✅ Done |
 
 ### Remaining (Roadmap)
 
 | # | Fix | Notes | Effort |
 |:-:|-----|-------|:------:|
-| I1 | Increase Argon2id iterations to t=4 | Requires UX testing for timing | Medium |
 | I2 | Audit or replace `shamirs-secret-sharing-ts` | Consider well-audited alternatives | Large |
-| M2 | Encrypt Bob API key at rest | Use OS keychain (macOS Keychain, Windows Credential Store) | Large |
 | L3 | Query actual card capacity via GET STATUS APDU | Avoid hardcoded 8192-byte assumption | Medium |
 
 ---
@@ -511,12 +512,12 @@ The Rust backend includes unit tests verifying:
 
 seQRets demonstrates **strong cryptographic engineering** with a well-designed zero-knowledge architecture. The desktop app provides meaningful security advantages over the web version through Rust-native cryptography, compiler-guaranteed memory erasure, browser extension immunity, and code-signed binary integrity.
 
-The 11 findings identified in this analysis were primarily configuration hardening opportunities (CSP, source maps) and edge-case robustness improvements (chunk overflow, clipboard clearing) — **none compromised the core cryptographic guarantees** of the application. **7 of 11 findings have been resolved**, with the remaining 4 on the roadmap (2 informational, 2 partial-fix items).
+The 11 findings identified in this analysis were primarily configuration hardening opportunities (CSP, source maps) and edge-case robustness improvements (chunk overflow, clipboard clearing) — **none compromised the core cryptographic guarantees** of the application. **9 of 11 findings have been resolved**, with the remaining 2 on the roadmap (1 informational, 1 partial-fix item).
 
 The cryptographic primitives (XChaCha20-Poly1305, Argon2id, Shamir's Secret Sharing) are industry-standard, properly parameterized, and correctly implemented across both the Rust and JavaScript codebases.
 
 ---
 
 <p align="center">
-<em>This analysis was conducted through a full source code review of all Rust, TypeScript, and configuration files in the seQRets desktop application (v1.3.8). 7 of 11 findings were remediated immediately following the audit. Last updated March 2026.</em>
+<em>This analysis was conducted through a full source code review of all Rust, TypeScript, and configuration files in the seQRets desktop application (v1.3.8). 9 of 11 findings were remediated immediately following the audit. Last updated March 2026.</em>
 </p>

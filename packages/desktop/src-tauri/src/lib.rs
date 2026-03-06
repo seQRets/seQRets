@@ -1,4 +1,5 @@
 mod crypto;
+mod keychain;
 mod smartcard;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -38,6 +39,10 @@ pub fn run() {
       crypto::crypto_restore,
       crypto::crypto_encrypt_blob,
       crypto::crypto_decrypt_blob,
+      // OS keychain commands
+      keychain::keychain_get,
+      keychain::keychain_set,
+      keychain::keychain_delete,
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

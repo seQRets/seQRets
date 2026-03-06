@@ -110,7 +110,7 @@ const cryptoDetails = `
 
 *   **Key Derivation Function (KDF):**
     *   **Algorithm:** Argon2id
-    *   **Iterations (Time Cost):** 3
+    *   **Iterations (Time Cost):** 4
     *   **Memory Cost:** 65536 (64 MB)
     *   **Parallelism:** 1
     *   **Salt Length:** 16 bytes (cryptographically random, generated per operation)

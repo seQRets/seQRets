@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Bot, Loader2, Send, User, ExternalLink, KeyRound, Eraser, TriangleAlert } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { askBob, getApiKey, removeApiKey, getChatHistory, saveChatHistory, clearChatHistory } from '@/lib/bob-api';
+import { askBob, getApiKey, removeApiKey, migrateApiKeyToKeychain, getChatHistory, saveChatHistory, clearChatHistory } from '@/lib/bob-api';
 import type { ChatMessage } from '@/lib/bob-api';
 import { BobSetupGuide } from '@/components/bob-setup-guide';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -33,7 +33,7 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
     const [message, setMessage] = useState('');
     const [isPending, setIsPending] = useState(false);
     const viewportRef = useRef<HTMLDivElement>(null);
-    const [hasApiKey, setHasApiKey] = useState(() => !!getApiKey());
+    const [hasApiKey, setHasApiKey] = useState<boolean | null>(null);
     const [showDisclaimer, setShowDisclaimer] = useState(() => {
         try {
             return !localStorage.getItem(BOB_DISCLAIMER_KEY);
@@ -56,6 +56,17 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
             if (vp) vp.scrollTop = vp.scrollHeight;
         });
     };
+
+    // Migrate API key from localStorage to OS keychain, then check if key exists
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            await migrateApiKeyToKeychain();
+            const key = await getApiKey();
+            if (!cancelled) setHasApiKey(!!key);
+        })();
+        return () => { cancelled = true; };
+    }, []);
 
     // Scroll to bottom on mount (so the user sees the most recent messages)
     useEffect(() => {
@@ -88,12 +99,16 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
         return () => window.removeEventListener('storage', handleStorage);
     }, []);
 
+    if (hasApiKey === null) {
+        return null; // Keychain lookup is sub-millisecond; avoids flash of setup guide
+    }
+
     if (!hasApiKey) {
         return <BobSetupGuide onKeyConfigured={() => setHasApiKey(true)} />;
     }
 
-    const handleDisconnect = () => {
-        removeApiKey();
+    const handleDisconnect = async () => {
+        await removeApiKey();
         setConversation([]);
         setHasApiKey(false);
     };

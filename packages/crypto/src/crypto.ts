@@ -11,7 +11,7 @@ import { wordlist } from '@scure/bip39/wordlists/english';
 
 const SALT_LENGTH = 16;
 const ARGON2_MEM_COST = 65536; // 64MB
-const ARGON2_TIME_COST = 3;
+const ARGON2_TIME_COST = 4;
 const ARGON2_PARALLELISM = 1;
 const KEY_LENGTH = 32;
 

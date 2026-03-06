@@ -28,7 +28,7 @@ const KEY_LENGTH: usize = 32;
 
 // Argon2id parameters — must match the @noble/hashes JS implementation exactly.
 const ARGON2_M_COST: u32 = 65536; // 64 MiB
-const ARGON2_T_COST: u32 = 3; // iterations
+const ARGON2_T_COST: u32 = 4; // iterations
 const ARGON2_P_COST: u32 = 1; // parallelism
 
 /// Returned by crypto_create and crypto_encrypt_blob.
