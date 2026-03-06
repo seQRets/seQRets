@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { copyWithAutoClear } from '@/lib/clipboard-utils';
 import { Button } from '@/components/ui/button';
 import { generateMnemonic, validateMnemonic } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
@@ -30,10 +31,10 @@ export function SeedPhraseGenerator({ onPhraseGenerated }: SeedPhraseGeneratorPr
 
   const handleCopy = () => {
     if (phrase) {
-      navigator.clipboard.writeText(phrase);
+      copyWithAutoClear(phrase);
       toast({
         title: 'Copied to Clipboard!',
-        description: 'Your seed phrase has been copied.',
+        description: 'Your seed phrase has been copied. Clipboard clears in 60s.',
       });
     }
   };

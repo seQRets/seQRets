@@ -151,12 +151,13 @@ pub fn crypto_create(
     password: String,
     keyfile_b64: Option<String>,
 ) -> Result<CryptoResult, String> {
+    let password = Zeroizing::new(password);
     let compressed = gzip_compress(json_payload.as_bytes())?;
 
     let mut salt = [0u8; SALT_LENGTH];
     rand::thread_rng().fill_bytes(&mut salt);
 
-    let key = derive_key(&password, &salt, keyfile_b64.as_deref())?;
+    let key = derive_key(password.as_str(), &salt, keyfile_b64.as_deref())?;
     let data = encrypt(&compressed, &key)?;
 
     Ok(CryptoResult {
@@ -178,11 +179,12 @@ pub fn crypto_restore(
     password: String,
     keyfile_b64: Option<String>,
 ) -> Result<String, String> {
+    let password = Zeroizing::new(password);
     let salt = STANDARD
         .decode(&salt_b64)
         .map_err(|e| format!("Salt base64 decode error: {e}"))?;
 
-    let key = derive_key(&password, &salt, keyfile_b64.as_deref())?;
+    let key = derive_key(password.as_str(), &salt, keyfile_b64.as_deref())?;
     let mut plaintext = decrypt(&encrypted_b64, &key)?;
 
     let decompressed = gzip_decompress(&plaintext)?;
@@ -201,12 +203,13 @@ pub fn crypto_encrypt_blob(
     password: String,
     keyfile_b64: Option<String>,
 ) -> Result<CryptoResult, String> {
+    let password = Zeroizing::new(password);
     let compressed = gzip_compress(json.as_bytes())?;
 
     let mut salt = [0u8; SALT_LENGTH];
     rand::thread_rng().fill_bytes(&mut salt);
 
-    let key = derive_key(&password, &salt, keyfile_b64.as_deref())?;
+    let key = derive_key(password.as_str(), &salt, keyfile_b64.as_deref())?;
     let data = encrypt(&compressed, &key)?;
 
     Ok(CryptoResult {
@@ -226,11 +229,12 @@ pub fn crypto_decrypt_blob(
     password: String,
     keyfile_b64: Option<String>,
 ) -> Result<String, String> {
+    let password = Zeroizing::new(password);
     let salt = STANDARD
         .decode(&salt_b64)
         .map_err(|e| format!("Salt base64 decode error: {e}"))?;
 
-    let key = derive_key(&password, &salt, keyfile_b64.as_deref())?;
+    let key = derive_key(password.as_str(), &salt, keyfile_b64.as_deref())?;
     let mut plaintext = decrypt(&data_b64, &key)?;
 
     let decompressed = gzip_decompress(&plaintext)?;

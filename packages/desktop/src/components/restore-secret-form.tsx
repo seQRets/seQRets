@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { copyWithAutoClear } from '@/lib/clipboard-utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -485,10 +486,10 @@ export function RestoreSecretForm() {
 
   const handleCopy = () => {
     if (restoredSecret) {
-      navigator.clipboard.writeText(restoredSecret);
+      copyWithAutoClear(restoredSecret);
       toast({
         title: 'Copied to clipboard!',
-        description: 'The restored secret has been copied.',
+        description: 'The restored secret has been copied. Clipboard clears in 60s.',
       });
     }
   };

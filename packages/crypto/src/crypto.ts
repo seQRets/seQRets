@@ -299,7 +299,6 @@ export async function decryptInstructions(request: DecryptInstructionRequest): P
         return finalPayload as DecryptInstructionResult;
 
     } catch (e: any) {
-        console.error("Instruction decryption failed:", e);
         if (e.message.includes('Authentication failed')) {
             throw new Error('Authentication failed. Please check your password and keyfile.');
         }

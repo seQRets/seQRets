@@ -8,6 +8,7 @@
  * Accessible from the app menu via /smartcard route.
  */
 import { useState, useEffect, useCallback } from 'react';
+import { copyWithAutoClear } from '@/lib/clipboard-utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -929,8 +930,8 @@ export default function SmartCardPage() {
                         size="icon"
                         onClick={() => {
                           if (changePinInput) {
-                            navigator.clipboard.writeText(changePinInput);
-                            toast({ title: 'Copied to clipboard!', description: 'Your PIN has been copied.' });
+                            copyWithAutoClear(changePinInput);
+                            toast({ title: 'Copied to clipboard!', description: 'Your PIN has been copied. Clipboard clears in 60s.' });
                           }
                         }}
                         disabled={!changePinInput}
@@ -944,8 +945,8 @@ export default function SmartCardPage() {
                           const pin = generatePin();
                           setChangePinInput(pin);
                           setConfirmChangePinInput(pin);
-                          navigator.clipboard.writeText(pin);
-                          toast({ title: 'PIN Generated & Copied', description: 'A secure 16-character PIN has been generated and copied to your clipboard. Save it somewhere safe!' });
+                          copyWithAutoClear(pin);
+                          toast({ title: 'PIN Generated & Copied', description: 'A secure 16-character PIN has been generated and copied to your clipboard. Clipboard clears in 60s. Save it somewhere safe!' });
                         }}
                         disabled={isChangingPin}
                       >
@@ -1035,8 +1036,8 @@ export default function SmartCardPage() {
                         size="icon"
                         onClick={() => {
                           if (newPinInput) {
-                            navigator.clipboard.writeText(newPinInput);
-                            toast({ title: 'Copied to clipboard!', description: 'Your PIN has been copied.' });
+                            copyWithAutoClear(newPinInput);
+                            toast({ title: 'Copied to clipboard!', description: 'Your PIN has been copied. Clipboard clears in 60s.' });
                           }
                         }}
                         disabled={!newPinInput}
@@ -1050,8 +1051,8 @@ export default function SmartCardPage() {
                           const pin = generatePin();
                           setNewPinInput(pin);
                           setConfirmPinInput(pin);
-                          navigator.clipboard.writeText(pin);
-                          toast({ title: 'PIN Generated & Copied', description: 'A secure 16-character PIN has been generated and copied to your clipboard. Save it somewhere safe!' });
+                          copyWithAutoClear(pin);
+                          toast({ title: 'PIN Generated & Copied', description: 'A secure 16-character PIN has been generated and copied to your clipboard. Clipboard clears in 60s. Save it somewhere safe!' });
                         }}
                         disabled={isSettingPin}
                       >

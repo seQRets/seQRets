@@ -185,10 +185,16 @@ fn write_data_to_card(
     // Step 2: Set data type
     send_apdu(card, CLA, INS_SET_TYPE, data_type, 0x00, &[])?;
 
-    // Step 3: Set label
+    // Step 3: Set label (truncate at a valid UTF-8 character boundary)
     let label_bytes = label_str.as_bytes();
     let label_to_send = if label_bytes.len() > 64 {
-        &label_bytes[..64]
+        let truncate_at = label_str[..64.min(label_str.len())]
+            .char_indices()
+            .map(|(i, c)| i + c.len_utf8())
+            .take_while(|&end| end <= 64)
+            .last()
+            .unwrap_or(0);
+        &label_bytes[..truncate_at]
     } else {
         label_bytes
     };
@@ -199,6 +205,14 @@ fn write_data_to_card(
     // Step 4: Write data in chunks
     let chunks: Vec<&[u8]> = data.chunks(CHUNK_SIZE).collect();
     let num_chunks = chunks.len();
+
+    if num_chunks > 255 {
+        return Err(format!(
+            "Data too large: {} bytes exceeds maximum write size of {} bytes",
+            data.len(),
+            255 * CHUNK_SIZE
+        ));
+    }
 
     for (i, chunk) in chunks.iter().enumerate() {
         let p1 = i as u8; // chunk index

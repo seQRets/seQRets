@@ -1,4 +1,5 @@
 import { useTransition, useEffect, useState } from 'react';
+import { copyWithAutoClear } from '@/lib/clipboard-utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -63,10 +64,10 @@ export function PasswordGenerator({ value, onValueChange, onValidationChange, pl
 
   const handleCopy = () => {
     if (value) {
-      navigator.clipboard.writeText(value);
+      copyWithAutoClear(value);
       toast({
         title: 'Copied to clipboard!',
-        description: 'Your password has been copied.',
+        description: 'Your password has been copied. Clipboard clears in 60s.',
       });
     }
   };
