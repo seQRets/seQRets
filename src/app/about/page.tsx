@@ -86,7 +86,7 @@ export default function AboutPage() {
                                 <li>Tauri v2 + Rust (desktop)</li>
                                 <li>@noble/ciphers & @noble/hashes</li>
                                 <li>@scure/bip39 (BIP-39 mnemonic support)</li>
-                                <li>shamirs-secret-sharing-ts</li>
+                                <li>shamir-secret-sharing (audited by Cure53 + Zellic)</li>
                                 <li>Tailwind CSS + Radix UI</li>
                             </ul>
                         </CardContent>

@@ -107,7 +107,7 @@ seQRets/
 | **Web App** | Next.js 16, React 19, TypeScript, Tailwind CSS, Radix UI |
 | **Desktop App** | Tauri v2, Vite, React 19, TypeScript, Tailwind CSS, Radix UI |
 | **Desktop Crypto (Rust)** | argon2, chacha20poly1305, zeroize, flate2, rand |
-| **Crypto Library (JS)** | @noble/ciphers, @noble/hashes, @scure/bip39, shamirs-secret-sharing-ts, pako |
+| **Crypto Library (JS)** | @noble/ciphers, @noble/hashes, @scure/bip39, shamir-secret-sharing, pako |
 | **AI Assistant** | Google Gemini (via @google/generative-ai) |
 | **QR Codes** | qrcode (generate), jsQR (decode) |
 | **Smartcard** | JavaCard 3.0.4 applet, Rust pcsc crate, GlobalPlatformPro |

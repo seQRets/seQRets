@@ -14,7 +14,7 @@ export default defineConfig({
     global: 'globalThis',
   },
   optimizeDeps: {
-    include: ['buffer', '@seqrets/crypto', 'shamirs-secret-sharing-ts'],
+    include: ['buffer', '@seqrets/crypto', 'shamir-secret-sharing'],
   },
   clearScreen: false,
   server: {
