@@ -110,7 +110,7 @@ All operations run **entirely on your device** — nothing is ever sent to a ser
 
 1. **Detect** — if your secret is a BIP-39 seed phrase, it is converted to compact binary entropy (e.g., 24 words → 32 bytes) before processing
 2. **Compress** — gzip (level 9) reduces the payload size to minimize QR code density
-3. **Derive key** — your password + optional keyfile are run through Argon2id (64MB memory, 3 iterations) to produce a 256-bit encryption key
+3. **Derive key** — your password + optional keyfile are run through Argon2id (64MB memory, 4 iterations) to produce a 256-bit encryption key
 4. **Encrypt** — XChaCha20-Poly1305 encrypts the compressed data using a randomly generated 128-bit salt and 192-bit nonce
 5. **Split** — Shamir's Secret Sharing divides the ciphertext into N shares with a threshold of T (e.g., 2-of-3)
 6. **Output** — each share is encoded as a QR code (Qard); a Qard is computationally indistinguishable from random noise without the others
@@ -194,7 +194,7 @@ All cryptographic operations run **entirely on your device**. Your secrets never
 
 | Layer | Algorithm | Purpose |
 |-------|-----------|---------|
-| **Key Derivation** | Argon2id (64MB memory, 3 iterations, 32-byte key output) | Derive encryption key from password + optional keyfile |
+| **Key Derivation** | Argon2id (64MB memory, 4 iterations, 32-byte key output) | Derive encryption key from password + optional keyfile |
 | **Encryption** | XChaCha20-Poly1305 (AEAD) | Authenticated encryption with integrity verification |
 | **Salt** | 16 random bytes (per operation) | Unique salt for each encryption — ensures distinct keys even with the same password |
 | **Nonce** | 24 random bytes | Per-encryption nonce for XChaCha20 |

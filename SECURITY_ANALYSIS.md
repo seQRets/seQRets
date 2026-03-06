@@ -82,7 +82,7 @@ The application demonstrates excellent cryptographic engineering with proper alg
               │  Input: password ∥ keyfile? │
               │  Salt:  16 random bytes    │
               │  Mem:   64 MB              │
-              │  Iter:  3                  │
+              │  Iter:  4                  │
               │  Output: 256-bit key       │
               └─────────────┬──────────────┘
                             │

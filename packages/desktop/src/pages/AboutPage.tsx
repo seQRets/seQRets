@@ -60,7 +60,7 @@ export default function AboutPage() {
                             </div>
                             <div className="flex items-start gap-2">
                                 <Key className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />
-                                <p><span className="font-semibold text-foreground">Argon2id</span> key derivation (64MB memory, 3 iterations)</p>
+                                <p><span className="font-semibold text-foreground">Argon2id</span> key derivation (64MB memory, 4 iterations)</p>
                             </div>
                             <div className="flex items-start gap-2">
                                 <QrCode className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />

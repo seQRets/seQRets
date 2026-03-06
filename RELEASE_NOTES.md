@@ -16,7 +16,7 @@ Protect your sensitive data with Shamir's Secret Sharing and XChaCha20-Poly1305 
 #### 🦀 Native Rust Crypto Backend (Desktop)
 The desktop app now runs all key derivation and symmetric encryption natively in Rust via Tauri IPC — replacing the previous JavaScript Web Worker path entirely:
 
-- **Argon2id** key derivation (64 MB memory, 3 iterations, 256-bit key)
+- **Argon2id** key derivation (64 MB memory, 4 iterations, 256-bit key)
 - **XChaCha20-Poly1305** AEAD encryption with a 192-bit random nonce
 - **Gzip compression** (level 9) before encryption
 - **OS-backed CSPRNG** (`rand::thread_rng()`) for salts and nonces — drawn directly from the OS entropy pool without any JS layer
@@ -44,7 +44,7 @@ The wire format is **bit-for-bit identical** to the web app's `@noble/*` impleme
 
 ### Core Cryptography
 
-- XChaCha20-Poly1305 AEAD encryption with Argon2id key derivation (64 MB, 3 iterations)
+- XChaCha20-Poly1305 AEAD encryption with Argon2id key derivation (64 MB, 4 iterations)
 - Shamir's Secret Sharing — split secrets into QR code "Qards"
 - BIP-39 seed phrase detection with compact binary entropy storage (24-word phrase → 32 bytes)
 - **Desktop:** all cryptographic operations run natively in Rust — your raw secret and password never leave the Rust process, and derived keys are zeroized immediately after use

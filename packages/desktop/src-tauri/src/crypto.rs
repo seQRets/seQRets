@@ -6,7 +6,7 @@
 /// the `zeroize` crate when dropped.
 ///
 /// Wire format (identical to the @noble/* JS implementation):
-///   - Key derivation : Argon2id(m=65536, t=3, p=1, len=32) over (password ++ optional_keyfile)
+///   - Key derivation : Argon2id(m=65536, t=4, p=1, len=32) over (password ++ optional_keyfile)
 ///   - Encryption     : XChaCha20-Poly1305 with a random 24-byte nonce
 ///   - Payload format : base64( nonce[24] || xchacha20_ciphertext_with_tag )
 ///   - Salt           : 16 random bytes, stored as base64 alongside the ciphertext
