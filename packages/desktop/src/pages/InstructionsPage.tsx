@@ -20,7 +20,7 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import type { RawInstruction, DecryptInstructionRequest, EncryptedInstruction } from '@/lib/types';
 import { SmartCardDialog } from '@/components/smartcard-dialog';
-import type { CardItem } from '@/lib/smartcard';
+import { DEFAULT_CARD_CAPACITY, type CardItem } from '@/lib/smartcard';
 import { saveFileNative, saveTextFileNative, base64ToUint8Array } from '@/lib/native-save';
 import { encryptInstructions, decryptInstructions } from '@/lib/desktop-crypto';
 import { InheritancePlanForm } from '@/components/inheritance-plan-form';
@@ -456,7 +456,7 @@ export default function InstructionsPage() {
                 {encryptStep >= 4 && encryptedResult && (() => {
                   const encryptedJson = JSON.stringify(encryptedResult);
                   const encryptedSizeBytes = new TextEncoder().encode(encryptedJson).length;
-                  const fitsOnCard = encryptedSizeBytes <= 8192;
+                  const fitsOnCard = encryptedSizeBytes <= DEFAULT_CARD_CAPACITY;
                   const sizeDisplay = encryptedSizeBytes < 1024
                     ? `${encryptedSizeBytes} bytes`
                     : `${(encryptedSizeBytes / 1024).toFixed(1)} KB`;
@@ -500,7 +500,7 @@ export default function InstructionsPage() {
 
                           {!fitsOnCard ? (
                             <p className="text-xs text-muted-foreground">
-                              Encrypted file ({sizeDisplay}) exceeds the 8 KB smart card limit. Use Save to File instead.
+                              Encrypted file ({sizeDisplay}) exceeds the {Math.round(DEFAULT_CARD_CAPACITY / 1024)} KB smart card limit. Use Save to File instead.
                             </p>
                           ) : (
                             <p className="text-xs text-muted-foreground">
@@ -632,7 +632,7 @@ export default function InstructionsPage() {
                 {encryptStep >= 4 && encryptedResult && (() => {
                   const encryptedJson = JSON.stringify(encryptedResult);
                   const encryptedSizeBytes = new TextEncoder().encode(encryptedJson).length;
-                  const fitsOnCard = encryptedSizeBytes <= 8192;
+                  const fitsOnCard = encryptedSizeBytes <= DEFAULT_CARD_CAPACITY;
                   const sizeDisplay = encryptedSizeBytes < 1024 ? `${encryptedSizeBytes} bytes` : `${(encryptedSizeBytes / 1024).toFixed(1)} KB`;
                   return (
                     <div className="animate-in fade-in duration-500 space-y-8">
@@ -658,7 +658,7 @@ export default function InstructionsPage() {
                             </Button>
                           </div>
                           {!fitsOnCard ? (
-                            <p className="text-xs text-muted-foreground">Encrypted plan ({sizeDisplay}) exceeds the 8 KB smart card limit. Use Save to File instead.</p>
+                            <p className="text-xs text-muted-foreground">Encrypted plan ({sizeDisplay}) exceeds the {Math.round(DEFAULT_CARD_CAPACITY / 1024)} KB smart card limit. Use Save to File instead.</p>
                           ) : (
                             <p className="text-xs text-muted-foreground">The item will be appended to any existing data on the card.</p>
                           )}

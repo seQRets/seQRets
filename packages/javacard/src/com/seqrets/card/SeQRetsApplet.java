@@ -259,6 +259,7 @@ public class SeQRetsApplet extends Applet {
      *   [5]    pin retries remaining (0-5)
      *   [6]    label length (1 byte)
      *   [7..]  label bytes (up to 64)
+     *   [7+labelLen .. 7+labelLen+1]  total capacity (2 bytes, big-endian)
      */
     private void processGetStatus(APDU apdu) {
         byte[] buffer = apdu.getBuffer();
@@ -289,6 +290,11 @@ public class SeQRetsApplet extends Applet {
             Util.arrayCopy(label, (short) 0, buffer, offset, (short) labelLength);
             offset += labelLength;
         }
+
+        // Total card capacity (2 bytes, big-endian) — allows the host
+        // to compute free space without hardcoding a capacity assumption.
+        Util.setShort(buffer, offset, MAX_DATA_SIZE);
+        offset += 2;
 
         apdu.setOutgoingAndSend((short) 0, offset);
     }

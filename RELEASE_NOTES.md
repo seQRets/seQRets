@@ -1,15 +1,15 @@
-## seQRets Desktop v1.3.8 🛫 Pre-flight
+## seQRets Desktop v1.4.0 🛫 Pre-flight
 Protect your sensitive data with Shamir's Secret Sharing and XChaCha20-Poly1305 encryption.
 
 ### Downloads
 
 | Platform | Download |
 |---|---|
-| 🍎 macOS (Apple Silicon) | [seQRets_1.3.8_aarch64.dmg](https://github.com/seQRets/seQRets-Releases/releases/download/v1.3.8/seQRets_1.3.8_aarch64.dmg) |
-| 🍎 macOS (Intel) | [seQRets_1.3.8_x64.dmg](https://github.com/seQRets/seQRets-Releases/releases/download/v1.3.8/seQRets_1.3.8_x64.dmg) |
-| 🪟 Windows | [seQRets_1.3.8_x64-setup.exe](https://github.com/seQRets/seQRets-Releases/releases/download/v1.3.8/seQRets_1.3.8_x64-setup.exe) |
-| 🐧 Linux (Debian/Ubuntu) | [seQRets_1.3.8_amd64.deb](https://github.com/seQRets/seQRets-Releases/releases/download/v1.3.8/seQRets_1.3.8_amd64.deb) |
-| 🐧 Linux (Universal) | [seQRets_1.3.8_amd64.AppImage](https://github.com/seQRets/seQRets-Releases/releases/download/v1.3.8/seQRets_1.3.8_amd64.AppImage) |
+| 🍎 macOS (Apple Silicon) | [seQRets_1.4.0_aarch64.dmg](https://github.com/seQRets/seQRets-Releases/releases/download/v1.4.0/seQRets_1.4.0_aarch64.dmg) |
+| 🍎 macOS (Intel) | [seQRets_1.4.0_x64.dmg](https://github.com/seQRets/seQRets-Releases/releases/download/v1.4.0/seQRets_1.4.0_x64.dmg) |
+| 🪟 Windows | [seQRets_1.4.0_x64-setup.exe](https://github.com/seQRets/seQRets-Releases/releases/download/v1.4.0/seQRets_1.4.0_x64-setup.exe) |
+| 🐧 Linux (Debian/Ubuntu) | [seQRets_1.4.0_amd64.deb](https://github.com/seQRets/seQRets-Releases/releases/download/v1.4.0/seQRets_1.4.0_amd64.deb) |
+| 🐧 Linux (Universal) | [seQRets_1.4.0_amd64.AppImage](https://github.com/seQRets/seQRets-Releases/releases/download/v1.4.0/seQRets_1.4.0_amd64.AppImage) |
 
 ### What's New
 
@@ -63,21 +63,21 @@ After downloading, verify file integrity with a checksum:
 
 **macOS:**
 ```bash
-shasum -a 256 ~/Downloads/seQRets_1.3.8_aarch64.dmg
+shasum -a 256 ~/Downloads/seQRets_1.4.0_aarch64.dmg
 ```
 
 **Linux:**
 ```bash
-sha256sum ~/Downloads/seQRets_1.3.8_amd64.deb
+sha256sum ~/Downloads/seQRets_1.4.0_amd64.deb
 ```
 
 **Windows (PowerShell):**
 ```powershell
-Get-FileHash ~\Downloads\seQRets_1.3.8_x64-setup.exe -Algorithm SHA256
+Get-FileHash ~\Downloads\seQRets_1.4.0_x64-setup.exe -Algorithm SHA256
 ```
 
 Compare the output against the `sha256` hash shown next to each asset below.
 
 ---
 
-> **Note:** Download URLs assume Tauri generates filenames in the `seQRets_1.3.8_*` pattern. Verify actual filenames once build artifacts are uploaded and adjust links if needed.
+> **Note:** Download URLs assume Tauri generates filenames in the `seQRets_1.4.0_*` pattern. Verify actual filenames once build artifacts are uploaded and adjust links if needed.

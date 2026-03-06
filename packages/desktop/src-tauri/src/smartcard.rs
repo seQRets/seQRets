@@ -35,8 +35,9 @@ const CHUNK_SIZE: usize = 240;
 const TYPE_SHARE: u8 = 0x01;
 const TYPE_VAULT: u8 = 0x02;
 
-/// Approximate usable card capacity in bytes
-const CARD_CAPACITY: usize = 8192;
+/// Default card capacity — used as a fallback when the card's GET_STATUS
+/// response does not include the capacity field (older applet versions).
+const DEFAULT_CARD_CAPACITY: usize = 8192;
 
 // ── Serde types for frontend ────────────────────────────────────────────
 
@@ -62,6 +63,7 @@ pub struct CardItemSummary {
 pub struct CardStatus {
     pub has_data: bool,
     pub data_length: u16,
+    pub card_capacity: u16,
     pub total_items: usize,
     pub items: Vec<CardItemSummary>,
     pub pin_set: bool,
@@ -170,6 +172,27 @@ fn verify_pin_if_needed(card: &Card, pin: &Option<String>) -> Result<(), String>
         }
     }
     Ok(())
+}
+
+/// Parse total card capacity from a GET_STATUS response.
+///
+/// The capacity field is 2 big-endian bytes appended after the label bytes:
+///   [0-1]=dataLen, [2]=type, [3]=pinSet, [4]=pinVerified,
+///   [5]=pinRetries, [6]=labelLen, [7..7+labelLen]=label,
+///   [7+labelLen..7+labelLen+2]=capacity
+///
+/// Returns DEFAULT_CARD_CAPACITY if the response is too short (older applet).
+fn parse_card_capacity(status_resp: &[u8]) -> usize {
+    if status_resp.len() < 7 {
+        return DEFAULT_CARD_CAPACITY;
+    }
+    let label_length = status_resp[6] as usize;
+    let capacity_offset = 7 + label_length;
+    if status_resp.len() >= capacity_offset + 2 {
+        ((status_resp[capacity_offset] as usize) << 8) | (status_resp[capacity_offset + 1] as usize)
+    } else {
+        DEFAULT_CARD_CAPACITY
+    }
 }
 
 /// Write a data blob to the card in chunks, with type and label metadata.
@@ -306,12 +329,16 @@ fn write_items_to_card(card: &Card, items: &[CardItem]) -> Result<(), String> {
         .map_err(|e| format!("Failed to serialize items: {}", e))?;
     let data_bytes = json.as_bytes();
 
-    // Size check
-    if data_bytes.len() > CARD_CAPACITY {
+    // Query actual card capacity via GET_STATUS
+    let status_resp = send_apdu(card, CLA, INS_GET_STATUS, 0x00, 0x00, &[])?;
+    let capacity = parse_card_capacity(&status_resp);
+
+    // Size check against the card's reported capacity
+    if data_bytes.len() > capacity {
         return Err(format!(
-            "Combined data ({} bytes) exceeds card capacity (~{} bytes). Remove some items first.",
+            "Combined data ({} bytes) exceeds card capacity ({} bytes). Remove some items first.",
             data_bytes.len(),
-            CARD_CAPACITY
+            capacity
         ));
     }
 
@@ -374,6 +401,9 @@ pub fn get_card_status(reader: String, pin: Option<String>) -> Result<CardStatus
         String::new()
     };
 
+    // Parse card capacity from GET_STATUS response (falls back to default for older applets)
+    let card_capacity = parse_card_capacity(&resp) as u16;
+
     // If there's data, read and parse to get item summaries
     let (total_items, items) = if data_length > 0 {
         match read_raw_card_data(&card) {
@@ -433,13 +463,14 @@ pub fn get_card_status(reader: String, pin: Option<String>) -> Result<CardStatus
         (0, Vec::new())
     };
 
-    let free_bytes_estimate = CARD_CAPACITY as i32 - data_length as i32;
+    let free_bytes_estimate = card_capacity as i32 - data_length as i32;
 
     disconnect_with_reset(card);
 
     Ok(CardStatus {
         has_data: data_length > 0,
         data_length,
+        card_capacity,
         total_items,
         items,
         pin_set,

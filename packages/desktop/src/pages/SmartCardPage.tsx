@@ -539,7 +539,7 @@ export default function SmartCardPage() {
                         <div className="space-y-2">
                           <p>
                             {cardStatus.total_items} item{cardStatus.total_items !== 1 ? 's' : ''} stored
-                            {' '}({cardStatus.data_length} bytes used, ~{Math.max(0, cardStatus.free_bytes_estimate)} bytes free)
+                            {' '}({cardStatus.data_length} of {cardStatus.card_capacity} bytes used, {Math.max(0, cardStatus.free_bytes_estimate)} bytes free)
                           </p>
                           <div className="space-y-1">
                             {cardStatus.items.map((item) => (

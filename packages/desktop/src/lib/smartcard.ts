@@ -7,6 +7,11 @@
  */
 import { invoke } from '@tauri-apps/api/core';
 
+// ── Constants ────────────────────────────────────────────────────────────
+
+/** Default card capacity (bytes) — used as an estimate when card is not connected. */
+export const DEFAULT_CARD_CAPACITY = 8192;
+
 // ── Types ───────────────────────────────────────────────────────────────
 
 /** A single item stored on the card. */
@@ -28,6 +33,7 @@ export interface CardItemSummary {
 export interface CardStatus {
   has_data: boolean;
   data_length: number;
+  card_capacity: number;
   total_items: number;
   items: CardItemSummary[];
   pin_set: boolean;

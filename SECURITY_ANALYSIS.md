@@ -1,6 +1,6 @@
 # seQRets Desktop App — Security Analysis
 
-> **Audit Date:** March 2026 · **App Version:** 1.3.8 · **Auditor:** Independent code review via Claude (Anthropic)
+> **Audit Date:** March 2026 · **App Version:** 1.4.0 · **Auditor:** Independent code review via Claude (Anthropic)
 > **Scope:** Full source audit of `packages/desktop/`, `packages/crypto/`, and `src-tauri/` (Rust backend)
 
 ---
@@ -230,10 +230,10 @@ The desktop app runs all cryptographic operations in native Rust, providing guar
   CRITICAL  ██░░░░░░░░░░░░░░░░░░  1 found → ✅ 1 fixed
   HIGH      ██░░░░░░░░░░░░░░░░░░  1 found → ✅ 1 fixed
   MEDIUM    ████████░░░░░░░░░░░░  4 found → ✅ 4 fixed
-  LOW       ██████░░░░░░░░░░░░░░  3 found → ✅ 2 fixed, ⚠️ 1 partial
+  LOW       ██████░░░░░░░░░░░░░░  3 found → ✅ 3 fixed
   INFO      ████░░░░░░░░░░░░░░░░  2 found → ✅ 2 fixed
             ────────────────────
-            Total: 11 findings, 10 fixed
+            Total: 11 findings, 11 fixed ✅
 ```
 
 ### Detailed Findings
@@ -274,10 +274,11 @@ The desktop app runs all cryptographic operations in native Rust, providing guar
 |:-:|---------|-----------|--------|:--------:|
 | L1 | ~~Password `String` not explicitly zeroized in Rust~~ | `crypto.rs` | ~~Password lives slightly longer in memory~~ | ✅ **Fixed** |
 | L2 | ~~SmartCard label truncation may split UTF-8~~ | `smartcard.rs` | ~~Garbled display for multi-byte labels~~ | ✅ **Fixed** |
-| L3 | Card capacity hardcoded at 8192 bytes | `smartcard.rs` | May not match actual card memory; could cause silent truncation | ⚠️ Partial |
+| L3 | ~~Card capacity hardcoded at 8192 bytes~~ | `smartcard.rs` | ~~May not match actual card memory~~ | ✅ **Fixed** |
 
 > **L1 Resolved:** All 4 Tauri command functions now wrap `password` in `Zeroizing::new()` — heap buffer zeroed on drop.
 > **L2 Resolved:** Label truncation now uses `char_indices()` to find the last valid UTF-8 boundary within 64 bytes.
+> **L3 Resolved:** The JavaCard applet now reports `MAX_DATA_SIZE` in the GET_STATUS response. The Rust backend parses the actual capacity from the card and uses it for free-space calculations and pre-write size checks. The hardcoded constant is retained only as a fallback for older applet versions.
 
 #### INFORMATIONAL
 
@@ -389,7 +390,7 @@ The desktop app runs all cryptographic operations in native Rust, providing guar
   │                                            │
   │   PIN: 8–16 characters                     │
   │   Retries: 5 attempts before lockout       │
-  │   Storage: Up to ~8 KB per card            │
+  │   Storage: Capacity queried from card       │
   │   Protocol: ISO 7816 APDU over PC/SC       │
   │                                            │
   │   ┌──────────────────────────────────────┐ │
@@ -470,12 +471,11 @@ The desktop app runs all cryptographic operations in native Rust, providing guar
 | M2 | API key moved to OS keychain (desktop) | `keychain.rs`, `bob-api.ts` | ✅ Done |
 | I1 | Argon2id iterations increased to t=4 | `crypto.rs`, `crypto.ts` | ✅ Done |
 | I2 | Replaced unaudited Shamir library with audited alternative | `crypto.ts`, `desktop-crypto.ts` | ✅ Done |
+| L3 | Card capacity queried from card via GET STATUS APDU | `SeQRetsApplet.java`, `smartcard.rs` | ✅ Done |
 
 ### Remaining (Roadmap)
 
-| # | Fix | Notes | Effort |
-|:-:|-----|-------|:------:|
-| L3 | Query actual card capacity via GET STATUS APDU | Avoid hardcoded 8192-byte assumption | Medium |
+All 11 findings have been resolved. No items remain on the security roadmap.
 
 ---
 
@@ -512,12 +512,12 @@ The Rust backend includes unit tests verifying:
 
 seQRets demonstrates **strong cryptographic engineering** with a well-designed zero-knowledge architecture. The desktop app provides meaningful security advantages over the web version through Rust-native cryptography, compiler-guaranteed memory erasure, browser extension immunity, and code-signed binary integrity.
 
-The 11 findings identified in this analysis were primarily configuration hardening opportunities (CSP, source maps) and edge-case robustness improvements (chunk overflow, clipboard clearing) — **none compromised the core cryptographic guarantees** of the application. **10 of 11 findings have been resolved**, with the remaining 1 on the roadmap (L3: smart card capacity query).
+The 11 findings identified in this analysis were primarily configuration hardening opportunities (CSP, source maps) and edge-case robustness improvements (chunk overflow, clipboard clearing) — **none compromised the core cryptographic guarantees** of the application. **All 11 findings have been resolved.**
 
 The cryptographic primitives (XChaCha20-Poly1305, Argon2id, Shamir's Secret Sharing) are industry-standard, properly parameterized, and correctly implemented across both the Rust and JavaScript codebases.
 
 ---
 
 <p align="center">
-<em>This analysis was conducted through a full source code review of all Rust, TypeScript, and configuration files in the seQRets desktop application (v1.3.8). 10 of 11 findings were remediated immediately following the audit. Last updated March 2026.</em>
+<em>This analysis was conducted through a full source code review of all Rust, TypeScript, and configuration files in the seQRets desktop application (v1.4.0). All 11 findings were remediated immediately following the audit. Last updated March 2026.</em>
 </p>
