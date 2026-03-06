@@ -198,7 +198,7 @@ All cryptographic operations run **entirely on your device**. Your secrets never
 | **Encryption** | XChaCha20-Poly1305 (AEAD) | Authenticated encryption with integrity verification |
 | **Salt** | 16 random bytes (per operation) | Unique salt for each encryption — ensures distinct keys even with the same password |
 | **Nonce** | 24 random bytes | Per-encryption nonce for XChaCha20 |
-| **Splitting** | Shamir's Secret Sharing | Threshold-based secret splitting into Qards |
+| **Splitting** | Shamir's Secret Sharing ([audited](https://github.com/privy-io/shamir-secret-sharing), zero-dependency) | Threshold-based secret splitting into Qards |
 | **Compression** | Gzip (level 9) | Reduce payload size before encryption |
 | **RNG** | OS-backed CSPRNG | **Desktop:** Rust `rand::thread_rng()` (OS entropy) for salts/nonces; `crypto.getRandomValues()` for passwords/keyfiles. **Web:** `crypto.getRandomValues()` for all operations. |
 | **Memory** | Key zeroization | **Desktop:** Rust `zeroize` crate — compiler-fence guaranteed, optimizer-proof. Keys never cross the JS/Rust boundary. **Web:** `fill(0)` in `finally` blocks. Note: JS strings (passwords) cannot be zeroed — a browser/JS limitation. |

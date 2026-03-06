@@ -130,6 +130,7 @@ const cryptoDetails = `
 
 *   **Secret Splitting:**
     *   **Algorithm:** Shamir's Secret Sharing
+    *   **Library:** shamir-secret-sharing (by Privy) — zero dependencies, independently audited by Cure53 and Zellic
     *   The splitting happens *after* encryption. The raw, unencrypted secret is never split directly.
     *   This is a critical security design choice — a stolen Qard is computationally indistinguishable from random noise.
 
