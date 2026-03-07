@@ -65,8 +65,12 @@ export async function createShares(request: CreateSharesRequest): Promise<Create
     });
 
     // Step 3: Shamir-split the raw (nonce||ciphertext) bytes.
+    // When totalShares === 1, skip Shamir splitting (the library requires ≥2)
+    // and return the encrypted data directly as a single share.
     const encryptedBytes = new Uint8Array(Buffer.from(data, 'base64'));
-    const encryptedShares = await split(encryptedBytes, totalShares, requiredShares);
+    const encryptedShares = totalShares === 1
+        ? [encryptedBytes]
+        : await split(encryptedBytes, totalShares, requiredShares);
 
     // Step 4: Format shares. The salt is already base64 (returned from Rust).
     const formattedShares = encryptedShares.map(
@@ -126,13 +130,19 @@ export async function restoreSecret(request: RestoreSecretRequest): Promise<Rest
     }
 
     // Step 2: Shamir combine — reconstructs the raw (nonce||ciphertext) bytes.
+    // When there's only 1 share, it was stored without Shamir splitting,
+    // so use it directly instead of calling combine().
     let combinedBytes: Uint8Array;
-    try {
-        combinedBytes = await combine(shareBuffers);
-    } catch {
-        throw new Error(
-            'Could not combine encrypted shares. Not enough shares provided, or shares are corrupted.'
-        );
+    if (shareBuffers.length === 1) {
+        combinedBytes = shareBuffers[0];
+    } else {
+        try {
+            combinedBytes = await combine(shareBuffers);
+        } catch {
+            throw new Error(
+                'Could not combine encrypted shares. Not enough shares provided, or shares are corrupted.'
+            );
+        }
     }
 
     // Step 3: Rust decrypts and decompresses, returning the JSON payload string.

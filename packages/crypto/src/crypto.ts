@@ -136,7 +136,11 @@ export async function createShares(request: CreateSharesRequest): Promise<Create
         combinedEncrypted.set(nonce, 0);
         combinedEncrypted.set(encryptedSecret, nonce.length);
 
-        const encryptedShares = await split(combinedEncrypted, totalShares, requiredShares);
+        // When totalShares === 1, skip Shamir splitting (the library requires ≥2)
+        // and return the encrypted data directly as a single share.
+        const encryptedShares = totalShares === 1
+            ? [combinedEncrypted]
+            : await split(combinedEncrypted, totalShares, requiredShares);
 
         const saltBase64 = Buffer.from(salt).toString('base64');
         const formattedShares = encryptedShares.map(shareData => {
@@ -192,11 +196,17 @@ export async function restoreSecret(request: RestoreSecretRequest): Promise<Rest
         throw new Error("Could not extract salt from shares.");
     }
 
+    // When there's only 1 share, it was stored without Shamir splitting,
+    // so use it directly instead of calling combine().
     let combinedEncryptedSecret: Uint8Array;
-    try {
-        combinedEncryptedSecret = await combine(encryptedShares);
-    } catch (error) {
-        throw new Error('Could not combine encrypted shares. Not enough shares provided, or shares are corrupted.');
+    if (encryptedShares.length === 1) {
+        combinedEncryptedSecret = encryptedShares[0];
+    } else {
+        try {
+            combinedEncryptedSecret = await combine(encryptedShares);
+        } catch (error) {
+            throw new Error('Could not combine encrypted shares. Not enough shares provided, or shares are corrupted.');
+        }
     }
 
     const salt = Buffer.from(saltBase64, 'base64');
