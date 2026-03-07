@@ -161,14 +161,100 @@ const cryptoDetails = `
     *   Output format: JSON with "salt" and "data" fields.
     *   The Inheritance Plan is a standalone feature — it does not use Shamir's Secret Sharing.
 
-*   **JavaCard Smartcard:**
-    *   JCOP3 J3H145 cards with ~110KB usable EEPROM.
-    *   Maximum data per card: 8,192 bytes (8 KB). Each card can hold multiple items (shares, vaults, keyfiles, instructions) stored as a JSON array. New writes append to existing data.
-    *   Communication via APDU over PC/SC (Rust pcsc crate).
-    *   Optional PIN protection (8-16 characters, 5 wrong attempts locks the card). Real-time PIN retry countdown displayed after each failed attempt.
-    *   CSPRNG-powered Generate PIN button creates secure 16-character PINs with copy and reveal/hide support.
-    *   Per-item management: view stored items, select individual items for import, and delete individual items.
-    *   Clone card: read all items from one card and write them to another via the Smart Card Manager; supports single-reader (swap card) and dual-reader workflows with optional destination PIN.
+*   **JavaCard Smartcard (seQRets Implementation):**
+    *   **Card model:** JCOP3 J3H145 — NXP SmartMX2-based JavaCard 3.0.4, dual-interface (contact + contactless/NFC), 144 KB EEPROM, ~110 KB usable after OS/GP overhead, Common Criteria EAL5+ certified hardware with PUF (Physical Unclonable Function), over 100 hardware security features including active shield layers, glitch detectors, and DPA-resistant crypto coprocessors.
+    *   **Application storage limit:** 8,192 bytes (8 KB) per card for user data. Each card can hold multiple items (shares, vaults, keyfiles, instructions) stored as a JSON array. New writes append to existing data.
+    *   **Communication:** APDU (Application Protocol Data Unit) commands over PC/SC via the Rust pcsc crate. The host sends command APDUs (CLA, INS, P1, P2, data) and receives response APDUs (data + status word). A USB PC/SC-compatible smart card reader is required (contact readers like the Identiv SCR3310 or dual-interface readers like the HID OMNIKEY 5422).
+    *   **PIN protection:** Optional, 8-16 characters, 5 wrong attempts permanently locks the card (only recovery is factory reset which erases all data). Uses the JavaCard OwnerPIN class with a hardware-enforced retry counter that cannot be rolled back by software. Real-time PIN retry countdown (color-coded: gray → amber → red) displayed after each failed attempt.
+    *   **Generate PIN:** CSPRNG-powered button creates secure 16-character PINs (upper/lowercase, numbers, symbols) with copy-to-clipboard and reveal/hide support.
+    *   **Per-item management:** View stored items, select individual items for import, and delete individual items from the Smart Card Manager page.
+    *   **Clone card:** Read all items from one card and write them to another via the Smart Card Manager; supports single-reader (swap card) and dual-reader workflows with optional destination PIN.
+    *   **Card tear protection:** JavaCard's atomic transaction mechanism ensures data integrity if a card is removed mid-write — partial writes are rolled back on next power-up.
+    *   **Applet isolation:** The JavaCard applet firewall enforces runtime isolation between applets. The seQRets applet's data is inaccessible to any other applet on the card.
+`;
+
+const javaCardGuide = `
+## JAVACARD SMARTCARD KNOWLEDGE BASE ##
+
+This section provides background knowledge for answering user questions about JavaCard smartcards — what they are, why seQRets uses them, how they compare to alternatives, and practical guidance on purchasing and readers.
+
+### What Is a JavaCard Smartcard?
+Java Card is an open, interoperable platform that runs a subset of Java on smart cards and other secure elements. Created by Sun Microsystems in 1996 (now maintained by Oracle), it is the dominant smart card OS globally, with roughly six billion Java Card-enabled devices deployed per year. Unlike regular "native" smart cards that are programmed once at the factory, JavaCards run a Java Card Virtual Machine (JCVM) and can host multiple isolated applications ("applets") that can be loaded after manufacturing.
+
+Key properties:
+- **Multi-application:** Multiple independent applets share the card, each isolated by a hardware-enforced "applet firewall" — one applet cannot access another's data.
+- **Post-issuance loading:** New applets can be installed onto the card after it leaves the factory, via the GlobalPlatform card management framework.
+- **Portable:** Applets written in the Java Card language subset run on cards from different manufacturers (NXP, Infineon, etc.) without rewriting.
+- **Tamper-resistant hardware:** The chip includes active shield layers, voltage/clock glitch detectors, temperature sensors, memory encryption, DPA-resistant crypto coprocessors, and (on modern chips) a Physical Unclonable Function (PUF). These protections make extracting data from the chip extremely difficult, even with physical access.
+
+### How seQRets Uses JavaCards
+seQRets uses JCOP3 J3H145 cards (NXP, JavaCard 3.0.4, 144 KB EEPROM, dual-interface). A custom JavaCard applet is loaded onto the card that provides:
+- **Encrypted data storage:** Shares, vaults, keyfiles, and inheritance plans are stored as a JSON array in the card's persistent EEPROM, up to 8 KB total.
+- **PIN authentication:** Optional PIN (8-16 characters) using the JavaCard OwnerPIN class. The retry counter is hardware-enforced and cannot be bypassed or rolled back by software — 5 wrong attempts permanently lock the card. The only recovery is a factory reset (forceEraseCard), which wipes all data.
+- **Atomic writes:** The JavaCard transaction mechanism protects against card tears (removing the card mid-write). If power is lost during a write, all changes within that transaction are automatically rolled back on next power-up.
+- **Multi-item management:** Each card can hold multiple items. Users can view, select, import, delete individual items, or clone all items to another card.
+- **PC/SC communication:** The desktop app communicates with the card via APDU commands over PC/SC using a USB smart card reader and the Rust pcsc crate.
+
+### Why Smart Cards Over USB Drives?
+Users may ask why seQRets uses smart cards instead of encrypted USB drives. Key differences:
+- **Tamper resistance:** Smart card chips are designed to resist physical extraction. USB flash memory has no such protections — data can be read by desoldering the flash chip.
+- **PIN lockout:** The card's hardware retry counter permanently locks after N wrong attempts. USB drive encryption software typically has no lockout — an attacker can brute-force offline at GPU speeds.
+- **Atomic writes:** Card tear protection prevents data corruption from unexpected removal. USB drives can be corrupted by unplugging mid-write.
+- **Applet isolation:** Even if multiple applets share the card, the firewall prevents cross-access. USB drives have no analogous isolation.
+- **Durability:** Smart cards have no moving parts, are waterproof, and tolerate temperature extremes better than USB flash drives.
+- **Trade-off:** USB drives offer vastly more storage (gigabytes vs. kilobytes) and don't require a reader. Smart cards are better suited for storing small, high-value secrets like encrypted shares and keyfiles.
+
+### Compatible Card Readers
+seQRets requires a **USB PC/SC-compatible contact smart card reader**. The JCOP3 J3H145 is a dual-interface card (contact + contactless), but the seQRets desktop app communicates via the contact interface. Recommended readers:
+- **Identiv SCR3310 v2.0** — USB-A or USB-C, ISO 7816 / PC/SC / CCID compliant, widely available, ~$15-25. A reliable, well-tested choice for general development and seQRets use.
+- **HID OMNIKEY 5422** — Dual-interface (contact + contactless), CCID/PC/SC certified, ~$30-50. Good if you also want contactless/NFC capability for other cards.
+- **ACS ACR39U** — Compact USB contact reader, PC/SC compliant, ~$15-20.
+- **Cherry SmartTerminal ST-2xxx** — German-engineered, popular in European government applications.
+- **General rule:** Any USB reader labeled "PC/SC" and "CCID" compatible will work. Avoid readers that are contactless-only (like the ACR122U) — they work for NFC but the seQRets app uses the contact interface.
+
+All three major operating systems (Windows, macOS, Linux) have built-in PC/SC support. CCID-compliant readers are typically plug-and-play with no additional drivers needed.
+
+### JavaCard Security Certifications
+- **Common Criteria EAL5+/EAL6+:** JCOP3 cards are certified at EAL5+ (semiformal verification). Newer JCOP4 cards (SmartMX3 P71) achieve EAL6+ — the highest level commonly attained by commercial smart card platforms.
+- **What this means for users:** The chip hardware has been independently evaluated by accredited labs against rigorous attack scenarios including side-channel analysis, fault injection, and physical probing. This level of assurance is the same standard used by government identity cards, ePassports, and banking EMV chips worldwide.
+
+### Hardware Security Features (JCOP3 J3H145)
+- **Active shield:** Metal mesh over the chip die detects physical probing attempts.
+- **Glitch detection:** Voltage and clock frequency monitors detect fault-injection attacks.
+- **DPA-resistant coprocessors:** Dedicated hardware for AES, DES, RSA, and ECC with built-in differential power analysis countermeasures.
+- **Memory encryption:** On-chip memory is encrypted and bus layouts are scrambled.
+- **Physical Unclonable Function (PUF):** Generates unique, device-specific keys from manufacturing variations in the silicon — impossible to clone or predict.
+- **OwnerPIN retry counter:** Hardware-enforced, non-transactional — even if a software transaction is rolled back, PIN attempt decrements cannot be undone. This prevents unlimited brute-force attempts.
+
+### Common User Questions About Smart Cards
+
+**"Can someone read my card without my PIN?"**
+No. If a PIN is set, all read/write operations require PIN verification first. Without the correct PIN, the card returns an error. After 5 wrong attempts, the card locks permanently. The only option is a factory reset which erases everything.
+
+**"What happens if my card breaks or is lost?"**
+The data on the card is an encrypted copy — not the only copy. If you followed the recommended seQRets workflow, your Qards also exist as printed QR codes, image files, or vault files. The card is one distribution method, not a single point of failure.
+
+**"Is the data on the card encrypted?"**
+Yes, doubly so. The data stored on the card (shares, vaults, plans) is already encrypted by seQRets using XChaCha20-Poly1305 before it ever reaches the card. The card's own hardware encryption and applet isolation provide a second layer of protection.
+
+**"Can I use any smart card?"**
+seQRets is designed and tested with JCOP3 J3H145 JavaCards. Other JavaCard models may work if they support the same APDU interface, but compatibility is not guaranteed. Stick with the recommended card model for reliable operation.
+
+**"How long does data last on the card?"**
+EEPROM data retention is typically 10+ years at room temperature. The data survives power loss, card resets, and normal environmental conditions. Smart cards are more durable than USB drives and paper — they are waterproof and tolerate temperature extremes. However, for long-term inheritance planning (decades), always maintain multiple backup methods (printed Qards, vault files) in addition to smart cards.
+
+**"Can I use my phone's NFC to read the card?"**
+The seQRets desktop app uses the contact interface via a USB reader, not NFC. While the JCOP3 J3H145 is a dual-interface card that supports contactless/NFC, the seQRets applet currently requires a contact reader. Mobile NFC support is not available.
+
+### Real-World Applications of JavaCard Technology
+JavaCards are not niche — they power billions of devices in daily use worldwide:
+- **SIM cards:** The largest JavaCard deployment globally. Every 3G/4G/5G SIM card runs JavaCard applets for authentication.
+- **Bank cards:** EMV chip credit/debit cards (Visa, Mastercard) use JavaCard-based applets for secure payment.
+- **Government ID:** National identity cards, ePassports (ICAO 9303), US Common Access Card (CAC), EU digital tachograph cards.
+- **Cryptocurrency wallets:** Keycard (Status), Satochip, and other open-source crypto wallet applets run on JCOP4 cards for secure key storage and transaction signing.
+- **FIDO2/WebAuthn:** Passwordless authentication tokens (passkeys) can run as JavaCard applets.
+- **Transit systems:** Contactless fare collection in public transit worldwide.
+This is the same technology and hardware security standard that protects banking transactions and national identity documents — applied to protecting your crypto inheritance.
 `;
 
 const inheritancePlanningGuide = `
@@ -361,7 +447,7 @@ IMPORTANT: You are NOT a lawyer. Never offer legal advice. When users ask about 
 
 4.  **On Inheritance Planning:** This is a critical topic. Guide users thoroughly using the inheritance planning knowledge below. The key principles are: eliminate single points of failure, separate credentials from Qards, use the "Split Trust" model, and create clear written instructions for heirs. Never store raw secrets in a will (wills become public record during probate). The Inheritance Plan feature has three tabs: **Encrypt Plan** (upload a file), **Create Plan** (build a structured plan in-app, desktop only), and **Decrypt Plan**. The in-app plan builder (desktop only) provides an 8-section form covering plan info, recovery credentials, device & account access, Qard locations, digital assets, restoration steps, professional contacts, and a personal message. Plans built in-app are serialized as compact JSON (~2-4 KB) that fits on a smart card. Users who prefer external editors can still upload PDF, DOCX, or other files via the Encrypt Plan tab. Both options use the same XChaCha20-Poly1305 encryption. Saved plans use a dynamic filename based on the preparer's last name. On decryption, in-app plans are auto-detected and shown in a structured read-only viewer.
 
-5.  **On Smart Cards:** Each JavaCard smartcard can hold multiple items (shares, vaults, keyfiles, or inheritance plans) up to ~8 KB total. New writes append to existing data on the card. Users can view stored items, select individual items for import, and delete individual items from the Smart Card Manager page. Keyfiles can be written to a card from the Smart Card Manager page and loaded from a card anywhere keyfiles are accepted (Secure Secret, Restore Secret, Inheritance Plan). The **Clone Card** feature on the Smart Card Manager page reads all items from one card and writes them to another — supporting both single-reader (swap card) and dual-reader workflows with an optional destination PIN. PIN protection is optional but recommended. The card locks permanently after 5 wrong PIN attempts — the only recovery is a factory reset which erases all data. A real-time PIN retry countdown (color-coded warnings) is shown after each incorrect attempt, both on the Smart Card Manager page and in the smart card dialog. Users can generate a secure 16-character PIN using the built-in CSPRNG Generate PIN button.
+5.  **On Smart Cards:** Use the JavaCard knowledge base section below to answer technical questions about the cards themselves (what they are, how they work, security features, where to buy, compatible readers). For seQRets-specific smart card usage: each JavaCard smartcard can hold multiple items (shares, vaults, keyfiles, or inheritance plans) up to ~8 KB total. New writes append to existing data on the card. Users can view stored items, select individual items for import, and delete individual items from the Smart Card Manager page. Keyfiles can be written to a card from the Smart Card Manager page and loaded from a card anywhere keyfiles are accepted (Secure Secret, Restore Secret, Inheritance Plan). The **Clone Card** feature on the Smart Card Manager page reads all items from one card and writes them to another — supporting both single-reader (swap card) and dual-reader workflows with an optional destination PIN. PIN protection is optional but recommended — the card's hardware-enforced retry counter locks permanently after 5 wrong PIN attempts (the only recovery is a factory reset which erases all data). A real-time PIN retry countdown (color-coded warnings) is shown after each incorrect attempt. Users can generate a secure 16-character PIN using the built-in CSPRNG Generate PIN button. When explaining smart card security, emphasize that JavaCards are the same technology used in banking EMV chips, government ID cards, and ePassports — with Common Criteria EAL5+/EAL6+ certified tamper-resistant hardware.
 
 6.  **On Passwords:** The app requires passwords of at least 24 characters with uppercase, lowercase, numbers, and special characters. The built-in password generator creates 32-character passwords. The password field turns green when valid and red when invalid.
 
@@ -371,6 +457,8 @@ IMPORTANT: You are NOT a lawyer. Never offer legal advice. When users ask about 
 ${readmeContent}
 
 ${cryptoDetails}
+
+${javaCardGuide}
 
 ${inheritancePlanningGuide}
 
