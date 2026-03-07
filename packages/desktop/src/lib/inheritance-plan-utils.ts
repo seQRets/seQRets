@@ -1,5 +1,5 @@
 import type { InheritancePlan } from './inheritance-plan-types';
-import { INHERITANCE_PLAN_FILENAME, INHERITANCE_PLAN_FILETYPE } from './inheritance-plan-types';
+import { INHERITANCE_PLAN_FILENAME, INHERITANCE_PLAN_FILETYPE, INHERITANCE_PLAN_VERSION } from './inheritance-plan-types';
 import type { RawInstruction } from './types';
 
 /**
@@ -40,6 +40,11 @@ export function rawInstructionToPlan(instruction: RawInstruction): InheritancePl
     const jsonString = new TextDecoder().decode(bytes);
     const parsed = JSON.parse(jsonString);
     if (parsed && typeof parsed.version === 'number' && parsed.planInfo && parsed.digitalAssets) {
+      // v1 → v2 migration: add deviceAccounts if missing
+      if (!Array.isArray(parsed.deviceAccounts)) {
+        parsed.deviceAccounts = [];
+        parsed.version = INHERITANCE_PLAN_VERSION;
+      }
       return parsed as InheritancePlan;
     }
     return null;

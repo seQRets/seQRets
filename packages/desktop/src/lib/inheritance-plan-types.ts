@@ -3,7 +3,7 @@
 // Plans are serialized to JSON, encrypted via the existing
 // encryptInstructions pipeline, and stored on smart card or file.
 
-export const INHERITANCE_PLAN_VERSION = 1;
+export const INHERITANCE_PLAN_VERSION = 2;
 export const INHERITANCE_PLAN_FILENAME = 'inheritance-plan.json';
 export const INHERITANCE_PLAN_FILETYPE = 'application/json';
 
@@ -46,6 +46,16 @@ export interface DigitalAsset {
   specialInstructions: string;
 }
 
+export interface DeviceAccount {
+  id: string;
+  label: string;
+  type: string;
+  location: string;
+  username: string;
+  password: string;
+  notes: string;
+}
+
 export interface ProfessionalContact {
   id: string;
   role: string;
@@ -58,6 +68,7 @@ export interface InheritancePlan {
   version: number;
   planInfo: PlanInfo;
   recoveryCredentials: RecoveryCredentials;
+  deviceAccounts: DeviceAccount[];
   qardConfig: QardConfig;
   digitalAssets: DigitalAsset[];
   howToRestore: string;
@@ -91,6 +102,11 @@ export function createBlankPlan(): InheritancePlan {
       keyfilePrimaryLocation: '',
       keyfileBackupLocation: '',
     },
+    deviceAccounts: [
+      { id: crypto.randomUUID(), label: '', type: 'Computer', location: '', username: '', password: '', notes: '' },
+      { id: crypto.randomUUID(), label: '', type: 'Password Manager', location: '', username: '', password: '', notes: '' },
+      { id: crypto.randomUUID(), label: '', type: 'Backup Drive', location: '', username: '', password: '', notes: '' },
+    ],
     qardConfig: {
       configuration: '2-of-3',
       label: '',

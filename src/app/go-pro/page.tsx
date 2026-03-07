@@ -152,7 +152,7 @@ export default function GoProPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex items-start gap-2">
                                 <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" strokeWidth={3} />
-                                <p><span className="font-semibold text-foreground">In-app Inheritance Plan builder</span> &mdash; structured 7-section form for creating detailed recovery instructions. Encrypts as compact JSON that fits on a smart card.</p>
+                                <p><span className="font-semibold text-foreground">In-app Inheritance Plan builder</span> &mdash; structured 8-section form for creating detailed recovery instructions. Encrypts as compact JSON that fits on a smart card.</p>
                             </div>
                             <div className="flex items-start gap-2">
                                 <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" strokeWidth={3} />

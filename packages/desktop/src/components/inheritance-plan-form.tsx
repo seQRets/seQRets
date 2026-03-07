@@ -10,6 +10,7 @@ import type {
   InheritancePlan,
   PlanInfo,
   RecoveryCredentials,
+  DeviceAccount,
   QardConfig,
   QardLocation,
   DigitalAsset,
@@ -92,6 +93,27 @@ export function InheritancePlanForm({ plan, onChange, readOnly = false }: Inheri
 
   const updateCredentials = (field: keyof RecoveryCredentials, value: string) => {
     onChange({ ...plan, recoveryCredentials: { ...plan.recoveryCredentials, [field]: value } });
+  };
+
+  const updateDeviceAccount = (id: string, field: keyof Omit<DeviceAccount, 'id'>, value: string) => {
+    onChange({
+      ...plan,
+      deviceAccounts: plan.deviceAccounts.map((d) => (d.id === id ? { ...d, [field]: value } : d)),
+    });
+  };
+
+  const addDeviceAccount = () => {
+    onChange({
+      ...plan,
+      deviceAccounts: [
+        ...plan.deviceAccounts,
+        { id: crypto.randomUUID(), label: '', type: '', location: '', username: '', password: '', notes: '' },
+      ],
+    });
+  };
+
+  const removeDeviceAccount = (id: string) => {
+    onChange({ ...plan, deviceAccounts: plan.deviceAccounts.filter((d) => d.id !== id) });
   };
 
   const updateQardConfig = (field: keyof Omit<QardConfig, 'locations'>, value: string) => {
@@ -231,8 +253,62 @@ export function InheritancePlanForm({ plan, onChange, readOnly = false }: Inheri
         </div>
       </Section>
 
-      {/* ── 3. Qard Locations ── */}
-      <Section id="qards" number={3} title="Qard Locations" description="Where each Qard is stored and who holds it" expanded={expanded.has('qards')} onToggle={toggle}>
+      {/* ── 3. Device & Account Access ── */}
+      <Section id="devices" number={3} title="Device &amp; Account Access" description="Computers, password managers, backup drives, and other access your heirs will need" expanded={expanded.has('devices')} onToggle={toggle}>
+        <div className="flex items-start gap-2 p-3 rounded-md bg-green-500/10 border border-green-500/20 text-xs text-green-400">
+          <ShieldCheck className="h-4 w-4 mt-0.5 shrink-0" />
+          <span>Safe to include here — this entire plan will be encrypted before saving.</span>
+        </div>
+        <div className="space-y-4">
+          {plan.deviceAccounts.map((device, idx) => (
+            <div key={device.id} className="border border-border rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-muted-foreground">Device / Account {idx + 1}</h4>
+                {!readOnly && plan.deviceAccounts.length > 1 && (
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => removeDeviceAccount(device.id)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs">Label</Label>
+                  <Input value={device.label} onChange={(e) => updateDeviceAccount(device.id, 'label', e.target.value)} disabled={readOnly} placeholder="e.g., MacBook Pro, 1Password" className="text-sm" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Type</Label>
+                  <Input value={device.type} onChange={(e) => updateDeviceAccount(device.id, 'type', e.target.value)} disabled={readOnly} placeholder="Computer, Password Manager, Backup Drive" className="text-sm" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Location</Label>
+                  <Input value={device.location} onChange={(e) => updateDeviceAccount(device.id, 'location', e.target.value)} disabled={readOnly} placeholder="e.g., Home office, fireproof safe" className="text-sm" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Username / login</Label>
+                  <Input value={device.username} onChange={(e) => updateDeviceAccount(device.id, 'username', e.target.value)} disabled={readOnly} placeholder="e.g., john@email.com" className="text-sm" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Password / PIN / encryption key</Label>
+                <Input value={device.password} onChange={(e) => updateDeviceAccount(device.id, 'password', e.target.value)} disabled={readOnly} placeholder="The exact password or PIN needed to unlock" className="text-sm" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Notes</Label>
+                <Input value={device.notes} onChange={(e) => updateDeviceAccount(device.id, 'notes', e.target.value)} disabled={readOnly} placeholder="e.g., FileVault enabled, recovery key in 1Password" className="text-sm" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {!readOnly && (
+          <Button variant="outline" size="sm" onClick={addDeviceAccount} className="w-full">
+            <Plus className="h-4 w-4 mr-1" /> Add Device / Account
+          </Button>
+        )}
+      </Section>
+
+      {/* ── 4. Qard Locations ── */}
+      <Section id="qards" number={4} title="Qard Locations" description="Where each Qard is stored and who holds it" expanded={expanded.has('qards')} onToggle={toggle}>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label>Configuration</Label>
@@ -277,8 +353,8 @@ export function InheritancePlanForm({ plan, onChange, readOnly = false }: Inheri
         )}
       </Section>
 
-      {/* ── 4. Digital Asset Inventory ── */}
-      <Section id="assets" number={4} title="Digital Asset Inventory" description="Every digital asset your heirs need to know about" expanded={expanded.has('assets')} onToggle={toggle}>
+      {/* ── 5. Digital Asset Inventory ── */}
+      <Section id="assets" number={5} title="Digital Asset Inventory" description="Every digital asset your heirs need to know about" expanded={expanded.has('assets')} onToggle={toggle}>
         <div className="space-y-4">
           {plan.digitalAssets.map((asset, idx) => (
             <div key={asset.id} className="border border-border rounded-lg p-4 space-y-3">
@@ -335,8 +411,8 @@ export function InheritancePlanForm({ plan, onChange, readOnly = false }: Inheri
         )}
       </Section>
 
-      {/* ── 5. How to Restore ── */}
-      <Section id="restore" number={5} title="How to Restore Your Secret" description="Step-by-step instructions for your heirs" expanded={expanded.has('restore')} onToggle={toggle}>
+      {/* ── 6. How to Restore ── */}
+      <Section id="restore" number={6} title="How to Restore Your Secret" description="Step-by-step instructions for your heirs" expanded={expanded.has('restore')} onToggle={toggle}>
         <p className="text-xs text-muted-foreground">Pre-filled with default steps. Edit freely to match your setup.</p>
         <Textarea
           value={plan.howToRestore}
@@ -347,8 +423,8 @@ export function InheritancePlanForm({ plan, onChange, readOnly = false }: Inheri
         />
       </Section>
 
-      {/* ── 6. Professional Contacts ── */}
-      <Section id="contacts" number={6} title="Professional Contacts" description="People who can help your heirs execute this plan" expanded={expanded.has('contacts')} onToggle={toggle}>
+      {/* ── 7. Professional Contacts ── */}
+      <Section id="contacts" number={7} title="Professional Contacts" description="People who can help your heirs execute this plan" expanded={expanded.has('contacts')} onToggle={toggle}>
         <div className="space-y-3">
           {plan.professionalContacts.map((contact) => (
             <div key={contact.id} className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2 items-start">
@@ -380,8 +456,8 @@ export function InheritancePlanForm({ plan, onChange, readOnly = false }: Inheri
         )}
       </Section>
 
-      {/* ── 7. Personal Message ── */}
-      <Section id="message" number={7} title="Personal Message to Your Heirs" description="Optional — anything else you want your family to know" expanded={expanded.has('message')} onToggle={toggle}>
+      {/* ── 8. Personal Message ── */}
+      <Section id="message" number={8} title="Personal Message to Your Heirs" description="Optional — anything else you want your family to know" expanded={expanded.has('message')} onToggle={toggle}>
         <Textarea
           value={plan.personalMessage}
           onChange={(e) => onChange({ ...plan, personalMessage: e.target.value })}
