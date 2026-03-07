@@ -68,18 +68,6 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
         return () => { cancelled = true; };
     }, []);
 
-    // Re-read chat history when API key becomes available — ensures the
-    // conversation survives route transitions where the async keychain
-    // check may cause the component to remount after localStorage was saved.
-    useEffect(() => {
-        if (hasApiKey) {
-            const saved = getChatHistory();
-            if (saved.length > 0) {
-                setConversation(saved);
-            }
-        }
-    }, [hasApiKey]);
-
     // Scroll to bottom on mount (so the user sees the most recent messages)
     useEffect(() => {
         scrollToBottom();
@@ -90,12 +78,26 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
         scrollToBottom();
     }, [conversation, isPending]);
 
+    // Keep a ref to the latest conversation so the unmount handler can save it
+    const conversationRef = useRef(conversation);
+    conversationRef.current = conversation;
+
     // Persist conversation to localStorage whenever it changes
     useEffect(() => {
         if (conversation.length > 0) {
             saveChatHistory(conversation);
         }
     }, [conversation]);
+
+    // Save conversation on unmount — belt-and-suspenders for route transitions
+    // where the persist effect above may not have flushed yet
+    useEffect(() => {
+        return () => {
+            if (conversationRef.current.length > 0) {
+                saveChatHistory(conversationRef.current);
+            }
+        };
+    }, []);
 
     // Listen for storage events so the popover and full page stay in sync
     useEffect(() => {
@@ -111,11 +113,11 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
         return () => window.removeEventListener('storage', handleStorage);
     }, []);
 
-    if (hasApiKey === null) {
-        return null; // Keychain lookup is sub-millisecond; avoids flash of setup guide
-    }
-
-    if (!hasApiKey) {
+    // Only show setup guide once we've confirmed no API key exists.
+    // While the keychain check is pending (hasApiKey === null), render the
+    // chat UI so conversation loaded from localStorage is visible immediately
+    // — matching the web version's synchronous pattern.
+    if (hasApiKey === false) {
         return <BobSetupGuide onKeyConfigured={() => setHasApiKey(true)} />;
     }
 
@@ -242,10 +244,10 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
                     placeholder="Ask Bob about security or inheritance..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    disabled={isPending}
+                    disabled={isPending || hasApiKey === null}
                     autoComplete="off"
                 />
-                <Button type="submit" size="icon" disabled={isPending || !message.trim()} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md flex-shrink-0">
+                <Button type="submit" size="icon" disabled={isPending || hasApiKey === null || !message.trim()} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md flex-shrink-0">
                     <Send className="h-5 w-5" />
                 </Button>
             </form>
