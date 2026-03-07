@@ -181,13 +181,13 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
             <ScrollArea className="flex-grow h-0 pr-4" viewportRef={viewportRef}>
                 <div className="space-y-6">
                 {conversation.map((chat, index) => (
-                    <div key={index} className={cn("flex items-start gap-3", chat.role === 'user' && "justify-end")}>
+                    <div key={index} className={cn("flex items-start gap-3 min-w-0", chat.role === 'user' && "justify-end")}>
                         {chat.role === 'model' && (
-                            <Avatar className="h-8 w-8">
+                            <Avatar className="h-8 w-8 flex-shrink-0">
                                 <AvatarFallback><Bot size={20}/></AvatarFallback>
                             </Avatar>
                         )}
-                        <div className={cn("max-w-sm p-3 rounded-lg text-sm",
+                        <div className={cn("max-w-[80%] p-3 rounded-lg text-sm overflow-hidden break-words",
                             chat.role === 'user'
                               ? "bg-primary text-primary-foreground"
                               : "bg-muted dark:bg-[#4a4446]"
@@ -199,24 +199,25 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
                                   ol: ({node, ...props}) => <ol className="list-decimal space-y-1 pl-4" {...props} />,
                                   ul: ({node, ...props}) => <ul className="list-disc space-y-1 pl-4" {...props} />,
                                   li: ({node, ...props}) => <li className="text-sm" {...props} />,
+                                  code: ({node, ...props}) => <code className="text-xs break-all" {...props} />,
                               }}
                             >
                                 {chat.content}
                             </ReactMarkdown>
                         </div>
                             {chat.role === 'user' && (
-                            <Avatar className="h-8 w-8">
+                            <Avatar className="h-8 w-8 flex-shrink-0">
                                 <AvatarFallback><User size={20}/></AvatarFallback>
                             </Avatar>
                         )}
                     </div>
                 ))}
                     {isPending && (
-                    <div className="flex items-start gap-3">
-                            <Avatar className="h-8 w-8">
+                    <div className="flex items-start gap-3 min-w-0">
+                            <Avatar className="h-8 w-8 flex-shrink-0">
                             <AvatarFallback><Bot size={20}/></AvatarFallback>
                         </Avatar>
-                        <div className="max-w-sm p-3 rounded-lg bg-muted dark:bg-[#4a4446]">
+                        <div className="max-w-[80%] p-3 rounded-lg bg-muted dark:bg-[#4a4446]">
                             <Loader2 className="h-5 w-5 animate-spin" />
                         </div>
                     </div>

@@ -256,19 +256,40 @@ A good inheritance plan document should contain:
 
 ### Legal Considerations (Always Recommend an Attorney)
 Bob should mention these topics but always recommend consulting a qualified estate planning attorney:
-- **Digital Asset Clauses** — Modern wills and trusts can include specific provisions for digital assets. Many US states have adopted the Revised Uniform Fiduciary Access to Digital Assets Act (RUFADAA).
-- **Trusts** — A revocable living trust can hold crypto assets and avoids probate (unlike a will). The trust document can reference the encrypted inheritance plan without exposing secrets.
-- **Power of Attorney** — A durable power of attorney should explicitly authorize the agent to manage digital assets in case of incapacity.
-- **Tax Implications** — Inherited crypto may receive a "stepped-up basis" to fair market value at the date of death, potentially reducing capital gains taxes for heirs. This is a complex area that requires professional tax advice.
-- **International Considerations** — If heirs are in different countries, inheritance laws and tax treaties vary significantly.
+- **Digital Asset Clauses** — Modern wills and trusts can include specific provisions for digital assets. 47+ US states have adopted the Revised Uniform Fiduciary Access to Digital Assets Act (RUFADAA), which gives fiduciaries a legal path to managing digital assets of deceased or incapacitated persons. RUFADAA establishes a three-tier hierarchy: (1) the user's own online tool settings (highest priority), (2) express directions in a will, trust, or power of attorney, (3) the default terms of service. Critical limitation: RUFADAA grants legal permission but does NOT guarantee technical access — a court order cannot bypass multi-factor authentication, and a statute cannot recreate a missing seed phrase. This is exactly the problem seQRets solves.
+- **Trusts** — A revocable living trust can hold crypto assets and avoids probate (unlike a will). The trust document can reference the encrypted inheritance plan without exposing secrets. Important: assets in an irrevocable trust that are excluded from the grantor's taxable estate may NOT receive a step-up in basis (IRS Revenue Ruling 2023-2). If the trust is structured so assets are included in the taxable estate, the step-up still applies. Consult a tax attorney.
+- **Power of Attorney and Incapacity** — A durable power of attorney must EXPLICITLY mention digital assets and cryptocurrency — generic POAs may not be sufficient. Without explicit digital asset provisions, exchanges and custodians may refuse access even with a valid POA. Incapacity planning is separate from death planning: the agent under a POA manages crypto during incapacity, while an executor manages it after death — different documents, potentially different people. Consider: who can access funds for mortgage payments or medical bills if you are hospitalized for months?
+- **Tax Implications** — The IRS classifies cryptocurrency as property. Inherited crypto receives a "stepped-up basis" to fair market value at the date of death. Example: if you bought bitcoin for $5,000 and it is worth $100,000 at death, heirs inherit it with a $100,000 basis — the $95,000 gain is erased. IMPORTANT: Gifted crypto (while alive) receives "carryover basis" — the recipient keeps the original purchase price, so there is NO step-up. For tax efficiency, it is generally better to let heirs inherit crypto rather than gift it during your lifetime. The federal estate tax exemption for 2026 is $15 million per individual ($30 million for married couples). The annual gift tax exclusion is $19,000 per donor per recipient for 2026 ($38,000 per recipient for a married couple using gift splitting). Crypto brokers are now required to report transactions on IRS Form 1099-DA. This is a complex area — always recommend a tax professional.
+- **International Considerations** — If heirs are in different countries, inheritance laws and tax treaties vary significantly. Recommend consulting an attorney with cross-border estate planning experience.
+
+### Exchange Account Inheritance
+Major crypto exchanges do NOT support beneficiary designations (unlike traditional brokerages). When an account holder dies:
+- **Coinbase** — Heirs must provide: death certificate, probate documents, photo ID of the person named in probate, and a signed letter directing Coinbase to transfer assets. Large transfers require a medallion signature guarantee from a major financial institution (not a local notary). The process can take weeks or months.
+- **Kraken** — Similar documentation required. Kraken recommends users include their Kraken public account ID in their will to streamline the process.
+- **General** — All major exchanges freeze accounts upon notification of death. Without proper documentation, assets may be permanently inaccessible. Advise users to document: exchange name, registered email address, account ID (if available), and instructions for heirs to contact the exchange with a death certificate. Include this information in the encrypted inheritance plan — never in a plain-text will.
+
+### Shamir vs. Multisig — Why seQRets Uses Shamir
+Users may ask how seQRets' approach compares to multisig wallets. Key differences:
+- **Shamir (seQRets)**: Operates off-chain. Private — no one can tell from the blockchain that Shamir was used. Cross-chain compatible (works with Bitcoin, Ethereum, and any other cryptocurrency with the same backup). Lower transaction fees (looks like a standard single-signature transaction). The secret must be recombined in a single place during restoration (a brief, managed single point of failure).
+- **Multisig**: Operates on-chain. Auditable — participants can verify the multisig structure. No single point of failure during signing. But chain-specific (a Bitcoin multisig does not protect Ethereum keys), higher transaction fees, and the threshold structure is publicly visible on the blockchain.
+- **For inheritance**: Shamir is generally preferred for individuals because it is simpler, private, and works across all crypto assets with a single backup scheme. Multisig is more common in enterprise and institutional custody. seQRets adds an additional layer by encrypting the secret before splitting, so each Qard is indistinguishable from random noise.
+
+### Emerging Approaches (For Awareness)
+Users may ask about newer alternatives:
+- **Dead man's switch**: A pre-signed, timelocked Bitcoin transaction that becomes valid after a certain block height. If the owner stops "checking in" (by moving funds before the timelock expires), the transaction automatically sends funds to a recovery wallet. Still experimental and Bitcoin-only.
+- **Smart contract inheritance**: Ethereum-based contracts that transfer assets after an inactivity period. Carries smart contract risk and is Ethereum-only.
+- **MPC (Multi-Party Computation) wallets**: Distributed key generation where the full private key is never assembled in one place. Growing in institutional use but requires specialized wallet software.
+- Bob should note that seQRets' encrypt-then-split approach is chain-agnostic, requires no on-chain setup, works offline, and does not depend on any specific blockchain or smart contract platform.
 
 ### How seQRets Fits Into a Complete Estate Plan
 seQRets handles the TECHNICAL side of crypto inheritance — securely splitting and encrypting secrets so they can be recovered by authorized heirs. But a complete estate plan also needs:
-1. A legal framework (will, trust, power of attorney) — consult an attorney.
+1. A legal framework (will, trust, power of attorney with explicit digital asset clauses) — consult an attorney.
 2. A clear instruction document (the Inheritance Plan feature in seQRets).
 3. A distribution strategy (who gets which Qards and why).
-4. Regular reviews and updates (at least annually or after major life events).
-5. A test run (have a trusted person attempt recovery with your guidance).
+4. Exchange account documentation (exchange names, registered emails, account IDs — included in the encrypted inheritance plan).
+5. Regular reviews and updates (at least annually or after major life events).
+6. A test run (have a trusted person attempt recovery with your guidance).
+7. Professional team: estate planning attorney, tax advisor, and optionally a trusted technical person who understands crypto.
 `;
 
 const securityGuide = `
