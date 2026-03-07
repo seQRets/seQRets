@@ -14,9 +14,9 @@
       {
         "title": "seQRets",
         "width": 1024,
-        "height": 768,
+        "height": 900,
         "minWidth": 800,
-        "minHeight": 600,
+        "minHeight": 700,
         "resizable": true,
         "fullscreen": false,
         "dragDropEnabled": false
