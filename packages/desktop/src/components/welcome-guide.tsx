@@ -37,15 +37,22 @@ export function WelcomeGuide({ activeTab }: WelcomeGuideProps) {
   const steps = [
     // ── Card 1: Welcome ──────────────────────────────────────────
     {
-      icon: <img src={logoDark} alt="seQRets" className="h-12 w-12" />,
-      title: 'Welcome to seQRets',
+      icon: null,
+      title: '',
       body: (
-        <div className="space-y-3 text-base leading-relaxed text-[hsl(37,10%,75%)]">
-          <p>
+        <div className="space-y-4">
+          <div className="flex items-center justify-center gap-3">
+            <img src={logoDark} alt="" className="h-16 w-16" />
+            <div>
+              <div className="text-3xl font-bold text-[hsl(37,10%,89%)]">seQRets</div>
+              <div className="text-sm tracking-wide text-[hsl(37,10%,60%)]">Secure. Split. Share.</div>
+            </div>
+          </div>
+          <p className="text-base text-center leading-relaxed text-[hsl(37,10%,75%)]">
             Protect your secrets today — ensure the right people
             can access them tomorrow.
           </p>
-          <p className="text-amber-300 font-medium">
+          <p className="text-base text-center text-amber-300 font-medium">
             Zero knowledge. No accounts. Nothing stored online.
           </p>
         </div>
@@ -120,10 +127,14 @@ export function WelcomeGuide({ activeTab }: WelcomeGuideProps) {
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-center gap-3 mb-3">
-            {current.icon}
-            <DialogPrimitive.Title className="text-2xl font-bold">{current.title}</DialogPrimitive.Title>
-          </div>
+          {current.title ? (
+            <div className="flex items-center justify-center gap-3 mb-3">
+              {current.icon}
+              <DialogPrimitive.Title className="text-2xl font-bold">{current.title}</DialogPrimitive.Title>
+            </div>
+          ) : (
+            <DialogPrimitive.Title className="sr-only">Welcome to seQRets</DialogPrimitive.Title>
+          )}
 
           {/* Body */}
           <div className="mb-6 min-h-[180px]">{current.body}</div>

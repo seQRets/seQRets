@@ -38,17 +38,29 @@ export function WelcomeGuide({ activeTab }: WelcomeGuideProps) {
   const steps = [
     // ── Card 1: Welcome ──────────────────────────────────────────
     {
-      icon: <img src="/icons/logo-dark.png" alt="seQRets" className="h-12 w-12" />,
-      title: 'Welcome to seQRets',
+      icon: null,
+      title: '',
       body: (
-        <div className="space-y-3 text-base leading-relaxed text-[hsl(37,10%,75%)]">
-          <p>
+        <div className="space-y-4">
+          <div className="flex items-center justify-center gap-3">
+            <img src="/icons/logo-dark.png" alt="" className="h-16 w-16" />
+            <div>
+              <div className="text-3xl font-bold text-[hsl(37,10%,89%)]">seQRets</div>
+              <div className="text-sm tracking-wide text-[hsl(37,10%,60%)]">Secure. Split. Share.</div>
+            </div>
+          </div>
+          <p className="text-base text-center leading-relaxed text-[hsl(37,10%,75%)]">
             Protect your secrets today — ensure the right people
             can access them tomorrow.
           </p>
-          <p className="text-amber-300 font-medium">
-            Zero knowledge. No accounts. Nothing stored online.
-          </p>
+          <div className="rounded-md border border-amber-500/30 bg-amber-950/20 px-3 py-2.5 text-sm text-amber-300/90">
+            Upgrade to the{' '}
+            <a href="https://seqrets.app" target="_blank" rel="noopener noreferrer" className="underline font-semibold text-amber-200 hover:text-white">
+              seQRets desktop app
+            </a>{' '}
+            (paid) for EAL6+ smart card storage, digital inheritance planning,
+            and fully secure offline operation.
+          </div>
         </div>
       ),
       button: 'Next',
@@ -58,20 +70,14 @@ export function WelcomeGuide({ activeTab }: WelcomeGuideProps) {
       icon: <Sparkles className="h-10 w-10 text-amber-400" />,
       title: 'What Can You Do?',
       body: (
-        <>
-          <ul className="space-y-2.5 text-base text-[hsl(37,10%,75%)]">
-            <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">&bull;</span>Encrypt and split secrets into QR &ldquo;Qards&rdquo;</li>
-            <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">&bull;</span>Restore by scanning, uploading, or pasting</li>
-            <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">&bull;</span>Create encrypted inheritance plans</li>
-            <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">&bull;</span>Generate passwords and seed phrases</li>
-          </ul>
-          <div className="mt-4 rounded-md border border-amber-500/30 bg-amber-950/20 px-3 py-2.5 text-sm text-amber-300/90">
-            The paid desktop app adds native Rust crypto, offline operation, smart card storage, and more.{' '}
-            <a href="https://seqrets.app" target="_blank" rel="noopener noreferrer" className="underline font-semibold text-amber-200 hover:text-white">
-              seqrets.app
-            </a>
-          </div>
-        </>
+        <ul className="space-y-2.5 text-base text-[hsl(37,10%,75%)]">
+          <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">&bull;</span>Encrypt and split secrets into QR &ldquo;Qards&rdquo;</li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">&bull;</span>Restore by scanning, uploading, or pasting</li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">&bull;</span>View restored secrets as Data QR or SeedQR</li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">&bull;</span>Create encrypted inheritance plans</li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">&bull;</span>Generate passwords and seed phrases</li>
+          <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">&bull;</span>Ask Bob, your AI assistant, for guidance</li>
+        </ul>
       ),
       button: 'Next',
     },
@@ -133,10 +139,14 @@ export function WelcomeGuide({ activeTab }: WelcomeGuideProps) {
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-center gap-3 mb-3">
-            {current.icon}
-            <DialogPrimitive.Title className="text-2xl font-bold">{current.title}</DialogPrimitive.Title>
-          </div>
+          {current.title ? (
+            <div className="flex items-center justify-center gap-3 mb-3">
+              {current.icon}
+              <DialogPrimitive.Title className="text-2xl font-bold">{current.title}</DialogPrimitive.Title>
+            </div>
+          ) : (
+            <DialogPrimitive.Title className="sr-only">Welcome to seQRets</DialogPrimitive.Title>
+          )}
 
           {/* Body */}
           <div className="mb-6 min-h-[180px]">{current.body}</div>
