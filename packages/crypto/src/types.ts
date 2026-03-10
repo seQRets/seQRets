@@ -51,21 +51,6 @@ export interface DecryptInstructionRequest {
 
 export type DecryptInstructionResult = RawInstruction;
 
-
-// Represents the structure of a locally exported vault file (.seqrets)
-export interface ExportedVault {
-    version: number;
-    label: string;
-    setId: string;
-    shares: string[];
-    requiredShares: number;
-    totalShares: number;
-    createdAt: string;
-    encryptedInstructions?: EncryptedInstruction | null;
-    keyfileUsed: boolean;
-}
-
-
 // Represents an encrypted vault file (.seqrets) protected with an additional vault password
 export interface EncryptedVaultFile {
     version: 2;
