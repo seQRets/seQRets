@@ -88,6 +88,7 @@ export function KeyfileGenerator({ onKeyfileGenerated, onSmartCardSave }: Keyfil
                 <span className="text-sm font-medium text-green-700 dark:text-green-300">Keyfile Generated & Applied</span>
                 {isEditingLabel ? (
                   <Input
+                    aria-label="Keyfile label"
                     value={keyfileLabel}
                     onChange={(e) => setKeyfileLabel(e.target.value)}
                     onBlur={() => setIsEditingLabel(false)}

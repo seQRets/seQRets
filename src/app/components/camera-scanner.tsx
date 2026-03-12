@@ -147,7 +147,7 @@ export function CameraScanner({ onScan }: CameraScannerProps) {
 
   return (
     <div className="relative flex flex-col items-center justify-center">
-        <video ref={videoRef} className="w-full aspect-video rounded-md bg-muted" autoPlay playsInline muted />
+        <video ref={videoRef} className="w-full aspect-video rounded-md bg-muted" autoPlay playsInline muted aria-label="Camera feed for QR code scanning" />
         <canvas ref={canvasRef} className="hidden" />
 
         {hasCameraPermission === null && (

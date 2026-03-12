@@ -87,7 +87,7 @@ export function PasswordGenerator({ value, onValueChange, onValidationChange, pl
         <Label htmlFor="password">Required Password</Label>
         <Popover>
             <PopoverTrigger asChild>
-                <button><HelpCircle className="h-4 w-4 text-primary" /></button>
+                <button aria-label="Help"><HelpCircle className="h-4 w-4 text-primary" /></button>
             </PopoverTrigger>
             <PopoverContent className="text-sm">
                 <ul className="list-disc space-y-1 pl-4">

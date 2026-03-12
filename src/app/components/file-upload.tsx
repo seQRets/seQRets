@@ -73,6 +73,9 @@ export function FileUpload({ onFilesAdded, onCameraOpen, onManualOpen, onImportV
             onDragOver={handleDragOver}
             onDrop={handleDrop}
             onClick={openFileDialog}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openFileDialog(); } }}
         >
             <FileUp className="w-12 h-12 text-muted-foreground mb-4" />
             <p className="text-lg font-medium">Drag & drop QR code images here</p>
@@ -84,6 +87,7 @@ export function FileUpload({ onFilesAdded, onCameraOpen, onManualOpen, onImportV
                 accept="image/*"
                 className="hidden"
                 onChange={handleFileSelect}
+                aria-label="Upload QR code images"
             />
         </div>
         <p className="text-xs text-muted-foreground text-center">or use another method:</p>

@@ -121,6 +121,7 @@ export function BobSetupGuide({ onKeyConfigured }: BobSetupGuideProps) {
             <div className="flex gap-2">
               <Input
                 type="password"
+                aria-label="Gemini API key"
                 placeholder="Paste your Gemini API key here..."
                 value={apiKey}
                 onChange={(e) => { setApiKeyInput(e.target.value); setError(''); }}

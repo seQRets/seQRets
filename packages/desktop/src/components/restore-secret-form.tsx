@@ -519,6 +519,7 @@ export function RestoreSecretForm() {
                 <div className="relative">
                     <Textarea
                         readOnly
+                        aria-label="Restored secret"
                         value={restoredSecret}
                         rows={5}
                         className={cn(
@@ -640,6 +641,7 @@ export function RestoreSecretForm() {
                         </DialogHeader>
                         <div className="py-4">
                             <Textarea
+                                aria-label="Share data"
                                 placeholder="seQRets|MHoDJz8J69YRmeX993O4PQ==|CAFQ..."
                                 value={manualShare}
                                 onChange={(e) => setManualShare(e.target.value)}
@@ -703,7 +705,7 @@ export function RestoreSecretForm() {
                             <Label htmlFor="password-restore">Your Password</Label>
                             <Popover>
                                 <PopoverTrigger asChild>
-                                    <button><HelpCircle className="h-4 w-4 text-primary" /></button>
+                                    <button aria-label="Help"><HelpCircle className="h-4 w-4 text-primary" /></button>
                                 </PopoverTrigger>
                                 <PopoverContent className="text-sm">
                                     Enter the exact same password you used when the secret was originally encrypted. Passwords are case-sensitive.
@@ -731,7 +733,7 @@ export function RestoreSecretForm() {
                           <Label htmlFor="use-keyfile-restore" className="text-base font-medium">Was a Keyfile used?</Label>
                           <Popover>
                                 <PopoverTrigger asChild>
-                                    <button><HelpCircle className="h-4 w-4 text-primary" /></button>
+                                    <button aria-label="Help"><HelpCircle className="h-4 w-4 text-primary" /></button>
                                 </PopoverTrigger>
                                 <PopoverContent className="text-sm">
                                     If you attached a keyfile for extra security when creating the Qards, you must enable this and upload the exact same file now to restore your secret.

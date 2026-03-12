@@ -25,8 +25,8 @@ export default function AboutPage() {
 
                 <div className="text-center mb-10 pt-16 sm:pt-0">
                     <div className="flex justify-center items-center gap-2.5 mb-6">
-                        <Image src="/icons/logo-light.png" alt="seQRets Logo" width={144} height={144} className="self-start -mt-2 dark:hidden" priority />
-                        <Image src="/icons/logo-dark.png" alt="seQRets Logo" width={144} height={144} className="self-start -mt-2 hidden dark:block" priority />
+                        <Image src="/icons/logo-light.webp" alt="seQRets Logo" width={144} height={144} className="self-start -mt-2 dark:hidden" priority />
+                        <Image src="/icons/logo-dark.webp" alt="seQRets Logo" width={144} height={144} className="self-start -mt-2 hidden dark:block" priority />
                         <div>
                             <h1 className="font-body text-5xl md:text-7xl font-black text-foreground tracking-tighter">
                                 seQRets
@@ -36,7 +36,7 @@ export default function AboutPage() {
                             </p>
                         </div>
                     </div>
-                    <p className="text-lg text-muted-foreground">v1.4.3 🔥 Ignition</p>
+                    <p className="text-lg text-muted-foreground">v1.4.5 🔥 Ignition</p>
                     <p className="mt-1 text-muted-foreground max-w-xl mx-auto">
                         Encrypt, split, and secure your secrets with QR codes using Shamir's Secret Sharing.
                     </p>

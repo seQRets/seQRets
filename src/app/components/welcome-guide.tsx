@@ -43,7 +43,7 @@ export function WelcomeGuide({ activeTab }: WelcomeGuideProps) {
       body: (
         <div className="space-y-4">
           <div className="flex items-center justify-center gap-3">
-            <img src="/icons/logo-dark.png" alt="" className="h-16 w-16" />
+            <img src="/icons/logo-dark.webp" alt="seQRets logo" className="h-16 w-16" />
             <div>
               <div className="text-3xl font-bold text-[hsl(37,10%,89%)]">seQRets</div>
               <div className="text-sm tracking-wide text-[hsl(37,10%,60%)]">Secure. Split. Share.</div>

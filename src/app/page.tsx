@@ -59,8 +59,8 @@ function App() {
         <Header activeTab={activeTab} onTabChange={setActiveTab}/>
         <header className="text-center mb-6 pt-16 sm:pt-0">
           <div className="flex justify-center items-center gap-2.5">
-            <Image src="/icons/logo-light.png" alt="seQRets Logo" width={144} height={144} className="self-start -mt-2 dark:hidden" data-ai-hint="logo" priority />
-            <Image src="/icons/logo-dark.png" alt="seQRets Logo" width={144} height={144} className="self-start -mt-2 hidden dark:block" data-ai-hint="logo" priority />
+            <Image src="/icons/logo-light.webp" alt="seQRets Logo" width={144} height={144} className="self-start -mt-2 dark:hidden" data-ai-hint="logo" priority />
+            <Image src="/icons/logo-dark.webp" alt="seQRets Logo" width={144} height={144} className="self-start -mt-2 hidden dark:block" data-ai-hint="logo" priority />
             <div>
               <h1 className="font-body text-5xl md:text-7xl font-black text-foreground tracking-tighter">
                 seQRets
@@ -101,9 +101,36 @@ function App() {
   );
 }
 
+function AppSkeleton() {
+  return (
+    <main className="flex min-h-screen flex-col items-center p-4 md:p-8">
+      <div className="w-full max-w-2xl">
+        <header className="text-center mb-6 pt-16 sm:pt-0">
+          <div className="flex justify-center items-center gap-2.5">
+            <div className="w-[144px] h-[144px] rounded-lg bg-muted animate-pulse" />
+            <div>
+              <div className="h-12 w-48 bg-muted rounded animate-pulse mb-2" />
+              <div className="h-4 w-36 bg-muted rounded animate-pulse ml-auto" />
+            </div>
+          </div>
+        </header>
+        <div className="flex justify-center mb-10">
+          <div className="h-14 w-64 bg-muted rounded-full animate-pulse" />
+        </div>
+        <div className="grid grid-cols-2 gap-1 h-12 bg-muted rounded-lg animate-pulse mb-6" />
+        <div className="space-y-4 p-6 border rounded-lg border-border">
+          <div className="h-6 w-48 bg-muted rounded animate-pulse" />
+          <div className="h-4 w-full bg-muted rounded animate-pulse" />
+          <div className="h-32 w-full bg-muted rounded animate-pulse" />
+        </div>
+      </div>
+    </main>
+  );
+}
+
 export default function Home() {
   return (
-    <React.Suspense fallback={<div>Loading...</div>}>
+    <React.Suspense fallback={<AppSkeleton />}>
       <App />
     </React.Suspense>
   );

@@ -3,7 +3,7 @@ import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Button } from '@/components/ui/button';
 import { Sparkles, AlertTriangle, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import logoDark from '@/assets/icons/logo-dark.png';
+import logoDark from '@/assets/icons/logo-dark.webp';
 
 const WELCOME_GUIDE_KEY = 'seQRets_welcomeGuideShown_v2';
 

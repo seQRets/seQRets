@@ -142,6 +142,9 @@ export function KeyfileUpload({ onFileRead, onFileNameChange, fileName, onSmartC
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       onClick={openFileDialog}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openFileDialog(); } }}
     >
       <FileUp className="w-10 h-10 text-muted-foreground mb-3" />
       <p className="text-base font-medium">Drag & drop your keyfile here</p>

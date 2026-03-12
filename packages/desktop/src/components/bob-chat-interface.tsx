@@ -240,14 +240,14 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
             </ScrollArea>
              <form onSubmit={handleSubmit} className="flex items-center gap-2 pt-4 border-t mt-4">
                 <Input
-                    id="message"
+                    id="message" aria-label="Message to Bob"
                     placeholder="Ask Bob about security or inheritance..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     disabled={isPending || hasApiKey === null}
                     autoComplete="off"
                 />
-                <Button type="submit" size="icon" disabled={isPending || hasApiKey === null || !message.trim()} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md flex-shrink-0">
+                <Button type="submit" size="icon" aria-label="Send message" disabled={isPending || hasApiKey === null || !message.trim()} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md flex-shrink-0">
                     <Send className="h-5 w-5" />
                 </Button>
             </form>

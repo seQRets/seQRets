@@ -29,8 +29,8 @@ import { createBlankPlan } from '@/lib/inheritance-plan-types';
 import type { InheritancePlan } from '@/lib/inheritance-plan-types';
 import { planToRawInstruction, isInheritancePlan, rawInstructionToPlan } from '@/lib/inheritance-plan-utils';
 import { AppFooter } from '@/components/app-footer';
-import logoLight from '@/assets/icons/logo-light.png';
-import logoDark from '@/assets/icons/logo-dark.png';
+import logoLight from '@/assets/icons/logo-light.webp';
+import logoDark from '@/assets/icons/logo-dark.webp';
 
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -373,7 +373,7 @@ export default function InstructionsPage() {
                               <Label htmlFor="use-keyfile-encrypt" className="text-base font-medium">Use a Keyfile</Label>
                               <Popover>
                                 <PopoverTrigger asChild>
-                                  <button><HelpCircle className="h-4 w-4 text-primary" /></button>
+                                  <button aria-label="Help"><HelpCircle className="h-4 w-4 text-primary" /></button>
                                 </PopoverTrigger>
                                 <PopoverContent className="text-sm">
                                   <Alert variant="destructive" className="border-red-500/50 text-red-500 dark:border-red-500 [&>svg]:text-red-500">
@@ -559,7 +559,7 @@ export default function InstructionsPage() {
                               <Label htmlFor="use-keyfile-create" className="text-base font-medium">Use a Keyfile</Label>
                               <Popover>
                                 <PopoverTrigger asChild>
-                                  <button><HelpCircle className="h-4 w-4 text-primary" /></button>
+                                  <button aria-label="Help"><HelpCircle className="h-4 w-4 text-primary" /></button>
                                 </PopoverTrigger>
                                 <PopoverContent className="text-sm">
                                   <Alert variant="destructive" className="border-red-500/50 text-red-500 dark:border-red-500 [&>svg]:text-red-500">
@@ -712,6 +712,9 @@ export default function InstructionsPage() {
                           onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                           onDrop={handleDecryptFileDrop}
                           onClick={() => document.getElementById('decrypt-instructions-input')?.click()}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('decrypt-instructions-input')?.click(); } }}
                         >
                           <FileDown className="w-10 h-10 text-muted-foreground mb-3" />
                           <p className="text-base font-medium">Drag & drop your encrypted plan file here</p>
@@ -764,7 +767,7 @@ export default function InstructionsPage() {
                             <Label htmlFor="decrypt-password">Password</Label>
                             <Popover>
                               <PopoverTrigger asChild>
-                                <button><HelpCircle className="h-4 w-4 text-primary" /></button>
+                                <button aria-label="Help"><HelpCircle className="h-4 w-4 text-primary" /></button>
                               </PopoverTrigger>
                               <PopoverContent className="text-sm">
                                 Enter the same password that was used when the instructions were encrypted.
@@ -798,7 +801,7 @@ export default function InstructionsPage() {
                               <Label htmlFor="use-keyfile-decrypt" className="text-base font-medium">Was a Keyfile used?</Label>
                               <Popover>
                                 <PopoverTrigger asChild>
-                                  <button><HelpCircle className="h-4 w-4 text-primary" /></button>
+                                  <button aria-label="Help"><HelpCircle className="h-4 w-4 text-primary" /></button>
                                 </PopoverTrigger>
                                 <PopoverContent className="text-sm">
                                   If a keyfile was used when encrypting the instructions, enable this and upload the same keyfile.

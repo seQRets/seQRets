@@ -13,8 +13,8 @@ import { BitcoinTicker } from "@/components/bitcoin-ticker";
 import { AppFooter } from "@/components/app-footer";
 import { WelcomeGuide } from "@/components/welcome-guide";
 import { useTheme } from "@/components/theme-provider";
-import logoLight from "@/assets/icons/logo-light.png";
-import logoDark from "@/assets/icons/logo-dark.png";
+import logoLight from "@/assets/icons/logo-light.webp";
+import logoDark from "@/assets/icons/logo-dark.webp";
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = React.useState<'create' | 'restore'>('create');

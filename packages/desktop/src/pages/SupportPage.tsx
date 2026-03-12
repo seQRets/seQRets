@@ -5,8 +5,8 @@ import { ArrowLeft, Bot } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/header";
 import { useTheme } from "@/components/theme-provider";
-import logoLight from "@/assets/icons/logo-light.png";
-import logoDark from "@/assets/icons/logo-dark.png";
+import logoLight from "@/assets/icons/logo-light.webp";
+import logoDark from "@/assets/icons/logo-dark.webp";
 import { BobChatInterface } from '@/components/bob-chat-interface';
 import { AppFooter } from "@/components/app-footer";
 

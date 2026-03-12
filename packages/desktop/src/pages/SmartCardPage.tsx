@@ -48,8 +48,8 @@ import {
 import { Link } from 'react-router-dom';
 import { Header } from '@/components/header';
 import { useTheme } from '@/components/theme-provider';
-import logoLight from '@/assets/icons/logo-light.png';
-import logoDark from '@/assets/icons/logo-dark.png';
+import logoLight from '@/assets/icons/logo-light.webp';
+import logoDark from '@/assets/icons/logo-dark.webp';
 import { useToast } from '@/hooks/use-toast';
 import { KeyfileUpload } from '@/components/keyfile-upload';
 import { SmartCardDialog } from '@/components/smartcard-dialog';
@@ -831,6 +831,7 @@ export default function SmartCardPage() {
                   <div className="flex gap-2">
                     <Input
                       type="password"
+                      aria-label="Card PIN"
                       placeholder="Enter PIN"
                       maxLength={16}
                       value={unlockPinInput}

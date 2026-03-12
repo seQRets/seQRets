@@ -280,7 +280,7 @@ export function CreateSharesForm() {
                       <Label htmlFor="secret">Your Secret Text</Label>
                       <Popover>
                           <PopoverTrigger asChild>
-                              <button><HelpCircle className="h-4 w-4 text-primary" /></button>
+                              <button><HelpCircle className="h-4 w-4 text-primary" /><span className="sr-only">Help: secret text</span></button>
                           </PopoverTrigger>
                           <PopoverContent className="text-sm">
                               Enter the secret you want to protect. This could be a 12/24-word BIP-39 seed phrase, a private key, or any other important text. The app will automatically detect valid seed phrases for better storage efficiency.
@@ -384,7 +384,7 @@ export function CreateSharesForm() {
                           <Label htmlFor="use-keyfile" className="text-base font-medium">Use a Keyfile</Label>
                             <Popover>
                                 <PopoverTrigger asChild>
-                                    <button><HelpCircle className="h-4 w-4 text-primary" /></button>
+                                    <button><HelpCircle className="h-4 w-4 text-primary" /><span className="sr-only">Help: keyfile</span></button>
                                 </PopoverTrigger>
                                 <PopoverContent className="text-sm">
                                     <Alert variant="destructive" className="border-red-500/50 text-red-500 dark:border-red-500 [&>svg]:text-red-500">
@@ -449,7 +449,7 @@ export function CreateSharesForm() {
                                     <Label htmlFor="label">Optional Label</Label>
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                        <button><HelpCircle className="h-4 w-4 text-primary" /></button>
+                                        <button><HelpCircle className="h-4 w-4 text-primary" /><span className="sr-only">Help: label</span></button>
                                         </PopoverTrigger>
                                         <PopoverContent className="text-sm">
                                         Add a label to your secret (e.g., "Inheritance Wallet", "Bitcoin Cold Storage"). This label will be encrypted along with your secret and will appear when you restore it.
@@ -463,7 +463,7 @@ export function CreateSharesForm() {
                                     <Label htmlFor="total-shares">Total Qards ({totalShares})</Label>
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                        <button><HelpCircle className="h-4 w-4 text-primary" /></button>
+                                        <button><HelpCircle className="h-4 w-4 text-primary" /><span className="sr-only">Help: total Qards</span></button>
                                         </PopoverTrigger>
                                         <PopoverContent className="text-sm">
                                         <p className="font-bold mb-2">Total Qards</p>
@@ -478,7 +478,7 @@ export function CreateSharesForm() {
                                     <Label htmlFor="required-shares">Qards to Restore ({requiredShares})</Label>
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                        <button><HelpCircle className="h-4 w-4 text-primary" /></button>
+                                        <button><HelpCircle className="h-4 w-4 text-primary" /><span className="sr-only">Help: Qards to restore</span></button>
                                         </PopoverTrigger>
                                         <PopoverContent className="text-sm">
                                         <p className="font-bold mb-2">Qards to Restore</p>
@@ -520,7 +520,7 @@ export function CreateSharesForm() {
                     <CardTitle className="pb-2">Your Encrypted Qards{' '}
                     <Popover>
                         <PopoverTrigger asChild>
-                            <button className="inline-flex align-middle ml-1"><HelpCircle className="h-4 w-4 text-primary" /></button>
+                            <button className="inline-flex align-middle ml-1"><HelpCircle className="h-4 w-4 text-primary" /><span className="sr-only">Help: encryption details</span></button>
                         </PopoverTrigger>
                         <PopoverContent className="text-sm">
                             <Alert variant="destructive">

@@ -482,6 +482,7 @@ export function RestoreSecretForm() {
                 <div className="relative">
                     <Textarea
                         readOnly
+                        aria-label="Restored secret"
                         value={restoredSecret}
                         rows={5}
                         className={cn(
@@ -495,7 +496,7 @@ export function RestoreSecretForm() {
                             size="icon"
                             className="h-8 w-8 text-muted-foreground"
                             onClick={() => setIsSecretVisible(!isSecretVisible)}
-                            title={isSecretVisible ? 'Hide secret' : 'Show secret'}
+                            aria-label={isSecretVisible ? 'Hide secret' : 'Show secret'}
                         >
                             {isSecretVisible ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </Button>
@@ -504,7 +505,7 @@ export function RestoreSecretForm() {
                             size="icon"
                             className="h-8 w-8 text-muted-foreground"
                             onClick={handleCopy}
-                            title="Copy secret"
+                            aria-label="Copy secret"
                         >
                             <Copy className="h-5 w-5" />
                         </Button>
@@ -602,6 +603,7 @@ export function RestoreSecretForm() {
                         </DialogHeader>
                         <div className="py-4">
                             <Textarea
+                                aria-label="Share data"
                                 placeholder="seQRets|MHoDJz8J69YRmeX993O4PQ==|CAFQ..."
                                 value={manualShare}
                                 onChange={(e) => setManualShare(e.target.value)}
