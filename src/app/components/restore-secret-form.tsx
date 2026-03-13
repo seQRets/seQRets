@@ -617,6 +617,12 @@ export function RestoreSecretForm() {
                 </Dialog>
 
 
+                {decodedShares.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-2">
+                      Don&apos;t have Qards yet? <a href="/?tab=create" className="text-primary underline underline-offset-4 hover:text-primary/80">Secure a secret</a> first to generate them.
+                    </p>
+                )}
+
                 {decodedShares.length > 0 && (
                     <div className="space-y-2">
                         <Label>Added Shares ({uniqueSharesCount})</Label>

@@ -1,6 +1,6 @@
 # seQRets — Developer Memory File
 
-> Quick-reference for AI assistants and future sessions. Last updated: v1.4.5 (March 7, 2026).
+> Quick-reference for AI assistants and future sessions. Last updated: v1.4.5 (March 12, 2026).
 
 ---
 
@@ -15,6 +15,10 @@
 - **JavaCard applet**: `packages/javacard/` (smart card storage)
 - **License**: AGPL-3.0-or-later
 - **Repo**: https://github.com/seQRets/seQRets-app
+- **Landing page repo**: https://github.com/seQRets/seqrets-landing-page
+- **Live web app**: https://app.seqrets.app
+- **Landing page**: https://seqrets.app
+- **YouTube**: https://www.youtube.com/@SVRNMoney
 
 ---
 
@@ -89,6 +93,141 @@ Chat history: `localStorage['bob-chat-history']` — shared between the popover 
 - **Multi-item storage**: Multiple items (shares, vaults, instructions) per card
 - **Rust driver**: `packages/desktop/src-tauri/src/smartcard.rs`
 - **Frontend**: `smartcard-dialog.tsx` (popover) + `SmartCardPage.tsx` (full page)
+- **Target card**: NXP J3H145 (JCOP3) — 144K EEPROM, JavaCard 3.0.4, GlobalPlatform 2.2.1, dual interface
+- **Target reader**: Identiv SCR3310 v2.0 — ISO 7816, PC/SC, CCID, USB-A and USB-C variants
+
+---
+
+## Landing Page (separate repo)
+
+**Repo**: https://github.com/seQRets/seqrets-landing-page
+**Stack**: Vite + React + react-router-dom + Tailwind + shadcn/ui + Framer Motion
+**Local dev**: `npm run dev` (port 8080)
+**Local path**: `/Users/macuser/Documents/Dev/seqrets Web Dev`
+
+### Key Files
+
+- `src/lib/stripe.ts` — Product catalog (9 products), Stripe checkout helper, `SHOP_LIVE` toggle
+- `src/lib/waitlist.ts` — Waitlist API helper (posts to Cloudflare Worker, mailto fallback)
+- `src/components/WaitlistButton.tsx` — Reusable waitlist CTA with modal popup
+- `src/pages/Shop.tsx` — Shop page with bundles + accessories grid
+- `src/components/landing/HeroSection.tsx` — Landing hero with waitlist CTA
+- `src/components/landing/ComparisonTable.tsx` — Web vs Desktop feature comparison with waitlist modal
+- `src/components/landing/DesktopCTA.tsx` — Desktop app CTA section
+- `src/components/landing/Footer.tsx` — Footer with GitHub, YouTube, email links
+- `public/sitemap.xml` — Covers all 6 routes
+- `public/admin.html` — Waitlist admin dashboard (secret-protected)
+- `public/robots.txt` — Includes sitemap reference and admin.html noindex
+- `.env.local` — Contains `VITE_STRIPE_PUBLISHABLE_KEY`, `VITE_CHECKOUT_API_URL`, `VITE_WAITLIST_API_URL`
+- `.env.example` — Template for above
+
+### Env Vars (Vite — baked at build time, requires dev server restart)
+
+```
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
+VITE_CHECKOUT_API_URL=https://seqrets-checkout.YOUR_SUBDOMAIN.workers.dev
+VITE_WAITLIST_API_URL=https://seqrets-waitlist.baton-banker-hazy.workers.dev
+```
+
+---
+
+## Cloudflare Workers
+
+### Waitlist Worker (`workers/waitlist/`)
+
+- **URL**: `https://seqrets-waitlist.baton-banker-hazy.workers.dev`
+- **Files**: `worker.ts`, `wrangler.toml`
+- **KV namespace**: `WAITLIST` (binding in `wrangler.toml`)
+- **Secret**: `ADMIN_SECRET` (set via `wrangler secret put ADMIN_SECRET`)
+- **Endpoints**:
+  - `POST /` — Public. Accepts `{email, source}`, validates, deduplicates, stores in KV
+  - `GET /` — Admin (requires `X-Admin-Secret` header). Lists all entries with metadata
+  - `DELETE /` — Admin (requires `X-Admin-Secret` header). Accepts `{email}`, removes from KV
+  - `OPTIONS /` — CORS preflight
+- **CORS origins**: `seqrets.app`, `localhost:5173`, `localhost:8080`, `localhost:9002`
+- **Deploy**: `cd workers/waitlist && npx wrangler deploy`
+- **CLI note**: Wrangler v4 uses spaces not colons (`wrangler kv namespace create`, not `kv:namespace`)
+- **KV gotcha**: `wrangler kv key list` may return empty even when data exists. Use the GET endpoint or Cloudflare dashboard to verify.
+
+### Checkout Worker (not yet deployed)
+
+- Will handle Stripe checkout sessions
+- Deploy when Stripe products are created with real `price_` IDs
+
+---
+
+## Waitlist Admin Dashboard
+
+- **Location**: `public/admin.html` (deployed at `seqrets.app/admin.html`)
+- **Auth**: Requires `ADMIN_SECRET` passphrase (same as Worker secret)
+- **Features**: Login screen, total/today/top-source stats, searchable table, delete with 2-click confirm, CSV export, refresh
+- **Change password**: `cd workers/waitlist && npx wrangler secret put ADMIN_SECRET`
+- **Data stored in Cloudflare KV** (cloud, not local — survives machine failure)
+- **Hidden from search engines**: `<meta name="robots" content="noindex">` + `robots.txt Disallow`
+
+---
+
+## Stripe Integration & Shop
+
+### Product Catalog (9 products in `src/lib/stripe.ts`)
+
+**Bundles:**
+
+| Slug | Name | Ceiling Price | Contents |
+|---|---|---|---|
+| `desktop-app` | Desktop App | $49 | Signed binary, auto-updates, smart card support |
+| `backup-bundle` | Backup Bundle | $129 | App + 2 cards + reader + guide |
+| `inheritance-bundle` | Inheritance Bundle | $249 | App + 5 cards + reader + guide + envelopes + fireproof case |
+
+**Accessories:**
+
+| Slug | Name | Ceiling Price |
+|---|---|---|
+| `smart-card` | Smart Card | $29 |
+| `smart-card-3pack` | Smart Card 3-Pack | $69 |
+| `usb-card-reader` | USB Card Reader | $29 |
+| `tamper-evident-envelopes` | Tamper-Evident Envelopes (5-pk) | $14.99 |
+| `fireproof-case` | Fireproof Case | $49 |
+| `inheritance-guide` | Inheritance Guide (PDF) | $19 |
+
+### Pricing Strategy
+
+- **All prices are estimated ceilings** (`priceFinal: false`) — will be finalized after supplier quotes
+- **Razor/blade model**: App is paid but positioned as gateway to hardware ecosystem
+- **Revenue focus**: Smart cards and accessories (especially future premium media: titanium, steel, copper)
+- **No subscriptions**: One-time purchases only — aligns with privacy/sovereignty ethos
+- **Competitive reference**: Keycard.tech charges €25/card (~$27), €60/3-pack (~$65), €22/reader (~$24)
+- **`SHOP_LIVE` toggle**: `false` — all "Add to Cart" buttons show "Join Waitlist" instead
+- **Shop page**: Shows prices with "or less" label when `priceFinal: false`
+- **Price IDs**: All set to `price_REPLACE_ME` — update after creating products in Stripe Dashboard
+
+### Cart System
+
+- `CartContext` with `useReducer` + `localStorage` persistence
+- `CartDrawer` slide-out panel + `CartIcon` floating button
+- Checkout via Cloudflare Worker → Stripe Checkout Sessions
+
+---
+
+## Hardware Sourcing (not yet started)
+
+### Smart Card Suppliers to Contact
+
+| Supplier | URL | Notes |
+|---|---|---|
+| FUTAKO | javacardsdk.com | Taiwan, MOQ 5, ~$2-4/unit at volume |
+| Smartcard Focus | smartcardfocus.com | UK, singles OK, ~$8-12/unit, good for prototyping |
+| CardLogix | cardlogix.com | Irvine CA, custom branding/printing |
+| JavaCardOS / Feitian | javacardos.com | China, MOQ 5, ~$3-5/unit |
+| Satochip | satochip.io | Belgium, DIY/crypto focused |
+
+### Key Requirements
+
+- JavaCard 3.0.4+ (minimum for applet)
+- Default test keys must be included (otherwise can't load applet)
+- Contact interface required (dual-interface OK — NFC side unused)
+- 144K+ EEPROM for multi-item storage
+- USB reader: Identiv SCR3310 v2.0 or equivalent (ISO 7816, PC/SC, CCID)
 
 ---
 
@@ -131,6 +270,9 @@ cd packages/desktop/src-tauri && cargo generate-lockfile
 # Web dev server (port 9002)
 npm run dev
 
+# Landing page dev server (port 8080)
+cd "/Users/macuser/Documents/Dev/seqrets Web Dev" && npm run dev
+
 # Desktop dev server (Tauri + Vite)
 cd packages/desktop && npm run tauri:dev
 # or from root:
@@ -142,15 +284,29 @@ npx tsc --noEmit -p packages/desktop/tsconfig.json
 # TypeScript check (web)
 npx tsc --noEmit
 
+# TypeScript check (landing page)
+cd "/Users/macuser/Documents/Dev/seqrets Web Dev" && npx tsc --noEmit
+
 # Build crypto package (prerequisite for other builds)
 npm run build:crypto
 
 # Production build
 npm run build              # web
 npm run desktop:build      # desktop
+
+# Deploy waitlist Worker
+cd workers/waitlist && npx wrangler deploy
+
+# List waitlist emails (CLI)
+cd workers/waitlist && npx wrangler kv key list --binding WAITLIST
+
+# Change admin password
+cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 ```
 
 **Note**: Tauri window config changes (`tauri.conf.json`) require a full restart of `tauri dev` — they don't hot-reload. CSS/React changes hot-reload via Vite HMR.
+
+**Note**: Vite env vars (`VITE_*`) are baked in at dev server startup. Changes to `.env.local` require restarting the dev server.
 
 ---
 
@@ -170,6 +326,12 @@ npm run desktop:build      # desktop
 
 7. **Inheritance plan version migration** — When adding fields to `InheritancePlan`, bump `INHERITANCE_PLAN_VERSION` and add migration logic in `rawInstructionToPlan()`. Backward migration isn't needed (app hasn't been publicly released).
 
+8. **Wrangler v4 syntax** — Uses spaces not colons: `wrangler kv namespace create` not `wrangler kv:namespace create`.
+
+9. **Vite env vars require restart** — `VITE_*` variables in `.env.local` are baked at build/dev start time. If you change them, you must restart the dev server (`Ctrl+C` then `npm run dev`).
+
+10. **`wrangler kv key list` unreliable** — May return empty even when data exists. Use the Worker's GET endpoint or the Cloudflare dashboard KV browser to verify entries.
+
 ---
 
 ## UI Component Patterns
@@ -180,123 +342,37 @@ npm run desktop:build      # desktop
 - **Toast**: `useToast()` hook from shadcn
 - **Card pattern**: Digital Assets and Device & Account Access sections use repeatable card entries with add/remove functionality
 - **QR card export**: HTML template string → `html2canvas` → PNG blob → download. Separate canvas-based renderer for the web version.
-
----
-
-## Roadmap: Plausible Deniability (PD)
-
-**Status**: Planned (not yet implemented)
-
-### Concept
-Dual-layer encryption within the same Shamir share set. One password/keyfile reveals the real secret; another reveals a convincing decoy. The app gives no indication a second layer exists.
-
-### Architecture
-```
-Real secret   → Encrypt(real_credential)   → ciphertext_A
-Decoy secret  → Encrypt(duress_credential) → ciphertext_B
-                                             ↓
-                              Combine A + B → Shamir Split → Qards
-```
-On restore, XChaCha20-Poly1305 authentication determines which ciphertext matches the entered credential. Only the matching secret is revealed.
-
-### PD Variants
-| Variant | Real Secret | Decoy Secret | Distinguisher |
-|---|---|---|---|
-| Dual password | password_A | password_B | Which password entered |
-| Dual keyfile | password + keyfile_A | password + keyfile_B | Which keyfile provided |
-| Keyfile vs none | password + keyfile | password alone | Whether keyfile provided |
-| Dual password + keyfile | password_A + keyfile | password_B (no keyfile) | Both differ |
-
-**Strongest variant**: "Keyfile vs none" — attacker gets a valid decoy with just the password, never knows a keyfile exists.
-
-### Decoy Size Constraint
-- **Decoy limited to ~128 bytes plaintext** (before compression/encryption)
-- Fits: any 12-word seed (16 bytes entropy), short text notes, master passwords, brief instructions
-- Keeps QR overhead to ~1.5x current size (not 2x) — critical for paper scanning reliability
-- UI enforces the limit with a character/byte counter; decoy input is a flexible text field, not seed-only
-- Use cases: sacrificial wallet seed, "the backup is in the freezer", password manager master password, etc.
-
-### Critical Requirements
-- **Fixed-size padding**: Decision deferred — may not pad non-PD shares at launch. PD-enabled shares would be padded to a fixed size. Accepting that PD vs non-PD shares may be distinguishable by size to preserve scanning reliability. Revisit when PD is built.
-- **No UI hints**: Restore flow must never indicate whether PD is active or whether a second layer exists
-- **QR size impact**: ~1.5x current size with 128-byte decoy cap (tested: current 24-word BIP-39 shares are ~129 chars, PD would be ~180-200 chars — well within reliable scanning range)
-- **Open-source defense**: Padding (when used) makes PD usage undetectable even though the feature is visible in code (same argument as VeraCrypt hidden volumes)
-- **Decoy plausibility**: User education needed — decoy wallet should hold a credible amount; short text secrets should be believable
-
-### Implementation Notes
-- Desktop-only feature (post-launch) — adds to desktop app value proposition over web
-- Crypto pipeline stays the same — run it twice, concatenate before Shamir split
-- Affects: `packages/desktop/` only (crypto, UI, restore flow)
-- Needs new UI: optional PD toggle in Secure Secret, secondary secret input (text field, byte-limited), credential inputs per PD variant
-- Restore flow: try entered credential against both ciphertexts, display whichever authenticates
-- QR scanning tested with real printed Qards at current density — headroom exists for ~1.5x but 2x is risky on aged/inkjet paper
-- **Large secret warning**: If projected QR share exceeds ~500 chars (e.g., wallet descriptors + PD), show UI warning recommending vault file or smart card export instead of QR Qards. Warning does not block — user can still proceed. Vault files and smart cards store raw ciphertext (no QR encoding), so size is irrelevant for those paths.
-
-### QR Scanning Test Results (March 2026)
-Tested with printed QR codes scanned via desktop webcam and phone camera:
-| Payload | Chars | Reliability |
-|---|---|---|
-| 12-word BIP-39 | ~109 | ✅ Easy |
-| 24-word BIP-39 | ~129 | ✅ Easy |
-| 24-word + PD (128-byte cap) | ~225 | ✅ Comfortable |
-| Long text (~200 bytes) | ~301 | ✅ Fine |
-| Long text + PD | ~569 | ✅ Fine |
-| Stress test (~600 bytes) | ~833 | ⚠️ Unreliable on paper |
-- **Practical ceiling**: ~600 chars for reliable paper scanning
-- **PD safe zone**: All BIP-39 + 128-byte decoy scenarios stay well under 300 chars
-
----
-
-## Roadmap: Soft Expiration / Rotation Reminders
-
-**Status**: Planned (not yet implemented)
-
-### Concept
-Optional expiration dates on keyfiles as a workflow nudge (not cryptographic enforcement). Encourages users to periodically regenerate shares, keeping the process fresh.
-
-### Key Decisions
-- Purely local — stored in localStorage (web) / OS keychain (desktop). No server, no email, no accounts.
-- Soft enforcement only — app warns but still allows restore after expiry (hard lock risks permanent data loss)
-- Hard cryptographic expiration is not feasible in an offline, zero-knowledge system
-
----
-
-## Roadmap: Physical Qard Media & Export
-
-**Status**: Planned (not yet implemented)
-
-### Concept
-Expand Qard export beyond paper printing to support durable physical media. QR codes are ideal for physical etching/engraving because they have built-in error correction and are binary (black/white), making them machine-readable even when produced by different fabrication methods.
-
-### Durable Media Options
-| Media | Durability | Method |
-|---|---|---|
-| Titanium | Fire, water, corrosion proof | Laser etching / CNC engraving |
-| Stainless steel | Fire, water resistant | Laser etching / CNC engraving |
-| Copper / Brass | Long-lasting, corrosion resistant | Chemical etching / laser |
-| Carbon fiber | Lightweight, durable | Laser etching |
-| Wood | Moderate | Laser engraving |
-
-### Enhanced Paper Options
-| Method | Benefit |
-|---|---|
-| Archival paper | Acid-free, rated 100+ years |
-| Waterproof paper (e.g., Rite in the Rain) | Survives water damage |
-| Lamination | Water + tear resistance |
-| Laser printing (vs inkjet) | No ink bleed, better QR scanning long-term |
-
-### Implementation Considerations
-- Export formats needed: high-res PNG, SVG (vector — essential for laser etching), possibly DXF for CNC
-- SVG export would be a new feature — current PNG export uses Canvas 2D rasterization
-- QR error correction level may need to be configurable (higher = more resilient to surface damage but denser)
-- Could partner with laser etching services or provide guides for DIY
-- QR size constraints remain the same — durable media doesn't change scanning limits, only survival
+- **WaitlistButton**: Reusable modal CTA component accepting `source`, `label`, `className`, `icon` props. Used across hero, comparison table, desktop CTA, and shop page.
 
 ---
 
 ## GitHub
 
-- **Repo**: https://github.com/seQRets/seQRets-app
+- **App repo**: https://github.com/seQRets/seQRets-app
+- **Landing page repo**: https://github.com/seQRets/seqrets-landing-page
 - **Releases**: https://github.com/seQRets/seQRets-app/releases
 - **Branch protection**: Main branch has PR requirement (bypassed for direct pushes)
 - **CLI**: `gh` authenticated and working for releases, PR creation, etc.
+
+---
+
+## Launch Status (as of March 8, 2026)
+
+### Completed
+- Landing page live at seqrets.app
+- Web app live at app.seqrets.app
+- Waitlist email capture (Cloudflare Worker + KV) with admin dashboard
+- All mailto-based CTAs replaced with API-backed WaitlistButton
+- Sitemap, tightened hero copy, YouTube footer link
+- Shop page with 9 products (3 bundles + 6 accessories), ceiling prices, "or less" labels
+- Stripe integration scaffolded (CartContext, checkout Worker code, `SHOP_LIVE` toggle)
+
+### Pending
+- Stripe product creation in dashboard (need real `price_` IDs)
+- Smart card & reader supplier outreach and quotes
+- Fulfillment/packaging house research
+- Desktop app code signing and release builds
+- Analytics setup (Plausible/Umami)
+- JSON-LD structured data
+- YouTube launch content for @SVRNMoney
+- Remove localhost origins from waitlist Worker CORS before production

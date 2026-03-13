@@ -4,8 +4,8 @@
 
 | Version | Supported |
 |---------|-----------|
-| 1.3.x   | Yes       |
-| < 1.3   | No        |
+| 1.4.x   | Yes       |
+| < 1.4   | No        |
 
 ## Reporting a Vulnerability
 
@@ -48,7 +48,7 @@ The following are **out of scope**:
 
 ## Audit Status
 
-seQRets v1.3.x has **not undergone a formal third-party security audit**. The cryptographic primitives used are industry-standard and well-audited (Noble, Scure libraries by Paul Miller), but the integration and application-level code has not been independently reviewed. A formal audit is planned.
+seQRets has **not undergone a formal third-party security audit**. However, an internal security review was completed in v1.4.0, which identified and resolved 11 findings across the full desktop stack (Rust backend, TypeScript crypto library, Tauri frontend) — including CSP enforcement, clipboard auto-clear, API key migration to OS keychain, Rust password zeroization, and Argon2id iteration hardening. The cryptographic primitives used are industry-standard and well-audited (Noble, Scure libraries by Paul Miller; Shamir library audited by Cure53 + Zellic). A formal third-party audit of the application-level integration is planned.
 
 ## Security Design
 
