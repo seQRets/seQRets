@@ -1,6 +1,6 @@
 # seQRets — Developer Memory File
 
-> Quick-reference for AI assistants and future sessions. Last updated: v1.4.5 (March 12, 2026).
+> Quick-reference for AI assistants and future sessions. Last updated: v1.4.7 (March 12, 2026).
 
 ---
 
