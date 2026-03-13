@@ -39,6 +39,7 @@ v1.4.7 "Liftoff" — Available as a web app (Next.js) and native desktop app (Ta
 - Optional keyfile support — generate a keyfile (with download or save to Smart Card) or upload an existing one (desktop only).
 - **Dynamic file naming** — saved plans use the preparer's last name (e.g., Smith-Inheritance-Plan.json).
 - After encrypting, users can **Save to File** and/or **Write to Smart Card** (desktop only, if encrypted size fits within 8KB).
+- **PDF export** (desktop only) — after encrypting an in-app plan or after decrypting one, users can export a printable PDF document with all 8 sections formatted as a clear, readable paper document. This is designed for heirs who need instructions without needing the app. The PDF is generated client-side and never transmitted.
 - Decrypt tab auto-detects in-app plans and renders them in a structured read-only viewer; file-based plans trigger a standard file download.
 - Available on both web and desktop (in-app builder is desktop only).
 
@@ -299,7 +300,7 @@ Your plan should include:
 - Contact information for any advisors (attorney, financial advisor, trusted technical friend).
 - Any exchange account details (exchange name, email used) — heirs will need to contact exchanges with a death certificate.
 
-Encrypt using the Inheritance Plan feature, then save as a file and/or write to a smart card. In-app plans are typically just ~2-4 KB and fit easily on a smart card.
+Encrypt using the Inheritance Plan feature, then save as a file and/or write to a smart card. In-app plans are typically just ~2-4 KB and fit easily on a smart card. The desktop app can also export the plan as a printable PDF — useful as a paper backup for heirs.
 
 **Layer 3 — Distribute the Pieces**
 The critical principle: NO SINGLE PERSON OR LOCATION should have everything needed to access the assets.
