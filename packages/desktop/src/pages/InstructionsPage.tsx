@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Lock, KeyRound, Eye, EyeOff, Paperclip, HelpCircle, Loader2, CheckCircle2, X, FileDown, ArrowDown, ShieldCheck, Download, CreditCard, RefreshCcw, Save, TriangleAlert, FilePenLine } from 'lucide-react';
+import { Lock, KeyRound, Eye, EyeOff, Paperclip, HelpCircle, Loader2, CheckCircle2, X, FileDown, ArrowDown, ShieldCheck, Download, CreditCard, RefreshCcw, Save, TriangleAlert, FilePenLine, Bot } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/components/theme-provider';
@@ -29,6 +29,9 @@ import { createBlankPlan } from '@/lib/inheritance-plan-types';
 import type { InheritancePlan } from '@/lib/inheritance-plan-types';
 import { planToRawInstruction, isInheritancePlan, rawInstructionToPlan } from '@/lib/inheritance-plan-utils';
 import { AppFooter } from '@/components/app-footer';
+import { AppNavTabs } from '@/components/app-nav-tabs';
+import { BitcoinTicker } from '@/components/bitcoin-ticker';
+import { BobChatInterface } from '@/components/bob-chat-interface';
 import logoLight from '@/assets/icons/logo-light.webp';
 import logoDark from '@/assets/icons/logo-dark.webp';
 
@@ -293,17 +296,31 @@ export default function InstructionsPage() {
     <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 md:p-12">
       <div className="w-full max-w-4xl mx-auto relative">
         <div className="absolute top-4 left-4 z-50">
-          <Button asChild variant="outline" size="sm">
-            <Link to="/">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to App
-            </Link>
-          </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                 <Button variant="outline" className="hidden md:inline-flex hover:bg-accent text-foreground" >
+                    <Bot className="mr-2 h-5 w-5" />
+                    Ask Bob
+                </Button>
+              </PopoverTrigger>
+               <PopoverContent align="start" className="w-96 h-[32rem] dark:bg-[#2b2728]">
+                  <BobChatInterface
+                    initialMessage="Hi! I'm Bob, your AI assistant. How can I help you with seQRets today?"
+                    showLinkToFullPage={true}
+                  />
+               </PopoverContent>
+            </Popover>
+             <Button asChild size="icon" variant="outline" className="md:hidden inline-flex">
+                <Link to="/support">
+                    <Bot className="h-5 w-5" />
+                    <span className="sr-only">Ask Bob</span>
+                </Link>
+            </Button>
         </div>
         <Header />
 
-        <div className="text-center mb-10 pt-16 sm:pt-0">
-          <div className="flex justify-center items-center gap-2.5 mb-6">
+        <header className="text-center mb-6 pt-16 sm:pt-0">
+          <div className="flex justify-center items-center gap-2.5">
             <img src={logoSrc} alt="seQRets Logo" width={144} height={144} className="self-start -mt-2" />
             <div>
               <h1 className="font-body text-5xl md:text-7xl font-black text-foreground tracking-tighter">
@@ -314,14 +331,20 @@ export default function InstructionsPage() {
               </p>
             </div>
           </div>
-          <h2 className="text-2xl font-bold text-foreground mb-2">Inheritance Plan</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            Create an inheritance plan or encrypt a document for your heirs. Decrypt and view previously encrypted plans.
-          </p>
+        </header>
+
+        <div className="mb-10">
+          <BitcoinTicker />
         </div>
 
-        <Card className="mb-8">
+        <AppNavTabs activePage="plan" />
+
+        <Card className="mt-6 mb-8">
           <CardContent className="p-6 pt-6">
+            <h2 className="text-2xl font-bold text-foreground">Inheritance Planning</h2>
+            <p className="text-muted-foreground text-sm mb-4">
+              Create an inheritance plan or encrypt a document for your heirs. Decrypt and view previously encrypted plans.
+            </p>
             <Tabs value={activeTab} onValueChange={(val) => { setActiveTab(val); handleEncryptReset(); handleDecryptReset(); }}>
               <TabsList className="grid w-full grid-cols-3 mb-6">
                 <TabsTrigger value="encrypt"><Lock className="mr-2 h-4 w-4" /> Encrypt Plan</TabsTrigger>
