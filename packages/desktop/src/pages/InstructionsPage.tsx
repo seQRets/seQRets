@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Lock, KeyRound, Eye, EyeOff, Paperclip, HelpCircle, Loader2, CheckCircle2, X, FileDown, ArrowDown, ShieldCheck, Download, CreditCard, RefreshCcw, Save, TriangleAlert, FilePenLine, Bot } from 'lucide-react';
+import { Lock, KeyRound, Eye, EyeOff, Paperclip, HelpCircle, Loader2, CheckCircle2, X, FileDown, ArrowDown, ShieldCheck, Download, CreditCard, RefreshCcw, Save, TriangleAlert, FilePenLine, Bot, FileText } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Link } from 'react-router-dom';
 import { useTheme } from '@/components/theme-provider';
@@ -21,7 +21,8 @@ import { cn } from '@/lib/utils';
 import type { RawInstruction, DecryptInstructionRequest, EncryptedInstruction } from '@/lib/types';
 import { SmartCardDialog } from '@/components/smartcard-dialog';
 import { DEFAULT_CARD_CAPACITY, type CardItem } from '@/lib/smartcard';
-import { saveFileNative, saveTextFileNative, base64ToUint8Array } from '@/lib/native-save';
+import { saveFileNative, saveTextFileNative, base64ToUint8Array, PDF_FILTERS } from '@/lib/native-save';
+import { generatePlanPdf, getPlanPdfFilename } from '@/lib/generate-plan-pdf';
 import { encryptInstructions, decryptInstructions } from '@/lib/desktop-crypto';
 import { InheritancePlanForm } from '@/components/inheritance-plan-form';
 import { InheritancePlanViewer } from '@/components/inheritance-plan-viewer';
@@ -164,6 +165,21 @@ export default function InstructionsPage() {
     );
     if (savedPath) {
       toast({ title: 'File Saved!', description: `Saved "${planFileName}" successfully.` });
+    }
+  };
+
+  const handleExportPdf = async (plan: InheritancePlan) => {
+    try {
+      const pdf = await generatePlanPdf(plan);
+      const pdfFilename = getPlanPdfFilename(plan);
+      const arrayBuffer = pdf.output('arraybuffer');
+      const data = new Uint8Array(arrayBuffer);
+      const savedPath = await saveFileNative(pdfFilename, PDF_FILTERS, data);
+      if (savedPath) {
+        toast({ title: 'PDF Exported!', description: `Saved "${pdfFilename}" successfully.` });
+      }
+    } catch (err) {
+      toast({ variant: 'destructive', title: 'PDF Export Failed', description: String(err) });
     }
   };
 
@@ -680,6 +696,9 @@ export default function InstructionsPage() {
                               <CreditCard className="mr-2 h-5 w-5" /> Write to Smart Card
                             </Button>
                           </div>
+                          <Button size="lg" variant="outline" className="w-full" onClick={() => handleExportPdf(inheritancePlan)}>
+                            <FileText className="mr-2 h-5 w-5" /> Print Instructions (PDF)
+                          </Button>
                           {!fitsOnCard ? (
                             <p className="text-xs text-muted-foreground">Encrypted plan ({sizeDisplay}) exceeds the {Math.round(DEFAULT_CARD_CAPACITY / 1024)} KB smart card limit. Use Save to File instead.</p>
                           ) : (
@@ -905,6 +924,7 @@ export default function InstructionsPage() {
                           toast({ title: 'File Saved!', description: `Saved "${exportName}" successfully.` });
                         }
                       }}
+                      onExportPdf={() => handleExportPdf(decryptedPlan)}
                     />
                     <div className="flex justify-end pt-2">
                       <Button variant="ghost" size="sm" onClick={handleDecryptReset}>

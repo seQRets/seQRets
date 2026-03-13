@@ -97,6 +97,10 @@ export const BIN_FILTERS: FileFilter[] = [
   { name: 'Binary Files', extensions: ['bin'] },
 ];
 
+export const PDF_FILTERS: FileFilter[] = [
+  { name: 'PDF Documents', extensions: ['pdf'] },
+];
+
 export const ALL_FILES_FILTER: FileFilter[] = [
   { name: 'All Files', extensions: ['*'] },
 ];

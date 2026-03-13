@@ -1,16 +1,17 @@
 import React, { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { FileDown, HardDrive } from 'lucide-react';
+import { FileDown, FileText } from 'lucide-react';
 import { InheritancePlanForm } from '@/components/inheritance-plan-form';
 import type { InheritancePlan } from '@/lib/inheritance-plan-types';
 
 interface InheritancePlanViewerProps {
   plan: InheritancePlan;
   onSaveAsFile: () => void;
+  onExportPdf?: () => void;
 }
 
-export function InheritancePlanViewer({ plan, onSaveAsFile }: InheritancePlanViewerProps) {
+export function InheritancePlanViewer({ plan, onSaveAsFile, onExportPdf }: InheritancePlanViewerProps) {
   const sizeEstimate = useMemo(() => {
     const bytes = new TextEncoder().encode(JSON.stringify(plan)).length;
     return bytes < 1024 ? `${bytes} bytes` : `${(bytes / 1024).toFixed(1)} KB`;
@@ -23,10 +24,18 @@ export function InheritancePlanViewer({ plan, onSaveAsFile }: InheritancePlanVie
           <h3 className="text-lg font-semibold">Decrypted Inheritance Plan</h3>
           <p className="text-xs text-muted-foreground">Plan size: {sizeEstimate} (raw JSON)</p>
         </div>
-        <Button variant="outline" size="sm" onClick={onSaveAsFile}>
-          <FileDown className="h-4 w-4 mr-2" />
-          Save as File
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={onSaveAsFile}>
+            <FileDown className="h-4 w-4 mr-2" />
+            Save as File
+          </Button>
+          {onExportPdf && (
+            <Button variant="outline" size="sm" onClick={onExportPdf}>
+              <FileText className="h-4 w-4 mr-2" />
+              Export PDF
+            </Button>
+          )}
+        </div>
       </div>
 
       <Separator />
