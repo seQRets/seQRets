@@ -1,6 +1,6 @@
 # seQRets — Developer Memory File
 
-> Quick-reference for AI assistants and future sessions. Last updated: v1.4.7 (March 12, 2026).
+> Quick-reference for AI assistants and future sessions. Last updated: v1.4.7 "Liftoff" (March 13, 2026).
 
 ---
 
@@ -32,6 +32,7 @@
 │   ├── app/                      #   App Router pages & components
 │   │   ├── components/           #   UI components (web)
 │   │   ├── about/page.tsx        #   About page
+│   │   ├── inheritance/page.tsx  #   Inheritance Plan (encrypt/decrypt)
 │   │   ├── support/page.tsx      #   Ask Bob full page (web)
 │   │   └── go-pro/page.tsx       #   Go Pro page
 │   ├── ai/flows/                 #   Bob AI system prompt (web)
@@ -75,7 +76,19 @@
 
 Both web and desktop embed a multi-section system prompt as a template literal string in their respective `ask-bob-flow.ts` / `bob-api.ts` files. The prompt includes app features, security architecture, inheritance planning knowledge, and the current version. **Both files must be updated in sync** when changing Bob's knowledge.
 
+Bob's current knowledge includes: PDF export for inheritance plans, smart card integration, BIP-39/BIP-32 fundamentals, inheritance planning guide with legal/tax considerations, and all app features as of v1.4.7.
+
 Chat history: `localStorage['bob-chat-history']` — shared between the popover and full page via `StorageEvent` listener.
+
+### Navigation
+
+- **Web 3-tab nav**: `app-nav-tabs.tsx` — Secure Secret / Inheritance Plan / Restore Secret (responsive short labels on mobile)
+- **Web hamburger menu**: `src/app/components/header.tsx` — hides current page, shows Go Pro link
+- **Desktop hamburger menu**: `packages/desktop/src/components/header.tsx` — hides current page, shows Smart Card link
+- **Desktop nav tabs**: `packages/desktop/src/components/app-nav-tabs.tsx`
+- **Web routes**: `/` (home), `/inheritance`, `/about`, `/support`, `/go-pro`, `/privacy`, `/terms`
+- **Desktop routes**: `/` (home), `/inheritance`, `/about`, `/support`, `/smartcard`
+- **Upsell notices**: Brief desktop app upgrade links (`seqrets.app/shop`) in `inheritance/page.tsx`, `create-shares-form.tsx`, `restore-secret-form.tsx`
 
 ### Inheritance Plan
 
@@ -84,6 +97,8 @@ Chat history: `localStorage['bob-chat-history']` — shared between the popover 
 - **Migration**: `inheritance-plan-utils.ts` → `rawInstructionToPlan()` injects missing fields
 - **8 sections**: Beneficiaries, Recovery Credentials, Device & Account Access, Qard Locations, Digital Assets, How to Restore, Professional Contacts, Personal Message
 - **Encryption**: XChaCha20-Poly1305 + Argon2id pipeline, stored on smart card or file
+- **PDF export** (desktop only): `packages/desktop/src/lib/generate-plan-pdf.ts` — jsPDF, Letter portrait, 8 sections with auto-pagination and tables
+- **Web app**: File encrypt/decrypt only (no plan builder); upsell notice links to desktop app
 
 ### Smart Card (JavaCard)
 
@@ -233,34 +248,48 @@ VITE_WAITLIST_API_URL=https://seqrets-waitlist.baton-banker-hazy.workers.dev
 
 ## Version Management
 
-**All 13+ files must be updated for version bumps:**
+**All 18 files must be updated for version bumps (as of v1.4.7):**
 
 ```bash
 # Quick find of version references (exclude node_modules, .git, lock files):
-grep -r "1\.4\.3" --include="*.{json,toml,tsx,ts,md}" --exclude-dir={node_modules,.git,.next,out,target}
+grep -r "1\.4\.7" --include="*.{json,toml,tsx,ts,md,js}" --exclude-dir={node_modules,.git,.next,out,target}
 
-# Files to update:
-package.json                                    # root
+# ── Config files (5) ──
+package.json                                    # root workspace
 packages/crypto/package.json
 packages/desktop/package.json
 packages/desktop/src-tauri/Cargo.toml
 packages/desktop/src-tauri/tauri.conf.json
-src/ai/flows/ask-bob-flow.ts                    # Bob system prompt (web)
-packages/desktop/src/lib/bob-api.ts             # Bob system prompt (desktop)
-src/app/about/page.tsx                          # About page (web)
-packages/desktop/src/pages/AboutPage.tsx         # About page (desktop)
+
+# ── UI components — version + codename (4) ──
 src/app/components/app-footer.tsx                # Footer (web)
 packages/desktop/src/components/app-footer.tsx   # Footer (desktop)
+src/app/about/page.tsx                          # About page (web)
+packages/desktop/src/pages/AboutPage.tsx         # About page (desktop)
+
+# ── Bob AI system prompts — version + codename (2) ──
+src/ai/flows/ask-bob-flow.ts                    # Bob system prompt (web)
+packages/desktop/src/lib/bob-api.ts             # Bob system prompt (desktop)
+
+# ── Documentation (3) ──
 README.md
 BUILDING.md
 SECURITY_ANALYSIS.md
 
-# Then regenerate lock files:
-npm install --package-lock-only
-cd packages/desktop/src-tauri && cargo generate-lockfile
+# ── Service worker — version in cache name (1) ──
+public/sw.js                                    # 2 occurrences (CACHE_NAME + comment)
+
+# ── Project memory (1) ──
+memory.md                                       # This file
+
+# ── Lock files — regenerate, don't manually edit (2) ──
+npm install --package-lock-only                 # → package-lock.json
+# Cargo.lock — edit in place or: cd packages/desktop/src-tauri && cargo generate-lockfile
 ```
 
-**Caution**: Don't replace version strings in dependency references like `html2canvas: ^1.4.1` or `@jridgewell/sourcemap-codec: ^1.4.14`. Use targeted `sed` or manual replacement.
+**Codenames** appear in footer, about page, and Bob AI files (6 files total). Update alongside version.
+
+**Caution**: Don't blindly `sed` version strings — dependency references like `html2canvas: ^1.4.1` or `@jridgewell/sourcemap-codec: ^1.4.14` will be corrupted. Use targeted replacement on the specific files listed above.
 
 ---
 
@@ -332,6 +361,8 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 
 10. **`wrangler kv key list` unreliable** — May return empty even when data exists. Use the Worker's GET endpoint or the Cloudflare dashboard KV browser to verify entries.
 
+11. **Next.js Turbopack + PWA service worker caching** — After route renames or component changes, the browser may serve stale code despite server restarts and `.next` deletion. Fix: clear service worker caches via `caches.keys()` → `caches.delete()` and `navigator.serviceWorker.getRegistrations()` → `unregister()`, then reload.
+
 ---
 
 ## UI Component Patterns
@@ -356,7 +387,7 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 
 ---
 
-## Launch Status (as of March 8, 2026)
+## Launch Status (as of March 13, 2026)
 
 ### Completed
 - Landing page live at seqrets.app
@@ -366,6 +397,12 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 - Sitemap, tightened hero copy, YouTube footer link
 - Shop page with 9 products (3 bundles + 6 accessories), ceiling prices, "or less" labels
 - Stripe integration scaffolded (CartContext, checkout Worker code, `SHOP_LIVE` toggle)
+- Desktop PDF export for inheritance plan (jsPDF, 8-section layout with tables)
+- Route renamed: `/instructions` → `/inheritance` (web + desktop)
+- 3-tab nav bar (Secure / Inheritance Plan / Restore) on home + inheritance pages
+- Hamburger menus restructured: current page hidden, Inheritance Plan in top group
+- Mobile nav responsive (short labels on <640px: Secure / Inherit / Restore)
+- Desktop app upsell notices in web app (inheritance page, create results, restore step 1) linking to seqrets.app/shop
 
 ### Pending
 - Stripe product creation in dashboard (need real `price_` IDs)
@@ -384,7 +421,6 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 
 **Features**
 - QR card templates — Custom labels, branding, layouts (wallet-size, full page, multi-card sheet)
-- Guided inheritance plan builder — Wizard → printable instruction document alongside Qards
 
 **Growth**
 - SEO content — Blog posts: "How to set up Bitcoin inheritance," "Shamir's Secret Sharing explained"
