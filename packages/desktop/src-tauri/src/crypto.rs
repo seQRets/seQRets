@@ -152,7 +152,7 @@ pub fn crypto_create(
     keyfile_b64: Option<String>,
 ) -> Result<CryptoResult, String> {
     let password = Zeroizing::new(password);
-    let compressed = gzip_compress(json_payload.as_bytes())?;
+    let compressed = Zeroizing::new(gzip_compress(json_payload.as_bytes())?);
 
     let mut salt = [0u8; SALT_LENGTH];
     rand::thread_rng().fill_bytes(&mut salt);
@@ -190,7 +190,15 @@ pub fn crypto_restore(
     let decompressed = gzip_decompress(&plaintext)?;
     plaintext.zeroize(); // zero the compressed-but-decrypted bytes
 
-    String::from_utf8(decompressed).map_err(|e| format!("UTF-8 decode error: {e}"))
+    // Convert to String; on failure, zeroize the invalid bytes before propagating.
+    match String::from_utf8(decompressed) {
+        Ok(s) => Ok(s),
+        Err(e) => {
+            let mut bytes = e.into_bytes();
+            bytes.zeroize();
+            Err("UTF-8 decode error".to_string())
+        }
+    }
 }
 
 /// Gzip-compresses and encrypts a JSON string for vault/instructions storage.
@@ -204,7 +212,7 @@ pub fn crypto_encrypt_blob(
     keyfile_b64: Option<String>,
 ) -> Result<CryptoResult, String> {
     let password = Zeroizing::new(password);
-    let compressed = gzip_compress(json.as_bytes())?;
+    let compressed = Zeroizing::new(gzip_compress(json.as_bytes())?);
 
     let mut salt = [0u8; SALT_LENGTH];
     rand::thread_rng().fill_bytes(&mut salt);
@@ -240,7 +248,15 @@ pub fn crypto_decrypt_blob(
     let decompressed = gzip_decompress(&plaintext)?;
     plaintext.zeroize();
 
-    String::from_utf8(decompressed).map_err(|e| format!("UTF-8 decode error: {e}"))
+    // Convert to String; on failure, zeroize the invalid bytes before propagating.
+    match String::from_utf8(decompressed) {
+        Ok(s) => Ok(s),
+        Err(e) => {
+            let mut bytes = e.into_bytes();
+            bytes.zeroize();
+            Err("UTF-8 decode error".to_string())
+        }
+    }
 }
 
 // ── Unit tests ────────────────────────────────────────────────────────────────
