@@ -147,8 +147,8 @@ export function WelcomeGuide({ activeTab }: WelcomeGuideProps) {
             <DialogPrimitive.Title className="sr-only">Welcome to seQRets</DialogPrimitive.Title>
           )}
 
-          {/* Body */}
-          <div className="mb-6 min-h-[180px]">{current.body}</div>
+          {/* Body – fixed height so all slides share the same dimensions */}
+          <div className="mb-6 h-[280px] flex flex-col justify-center">{current.body}</div>
 
           {/* Action */}
           <Button
