@@ -104,10 +104,13 @@ Chat history: `localStorage['bob-chat-history']` — shared between the popover 
 
 - **Applet**: `packages/javacard/src/com/seqrets/card/SeQRetsApplet.java`
 - **PIN system**: 5 attempts max, 8-16 character PIN, permanent lock at 0 retries
-- **Recovery**: `forceEraseCard()` — factory reset always allowed without PIN
+- **Wipe protection**: Opt-in flag (`INS_SET_WIPE_PROTECT` 0x23) gates `INS_ERASE_DATA` behind PIN verification. Default off. When enabled + card locked = permanently inaccessible by design.
+- **Recovery**: `forceEraseCard()` — factory reset allowed without PIN unless wipe protection is enabled
 - **Multi-item storage**: Multiple items (shares, vaults, instructions) per card
 - **Rust driver**: `packages/desktop/src-tauri/src/smartcard.rs`
-- **Frontend**: `smartcard-dialog.tsx` (popover) + `SmartCardPage.tsx` (full page)
+- **Frontend**: `smartcard-dialog.tsx` (popover) + `SmartCardPage.tsx` (full page, 3-tab layout: Status / Security / Advanced)
+- **Build**: `cd packages/javacard && JAVA_HOME=/opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home ant build` → `build/SeQRetsApplet.cap`
+- **Install**: `java -jar tools/gp.jar --delete F053515254530100 --force && java -jar tools/gp.jar --install build/SeQRetsApplet.cap`
 - **Target card**: NXP J3H145 (JCOP3) — 144K EEPROM, JavaCard 3.0.4, GlobalPlatform 2.2.1, dual interface
 - **Target reader**: Identiv SCR3310 v2.0 — ISO 7816, PC/SC, CCID, USB-A and USB-C variants
 
@@ -404,7 +407,20 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 - Mobile nav responsive (short labels on <640px: Secure / Inherit / Restore)
 - Desktop app upsell notices in web app (inheritance page, create results, restore step 1) linking to seqrets.app/shop
 
+### Security Audit (v1.4.7)
+
+- **Report**: `security-audit-report.html` in repo root
+- **12 findings**: 0 Critical, 2 High, 4 Medium, 3 Low, 3 Informational
+- **F-01** (High): ERASE_DATA bypasses PIN — **FIXED** with opt-in wipe protection flag
+- **F-02** (High): Gemini API key in localStorage — pending
+- **F-03** (Medium): Secure wipe uses setTimeout — pending
+- **F-04** (Medium): Decompressed plaintext not zeroized in Rust — pending
+- **F-05** (Medium): PIN comparison leaks length via timing — pending
+- **F-06** (Medium): No CSP for web app on GitHub Pages — pending
+- **F-07 through F-12**: Low/Informational — pending
+
 ### Pending
+- Security audit findings F-02 through F-12
 - Stripe product creation in dashboard (need real `price_` IDs)
 - Smart card & reader supplier outreach and quotes
 - Fulfillment/packaging house research
