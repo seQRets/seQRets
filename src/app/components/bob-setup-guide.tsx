@@ -165,7 +165,7 @@ export function BobSetupGuide({ onKeyConfigured }: BobSetupGuideProps) {
         </CardContent>
       </Card>
     </div>
-    <div className={`pointer-events-none absolute bottom-0 left-0 right-0 flex flex-col items-center pb-2 transition-opacity duration-300 ${showScrollHint ? 'opacity-100' : 'opacity-0'}`}>
+    <div className={`pointer-events-none absolute bottom-0 left-0 right-0 flex-col items-center pb-2 transition-opacity duration-300 hidden sm:flex ${showScrollHint ? 'opacity-100' : 'opacity-0'}`}>
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
       <div className="relative flex flex-col items-center gap-0.5 text-muted-foreground">
         <span className="text-xs font-medium">Set up below</span>

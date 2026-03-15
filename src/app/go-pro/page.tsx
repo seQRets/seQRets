@@ -172,7 +172,7 @@ export default function GoProPage() {
 
                 {/* CTA */}
                 <div className="text-center mb-8">
-                    <a href="https://seqrets.app" target="_blank" rel="noopener noreferrer">
+                    <a href="https://seqrets.app/shop" target="_blank" rel="noopener noreferrer">
                         <Button size="lg" className="text-lg px-8 py-6 bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-lg transition-all">
                             Get seQRets Desktop
                             <ExternalLink className="ml-2 h-5 w-5" />

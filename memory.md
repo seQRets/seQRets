@@ -1,6 +1,6 @@
 # seQRets — Developer Memory File
 
-> Quick-reference for AI assistants and future sessions. Last updated: v1.4.7 "Liftoff" (March 13, 2026).
+> Quick-reference for AI assistants and future sessions. Last updated: v1.4.7 "Liftoff" (March 14, 2026).
 
 ---
 
@@ -411,16 +411,21 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 
 - **Report**: `security-audit-report.html` in repo root
 - **12 findings**: 0 Critical, 2 High, 4 Medium, 3 Low, 3 Informational
-- **F-01** (High): ERASE_DATA bypasses PIN — **FIXED** with opt-in wipe protection flag
-- **F-02** (High): Gemini API key in localStorage — pending
-- **F-03** (Medium): Secure wipe uses setTimeout — pending
-- **F-04** (Medium): Decompressed plaintext not zeroized in Rust — pending
+- **F-01** (High): ERASE_DATA bypasses PIN — **FIXED** (16f8672) with opt-in wipe protection flag
+- **F-02** (High): Gemini API key in localStorage — **FIXED** (f1830ea) added "Remember this key" toggle with session-only in-memory mode
+- **F-03** (Medium): secureWipe JS string immutability — **FIXED** (1522b9c) added clarifying documentation comments to all 4 secureWipe functions
+- **F-04** (Medium): Decompressed plaintext not zeroized in Rust — **FIXED** (c7ca4f3)
 - **F-05** (Medium): PIN comparison leaks length via timing — pending
-- **F-06** (Medium): No CSP for web app on GitHub Pages — pending
-- **F-07 through F-12**: Low/Informational — pending
+- **F-06** (Medium): No CSP for web app on GitHub Pages — **Won't fix** (accepted risk; GitHub Pages doesn't support custom headers; Cloudflare migration failed)
+- **F-07** (Low): Clipboard read-back exposes secret twice — pending
+- **F-08** (Low): Broad Tauri fs write permissions — **Won't fix** (accepted risk; requires compromised npm dep to exploit)
+- **F-09** (Low): Negligible modular bias in password gen — pending
+- **F-10** (Info): Stack traces in worker error messages — pending
+- **F-11** (Info): Chat history persisted to localStorage — pending
+- **F-12** (Info): Compressed plaintext not zeroized in Rust — **FIXED** (c7ca4f3)
 
 ### Pending
-- Security audit findings F-02 through F-12
+- Security audit findings F-05, F-07, F-09, F-10, F-11
 - Stripe product creation in dashboard (need real `price_` IDs)
 - Smart card & reader supplier outreach and quotes
 - Fulfillment/packaging house research

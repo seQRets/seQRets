@@ -281,9 +281,9 @@ export function CreateSharesForm() {
                 <h3 className="text-xl font-semibold">Enter Your Secret</h3>
               </div>
               <div className="sm:pl-11 space-y-4">
-                <div className="flex flex-wrap justify-between items-center gap-2">
+                <div className="flex justify-between items-center gap-2">
                     <div className="flex items-center gap-2">
-                      <Label htmlFor="secret">Your Secret Text</Label>
+                      <Label htmlFor="secret"><span className="sm:hidden">Your Secret</span><span className="hidden sm:inline">Your Secret Text</span></Label>
                       <Popover>
                           <PopoverTrigger asChild>
                               <button><HelpCircle className="h-4 w-4 text-primary" /><span className="sr-only">Help: secret text</span></button>
