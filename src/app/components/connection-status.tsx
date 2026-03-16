@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 
 export function ConnectionStatus() {
-  const [isOnline, setIsOnline] = useState<boolean | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
     setIsOnline(navigator.onLine);
+    setMounted(true);
 
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -20,18 +22,19 @@ export function ConnectionStatus() {
     };
   }, []);
 
-  // Don't render until mounted to avoid hydration mismatch
-  if (isOnline === null) return null;
+  // Render consistent structure for SSR, update colors/text after mount
+  const online = mounted ? isOnline : true;
 
   return (
-    <span className="inline-flex items-center gap-1.5">
+    <span className="inline-flex items-center gap-1.5" suppressHydrationWarning>
       <span
+        suppressHydrationWarning
         className={`inline-block h-2 w-2 rounded-full ${
-          isOnline ? 'bg-red-500' : 'bg-green-500'
+          online ? 'bg-red-500' : 'bg-green-500'
         }`}
       />
-      <span className={isOnline ? 'text-red-500' : 'text-green-500'}>
-        {isOnline ? 'Online' : 'Offline'}
+      <span suppressHydrationWarning className={online ? 'text-red-500' : 'text-green-500'}>
+        {online ? 'Online' : 'Offline'}
       </span>
     </span>
   );
