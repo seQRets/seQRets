@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 
 export function ConnectionStatus() {
-  const [isOnline, setIsOnline] = useState(true);
+  const [isOnline, setIsOnline] = useState<boolean | null>(null);
 
   useEffect(() => {
     setIsOnline(navigator.onLine);
@@ -19,6 +19,9 @@ export function ConnectionStatus() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  // Don't render until mounted to avoid hydration mismatch
+  if (isOnline === null) return null;
 
   return (
     <span className="inline-flex items-center gap-1.5">
