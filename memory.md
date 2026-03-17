@@ -87,7 +87,7 @@ Chat history: `localStorage['bob-chat-history']` — shared between the popover 
 - **Desktop hamburger menu**: `packages/desktop/src/components/header.tsx` — hides current page, shows Smart Card link
 - **Desktop nav tabs**: `packages/desktop/src/components/app-nav-tabs.tsx`
 - **Web routes**: `/` (home), `/inheritance`, `/about`, `/support`, `/go-pro`, `/privacy`, `/terms`
-- **Desktop routes**: `/` (home), `/inheritance`, `/about`, `/support`, `/smartcard`
+- **Desktop routes**: `/` (home), `/inheritance`, `/about`, `/support`, `/smartcard`, `/privacy`, `/terms`
 - **Upsell notices**: Brief desktop app upgrade links (`seqrets.app/shop`) in `inheritance/page.tsx`, `create-shares-form.tsx`, `restore-secret-form.tsx`
 
 ### Inheritance Plan
@@ -316,6 +316,12 @@ npx tsc --noEmit -p packages/desktop/tsconfig.json
 # TypeScript check (web)
 npx tsc --noEmit
 
+# Desktop e2e tests (requires Vite dev server on :5173)
+npx playwright test --config packages/desktop/playwright.config.ts
+
+# Web e2e tests
+npx playwright test --project=chromium
+
 # TypeScript check (landing page)
 cd "/Users/macuser/Documents/Dev/seqrets Web Dev" && npx tsc --noEmit
 
@@ -406,6 +412,11 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 - Hamburger menus restructured: current page hidden, Inheritance Plan in top group
 - Mobile nav responsive (short labels on <640px: Secure / Inherit / Restore)
 - Desktop app upsell notices in web app (inheritance page, create results, restore step 1) linking to seqrets.app/shop
+- Password generator guarantees all character classes (lowercase, uppercase, digit, special) with Fisher-Yates shuffle (b66075a) — propagated to desktop app
+- **Web Playwright e2e test suite**: 114 tests × 3 browser projects (Chromium, iPhone 14, iPad Mini) = 342 test runs, all passing. Config: `playwright.config.ts`, tests: `e2e/` (12 spec files). Covers: create flow, restore flow, navigation, full roundtrip, edge cases, console errors, responsive, Bob chat, inheritance, links, localStorage, and more. Run: `npx playwright test --project=chromium --headed`
+- **Desktop Playwright e2e test suite**: 145 tests (136 passing, 9 skipped for Tauri IPC). Config: `packages/desktop/playwright.config.ts`, tests: `packages/desktop/e2e/` (13 spec files). Covers: create flow (29 tests), restore flow (12), navigation (14), smart card (13), inheritance (10), Bob AI chat (6), full roundtrip (4, Tauri-only), console errors (8), responsive (16), edge cases (17), localStorage (5), welcome guide (5). Run: `npx playwright test --config packages/desktop/playwright.config.ts`
+  - **Important**: Desktop tests run against Vite dev server (`localhost:5173`), NOT the Tauri webview. Tauri IPC (`invoke()`) is unavailable — crypto-dependent tests are skipped with `test.skip(!process.env.TAURI)`. Start dev server first: `cd packages/desktop && npm run dev`
+  - **Console error filtering**: `trackConsoleErrors()` in `helpers.ts` filters known benign noise (Tauri IPC, favicon, BarcodeDetector, Gemini API errors)
 
 ### Security Audit (v1.4.7)
 
@@ -419,13 +430,13 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 - **F-06** (Medium): No CSP for web app on GitHub Pages — **Won't fix** (accepted risk; GitHub Pages doesn't support custom headers; Cloudflare migration failed)
 - **F-07** (Low): Clipboard read-back exposes secret twice — pending
 - **F-08** (Low): Broad Tauri fs write permissions — **Won't fix** (accepted risk; requires compromised npm dep to exploit)
-- **F-09** (Low): Negligible modular bias in password gen — pending
+- **F-09** (Low): Negligible modular bias in password gen — **Won't fix** (accepted risk; bias is 0.0000011%, cryptographically negligible). Password generator now also guarantees at least one char from each required class via Fisher-Yates shuffle (b66075a)
 - **F-10** (Info): Stack traces in worker error messages — pending
 - **F-11** (Info): Chat history persisted to localStorage — pending
 - **F-12** (Info): Compressed plaintext not zeroized in Rust — **FIXED** (c7ca4f3)
 
 ### Pending
-- Security audit findings F-05, F-07, F-09, F-10, F-11
+- Security audit findings F-05, F-07, F-10, F-11
 - Stripe product creation in dashboard (need real `price_` IDs)
 - Smart card & reader supplier outreach and quotes
 - Fulfillment/packaging house research

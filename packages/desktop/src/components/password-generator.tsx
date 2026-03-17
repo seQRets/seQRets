@@ -40,15 +40,35 @@ export function PasswordGenerator({ value, onValueChange, onValidationChange, pl
 
   const generateSecurePassword = () => {
     // Generate a high-entropy password locally using browser crypto
-    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+    const lower = 'abcdefghijklmnopqrstuvwxyz';
+    const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const digits = '0123456789';
+    const special = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    const charset = lower + upper + digits + special;
     const passwordLength = 32;
     const randomValues = new Uint32Array(passwordLength);
     window.crypto.getRandomValues(randomValues);
-    let newPassword = '';
-    for (let i = 0; i < passwordLength; i++) {
-      newPassword += charset[randomValues[i] % charset.length];
+
+    // Guarantee at least one character from each required class
+    const mandatory = [
+      lower[randomValues[0] % lower.length],
+      upper[randomValues[1] % upper.length],
+      digits[randomValues[2] % digits.length],
+      special[randomValues[3] % special.length],
+    ];
+
+    // Fill remaining slots from the full charset
+    for (let i = 4; i < passwordLength; i++) {
+      mandatory.push(charset[randomValues[i] % charset.length]);
     }
-    return newPassword;
+
+    // Fisher-Yates shuffle so mandatory chars aren't always at the start
+    for (let i = mandatory.length - 1; i > 0; i--) {
+      const j = randomValues[i] % (i + 1);
+      [mandatory[i], mandatory[j]] = [mandatory[j], mandatory[i]];
+    }
+
+    return mandatory.join('');
   };
 
   const handleGenerate = () => {

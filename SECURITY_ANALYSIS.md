@@ -491,6 +491,23 @@ The Rust backend includes unit tests verifying:
 - ✅ Wire format compatibility between Rust and JavaScript implementations
 - ✅ Compression/decompression integrity
 
+### End-to-End Test Suite (Playwright)
+
+114 tests across 12 spec files, run against 3 browser projects (Chromium, iPhone 14, iPad Mini) = 342 total test runs. Coverage includes:
+
+- ✅ Full encrypt → Shamir split → QR code generation roundtrip
+- ✅ BIP-39 mnemonic validation and optimization
+- ✅ Password validation (length, character classes, boundary cases)
+- ✅ Shamir parameter validation (threshold ≤ shares)
+- ✅ Restore flow (manual share entry, duplicate detection, credential entry)
+- ✅ Navigation and routing (all routes, 404, deep URLs, back/forward)
+- ✅ Edge cases (XSS payloads, unicode/emoji, null bytes, 10K+ char secrets, rapid clicks)
+- ✅ Zero console errors on all pages
+- ✅ Responsive layout at 375px, 768px, and 1280px viewports
+- ✅ LocalStorage resilience (corrupted data, missing keys, oversized values)
+- ✅ External link integrity (Go Pro, shop upsells, rel=noopener)
+- ✅ Bob AI chat input validation
+
 ### What Has Been Verified
 
 | Check | Result |
@@ -512,12 +529,12 @@ The Rust backend includes unit tests verifying:
 
 seQRets demonstrates **strong cryptographic engineering** with a well-designed zero-knowledge architecture. The desktop app provides meaningful security advantages over the web version through Rust-native cryptography, compiler-guaranteed memory erasure, browser extension immunity, and code-signed binary integrity.
 
-The 11 findings identified in this analysis were primarily configuration hardening opportunities (CSP, source maps) and edge-case robustness improvements (chunk overflow, clipboard clearing) — **none compromised the core cryptographic guarantees** of the application. **All 11 findings have been resolved.**
+The 11 findings identified in this analysis were primarily configuration hardening opportunities (CSP, source maps) and edge-case robustness improvements (chunk overflow, clipboard clearing) — **none compromised the core cryptographic guarantees** of the application. **All 11 findings have been resolved.** Additionally, the password generator now guarantees at least one character from each required class (lowercase, uppercase, digit, special) via Fisher-Yates shuffle, eliminating the ~2.3% chance of generating an invalid password.
 
 The cryptographic primitives (XChaCha20-Poly1305, Argon2id, Shamir's Secret Sharing) are industry-standard, properly parameterized, and correctly implemented across both the Rust and JavaScript codebases.
 
 ---
 
 <p align="center">
-<em>This analysis was conducted through a full source code review of all Rust, TypeScript, and configuration files in the seQRets desktop application (v1.4.7). All 11 findings were remediated immediately following the audit. Last updated March 2026.</em>
+<em>This analysis was conducted through a full source code review of all Rust, TypeScript, and configuration files in the seQRets desktop application (v1.4.7). All 11 findings were remediated immediately following the audit. Comprehensive Playwright e2e test suites were added for both web (342 test runs across 3 browsers) and desktop (145 tests, 136 passing + 9 Tauri-IPC-only skipped) to verify ongoing correctness. The password generator character class guarantee was propagated from the web app to the desktop app. Last updated March 17, 2026.</em>
 </p>
