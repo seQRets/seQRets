@@ -1,6 +1,6 @@
 # seQRets — Developer Memory File
 
-> Quick-reference for AI assistants and future sessions. Last updated: v1.4.7 "Liftoff" (March 14, 2026).
+> Quick-reference for AI assistants and future sessions. Last updated: v1.4.10 "Liftoff" (March 18, 2026).
 
 ---
 
@@ -76,7 +76,7 @@
 
 Both web and desktop embed a multi-section system prompt as a template literal string in their respective `ask-bob-flow.ts` / `bob-api.ts` files. The prompt includes app features, security architecture, inheritance planning knowledge, and the current version. **Both files must be updated in sync** when changing Bob's knowledge.
 
-Bob's current knowledge includes: PDF export for inheritance plans, smart card integration, BIP-39/BIP-32 fundamentals, inheritance planning guide with legal/tax considerations, and all app features as of v1.4.7.
+Bob's current knowledge includes: PDF export for inheritance plans, smart card integration, BIP-39/BIP-32 fundamentals, inheritance planning guide with legal/tax considerations, and all app features as of v1.4.10.
 
 Chat history: `localStorage['bob-chat-history']` — shared between the popover and full page via `StorageEvent` listener.
 
@@ -251,7 +251,7 @@ VITE_WAITLIST_API_URL=https://seqrets-waitlist.baton-banker-hazy.workers.dev
 
 ## Version Management
 
-**All 18 files must be updated for version bumps (as of v1.4.7):**
+**All 18 files must be updated for version bumps (as of v1.4.10):**
 
 ```bash
 # Quick find of version references (exclude node_modules, .git, lock files):
@@ -396,7 +396,7 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 
 ---
 
-## Launch Status (as of March 13, 2026)
+## Launch Status (as of March 18, 2026)
 
 ### Completed
 - Landing page live at seqrets.app
@@ -418,7 +418,7 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
   - **Important**: Desktop tests run against Vite dev server (`localhost:5173`), NOT the Tauri webview. Tauri IPC (`invoke()`) is unavailable — crypto-dependent tests are skipped with `test.skip(!process.env.TAURI)`. Start dev server first: `cd packages/desktop && npm run dev`
   - **Console error filtering**: `trackConsoleErrors()` in `helpers.ts` filters known benign noise (Tauri IPC, favicon, BarcodeDetector, Gemini API errors)
 
-### Security Audit (v1.4.7)
+### Security Audit (v1.4.10)
 
 - **Report**: `security-audit-report.html` in repo root
 - **12 findings**: 0 Critical, 2 High, 4 Medium, 3 Low, 3 Informational
