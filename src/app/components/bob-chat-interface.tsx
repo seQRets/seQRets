@@ -94,15 +94,42 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
         });
     };
 
+    // Scroll to the last user message so the response reads top-down
+    const scrollToLastUserMessage = () => {
+        requestAnimationFrame(() => {
+            const vp = viewportRef.current;
+            if (!vp) return;
+            const messages = vp.querySelectorAll('[data-chat-role="user"]');
+            const lastUserMsg = messages[messages.length - 1];
+            if (lastUserMsg) {
+                lastUserMsg.scrollIntoView({ block: 'start', behavior: 'smooth' });
+            } else {
+                vp.scrollTop = vp.scrollHeight;
+            }
+        });
+    };
+
     // Scroll to bottom on mount (so the user sees the most recent messages)
     useEffect(() => {
         scrollToBottom();
     }, []);
 
-    // Scroll to bottom whenever conversation changes or loading state changes
+    // When conversation changes: scroll to the user's prompt (not the bottom)
+    // so the response can be read top-down. Scroll to bottom only when
+    // the user sends a message (last message is from user / loading starts).
+    const prevLengthRef = useRef(conversation.length);
     useEffect(() => {
-        scrollToBottom();
-    }, [conversation, isPending]);
+        const lastMsg = conversation[conversation.length - 1];
+        if (!lastMsg) return;
+        if (lastMsg.role === 'user') {
+            // User just sent a message — scroll to bottom to show the loading indicator
+            scrollToBottom();
+        } else if (conversation.length > prevLengthRef.current) {
+            // New assistant message arrived — scroll to the user's prompt
+            scrollToLastUserMessage();
+        }
+        prevLengthRef.current = conversation.length;
+    }, [conversation]);
 
     // Persist conversation to localStorage whenever it changes
     useEffect(() => {
@@ -208,7 +235,7 @@ export function BobChatInterface({ initialMessage, showLinkToFullPage = false }:
             <ScrollArea className="flex-grow h-0 pr-4" viewportRef={viewportRef}>
                 <div className="space-y-6">
                 {conversation.map((chat, index) => (
-                    <div key={index} className={cn("flex items-start gap-3 min-w-0", chat.role === 'user' && "justify-end")}>
+                    <div key={index} data-chat-role={chat.role} className={cn("flex items-start gap-3 min-w-0", chat.role === 'user' && "justify-end")}>
                         {chat.role === 'model' && (
                             <Avatar className="h-8 w-8 flex-shrink-0">
                                 <AvatarFallback><Bot size={20}/></AvatarFallback>
