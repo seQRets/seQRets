@@ -1,6 +1,6 @@
 # seQRets — Developer Memory File
 
-> Quick-reference for AI assistants and future sessions. Last updated: v1.4.10 "Liftoff" (March 18, 2026).
+> Quick-reference for AI assistants and future sessions. Last updated: v1.4.10 "Liftoff" (March 21, 2026).
 
 ---
 
@@ -96,6 +96,7 @@ Chat history: `localStorage['bob-chat-history']` — shared between the popover 
 - **Current version**: 2 (v1→v2 added `deviceAccounts` field)
 - **Migration**: `inheritance-plan-utils.ts` → `rawInstructionToPlan()` injects missing fields
 - **8 sections**: Beneficiaries, Recovery Credentials, Device & Account Access, Qard Locations, Digital Assets, How to Restore, Professional Contacts, Personal Message
+- **2FA deadlock warning**: Section 3 (Device & Account Access) includes a prominent yellow warning about 2FA bootstrap deadlocks (password manager ↔ authenticator app circular dependency, phone migration scenario). Advises listing recovery/backup codes, TOTP secret keys, or account recovery methods separately.
 - **Encryption**: XChaCha20-Poly1305 + Argon2id pipeline, stored on smart card or file
 - **PDF export** (desktop only): `packages/desktop/src/lib/generate-plan-pdf.ts` — jsPDF, Letter portrait, 8 sections with auto-pagination and tables
 - **Web app**: File encrypt/decrypt only (no plan builder); upsell notice links to desktop app
@@ -255,7 +256,7 @@ VITE_WAITLIST_API_URL=https://seqrets-waitlist.baton-banker-hazy.workers.dev
 
 ```bash
 # Quick find of version references (exclude node_modules, .git, lock files):
-grep -r "1\.4\.7" --include="*.{json,toml,tsx,ts,md,js}" --exclude-dir={node_modules,.git,.next,out,target}
+grep -r "1\.4\.10" --include="*.{json,toml,tsx,ts,md,js}" --exclude-dir={node_modules,.git,.next,out,target}
 
 # ── Config files (5) ──
 package.json                                    # root workspace
@@ -315,12 +316,6 @@ npx tsc --noEmit -p packages/desktop/tsconfig.json
 
 # TypeScript check (web)
 npx tsc --noEmit
-
-# Desktop e2e tests (requires Vite dev server on :5173)
-npx playwright test --config packages/desktop/playwright.config.ts
-
-# Web e2e tests
-npx playwright test --project=chromium
 
 # TypeScript check (landing page)
 cd "/Users/macuser/Documents/Dev/seqrets Web Dev" && npx tsc --noEmit
@@ -382,6 +377,7 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 - **Toast**: `useToast()` hook from shadcn
 - **Card pattern**: Digital Assets and Device & Account Access sections use repeatable card entries with add/remove functionality
 - **QR card export**: HTML template string → `html2canvas` → PNG blob → download. Separate canvas-based renderer for the web version.
+- **QR size safeguards**: `QR_CAPACITY_WARNING` (900 bytes) triggers scanability modal, `QR_CAPACITY_LIMIT` (1400 bytes) forces text-only mode. Ground-truth check in `QrCodeDisplay` overrides the estimate-based `isTextOnly` flag using actual share sizes.
 - **WaitlistButton**: Reusable modal CTA component accepting `source`, `label`, `className`, `icon` props. Used across hero, comparison table, desktop CTA, and shop page.
 
 ---
@@ -396,7 +392,7 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 
 ---
 
-## Launch Status (as of March 18, 2026)
+## Launch Status (as of March 21, 2026)
 
 ### Completed
 - Landing page live at seqrets.app
@@ -413,10 +409,10 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 - Mobile nav responsive (short labels on <640px: Secure / Inherit / Restore)
 - Desktop app upsell notices in web app (inheritance page, create results, restore step 1) linking to seqrets.app/shop
 - Password generator guarantees all character classes (lowercase, uppercase, digit, special) with Fisher-Yates shuffle (b66075a) — propagated to desktop app
-- **Web Playwright e2e test suite**: 114 tests × 3 browser projects (Chromium, iPhone 14, iPad Mini) = 342 test runs, all passing. Config: `playwright.config.ts`, tests: `e2e/` (12 spec files). Covers: create flow, restore flow, navigation, full roundtrip, edge cases, console errors, responsive, Bob chat, inheritance, links, localStorage, and more. Run: `npx playwright test --project=chromium --headed`
-- **Desktop Playwright e2e test suite**: 145 tests (136 passing, 9 skipped for Tauri IPC). Config: `packages/desktop/playwright.config.ts`, tests: `packages/desktop/e2e/` (13 spec files). Covers: create flow (29 tests), restore flow (12), navigation (14), smart card (13), inheritance (10), Bob AI chat (6), full roundtrip (4, Tauri-only), console errors (8), responsive (16), edge cases (17), localStorage (5), welcome guide (5). Run: `npx playwright test --config packages/desktop/playwright.config.ts`
-  - **Important**: Desktop tests run against Vite dev server (`localhost:5173`), NOT the Tauri webview. Tauri IPC (`invoke()`) is unavailable — crypto-dependent tests are skipped with `test.skip(!process.env.TAURI)`. Start dev server first: `cd packages/desktop && npm run dev`
-  - **Console error filtering**: `trackConsoleErrors()` in `helpers.ts` filters known benign noise (Tauri IPC, favicon, BarcodeDetector, Gemini API errors)
+- **QR Qard scanability safeguards** (281fd95): Shares 900–1400 bytes show a modal warning dialog (same UX as Bob disclaimer — must click "I Understand"). One-line clickable notice remains after dismissal. Fixed stale closure bug where `isTextOnly` flag was always `false` due to worker message handler capturing mount-time value (433a97b). Added ground-truth check in `QrCodeDisplay`: if any actual share exceeds 1400 bytes, force text-only mode regardless of estimate.
+- **Bob AI chat scroll fix** (ab72c1e): Chat now scrolls to the user's prompt when Bob responds (instead of jumping to the bottom of the response). Users read the answer top-down naturally.
+- Playwright e2e test suites removed from repo (be270b5) — tests ran successfully and findings are documented in SECURITY_ANALYSIS.md. Anyone can clone and run tests locally.
+- **Playwright e2e test suites** (removed from repo, ran successfully prior to removal): Web: 114 tests × 3 browsers = 342 runs. Desktop: 145 tests (136 passing, 9 Tauri-IPC-only skipped). Findings documented in SECURITY_ANALYSIS.md.
 
 ### Security Audit (v1.4.10)
 
