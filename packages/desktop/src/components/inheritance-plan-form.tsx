@@ -261,7 +261,7 @@ export function InheritancePlanForm({ plan, onChange, readOnly = false }: Inheri
         </div>
         <div className="flex items-start gap-2 p-3 rounded-md bg-yellow-500/10 border border-yellow-500/20 text-xs text-yellow-400">
           <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
-          <span><strong>Watch out for 2FA deadlocks.</strong> If your password manager requires a 2FA code, and your 2FA app login is stored in that password manager, neither can be accessed first. List your 2FA app&apos;s recovery credentials separately here so your heirs can break the loop.</span>
+          <span><strong>Watch out for 2FA deadlocks.</strong> If your password manager requires a 2FA code, and your 2FA app login is stored in that password manager, neither can be accessed first. This also happens when switching phones — the new device can&apos;t access the 2FA app without the password manager, and vice versa. List your 2FA app&apos;s recovery/backup codes, TOTP secret keys, or account recovery method separately here so the loop can be broken.</span>
         </div>
         <div className="space-y-4">
           {plan.deviceAccounts.map((device, idx) => (

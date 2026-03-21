@@ -181,7 +181,9 @@ export function CreateSharesForm() {
             keyfile: useKeyfile ? (keyfile ?? undefined) : undefined,
         });
 
-        setGeneratedQrData({ ...result, isTextOnly });
+        // Compute isTextOnly from actual share data for ground truth.
+        const actuallyTextOnly = result.shares.some((s: string) => s.length > QR_CAPACITY_LIMIT);
+        setGeneratedQrData({ ...result, isTextOnly: actuallyTextOnly });
         secureWipe(setSecret, secretSnapshot);
         secureWipe(setPassword, passwordSnapshot);
         setKeyfile(null);

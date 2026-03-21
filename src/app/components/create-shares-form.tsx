@@ -80,7 +80,9 @@ export function CreateSharesForm() {
     cryptoWorkerRef.current.onmessage = (event: MessageEvent<{ type: string, payload: any }>) => {
         const { type, payload } = event.data;
         if (type === 'createSharesSuccess') {
-            setGeneratedQrData({ ...payload, isTextOnly });
+            // Compute isTextOnly from actual share data, not the stale closure value.
+            const actuallyTextOnly = payload.shares.some((s: string) => s.length > QR_CAPACITY_LIMIT);
+            setGeneratedQrData({ ...payload, isTextOnly: actuallyTextOnly });
             secureWipe(setSecret, secret);
             secureWipe(setPassword, password);
             setKeyfile(null);

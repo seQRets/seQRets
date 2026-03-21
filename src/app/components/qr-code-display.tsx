@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Printer, FileArchive, TriangleAlert, Loader2, Lock, Save, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { Printer, FileArchive, TriangleAlert, Loader2, Lock, Save, Eye, EyeOff, ShieldCheck, ScanLine } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState, useRef } from 'react';
 import JSZip from 'jszip';
@@ -21,7 +21,12 @@ interface QrCodeDisplayProps {
 }
 
 export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
-  const { shares, totalShares, requiredShares, label, setId, isTextOnly, encryptedInstructions } = qrCodeData;
+  const { shares, totalShares, requiredShares, label, setId, isTextOnly: isTextOnlyHint, encryptedInstructions } = qrCodeData;
+  // Ground-truth check: if any actual share exceeds the QR capacity limit,
+  // force text-only mode regardless of the pre-generation estimate (which
+  // can be wrong due to stale closures in the worker message handler).
+  const QR_CAPACITY_LIMIT = 1400;
+  const isTextOnly = isTextOnlyHint || shares.some(s => s.length > QR_CAPACITY_LIMIT);
   const [qrCodeUris, setQrCodeUris] = useState<(string | null)[]>([]);
   const [cardDataUrls, setCardDataUrls] = useState<(string | null)[]>([]);
   const { toast } = useToast();
@@ -537,6 +542,16 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
           <AlertTitle>Text-Only Backups Generated</AlertTitle>
           <AlertDescription>
             Your secret was too large to be stored in QR codes. Only text files (.txt) have been generated. Please download and store them securely.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {!isTextOnly && shares.length > 0 && shares[0].length > 900 && (
+        <Alert className="mb-4 mx-4 border-yellow-500/50 bg-yellow-50 dark:bg-yellow-950/20 text-foreground [&>svg]:text-yellow-600">
+          <ScanLine className="h-4 w-4" />
+          <AlertTitle>Verify Your QR Qards Are Scannable</AlertTitle>
+          <AlertDescription>
+            These QR codes are near the upper size limit and may be difficult for some cameras to scan. After printing, <strong>test-scan at least one Qard</strong> using the Restore Secret tab to confirm it reads correctly before relying on them as your backup.
           </AlertDescription>
         </Alert>
       )}
