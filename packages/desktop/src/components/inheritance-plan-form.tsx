@@ -259,8 +259,8 @@ export function InheritancePlanForm({ plan, onChange, readOnly = false }: Inheri
           <ShieldCheck className="h-4 w-4 mt-0.5 shrink-0" />
           <span>Safe to include here — this entire plan will be encrypted before saving.</span>
         </div>
-        <div className="flex items-start gap-2 p-3 rounded-md bg-yellow-500/10 border border-yellow-500/20 text-xs text-yellow-400">
-          <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+        <div className="flex items-start gap-2 p-3 rounded-md bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-500/30 dark:border-yellow-500/20 text-xs text-yellow-800 dark:text-yellow-300">
+          <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-yellow-600 dark:text-yellow-400" />
           <span><strong>Watch out for 2FA deadlocks.</strong> If your password manager requires a 2FA code, and your 2FA app login is stored in that password manager, neither can be accessed first. This also happens when switching phones — the new device can&apos;t access the 2FA app without the password manager, and vice versa. List your 2FA app&apos;s recovery/backup codes, TOTP secret keys, or account recovery method separately here so the loop can be broken.</span>
         </div>
         <div className="space-y-4">
