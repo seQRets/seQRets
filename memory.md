@@ -251,11 +251,11 @@ VITE_WAITLIST_API_URL=https://seqrets-waitlist.baton-banker-hazy.workers.dev
 
 ## Version Management
 
-**All 18 files must be updated for version bumps (as of v1.4.7):**
+**All 18 files must be updated for version bumps (as of v1.5.0):**
 
 ```bash
 # Quick find of version references (exclude node_modules, .git, lock files):
-grep -r "1\.4\.7" --include="*.{json,toml,tsx,ts,md,js}" --exclude-dir={node_modules,.git,.next,out,target}
+grep -r "1\.5\.0" --include="*.{json,toml,tsx,ts,md,js}" --exclude-dir={node_modules,.git,.next,out,target}
 
 # ── Config files (5) ──
 package.json                                    # root workspace
@@ -375,7 +375,7 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 - **Theme**: Dark/light via `next-themes` (web) and custom `ThemeProvider` (desktop)
 - **Toast**: `useToast()` hook from shadcn
 - **Card pattern**: Digital Assets and Device & Account Access sections use repeatable card entries with add/remove functionality
-- **QR card export**: HTML template string → `html2canvas` → PNG blob → download. Separate canvas-based renderer for the web version.
+- **QR card export**: Pure Canvas 2D (`renderCardToCanvas`), NOT html2canvas (removed in 99a4553).
 - **WaitlistButton**: Reusable modal CTA component accepting `source`, `label`, `className`, `icon` props. Used across hero, comparison table, desktop CTA, and shop page.
 
 ---
@@ -390,7 +390,7 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 
 ---
 
-## Launch Status (as of March 13, 2026)
+## Launch Status (as of March 27, 2026)
 
 ### Completed
 - Landing page live at seqrets.app
@@ -406,8 +406,16 @@ cd workers/waitlist && npx wrangler secret put ADMIN_SECRET
 - Hamburger menus restructured: current page hidden, Inheritance Plan in top group
 - Mobile nav responsive (short labels on <640px: Secure / Inherit / Restore)
 - Desktop app upsell notices in web app (inheritance page, create results, restore step 1) linking to seqrets.app/shop
+- Welcome guide redesigned: 2-modal flow (security warning → SVG wireframe tour) replacing 3-step carousel
+- Unscannable QR Qard prevention with scanability modal
+- 2FA deadlock warning in inheritance plan builder
+- Bob AI scroll-to-prompt fix
+- picomatch ReDoS vulnerability patched
+- Dependency updates: Next.js, jsPDF, tar, rustls-webpki
+- CLAUDE.md added for AI assistant project conventions
+- Playwright test suites removed (validation-only, not CI-integrated)
 
-### Security Audit (v1.4.7)
+### Security Audit (v1.5.0)
 
 - **Report**: `security-audit-report.html` in repo root
 - **12 findings**: 0 Critical, 2 High, 4 Medium, 3 Low, 3 Informational
