@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-const PING_URL = 'https://app.seqrets.app/favicon.ico';
-const PING_INTERVAL = 10_000; // 10 seconds
-const PING_TIMEOUT = 5_000;   // 5 second fetch timeout
+const PING_URL = 'https://app.seqrets.app/ping';
+const PING_INTERVAL = 5_000; // 5 seconds
+const PING_TIMEOUT = 4_000; // 4 second fetch timeout
 
 export function ConnectionStatus() {
   const [isOnline, setIsOnline] = useState(true);

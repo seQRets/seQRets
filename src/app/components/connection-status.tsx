@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-const PING_INTERVAL = 10_000; // 10 seconds
-const PING_TIMEOUT = 5_000;   // 5 second fetch timeout
+const PING_INTERVAL = 5_000; // 5 seconds
+const PING_TIMEOUT = 4_000; // 4 second fetch timeout
 
 export function ConnectionStatus() {
   const [mounted, setMounted] = useState(false);
@@ -17,8 +17,8 @@ export function ConnectionStatus() {
     const timeout = setTimeout(() => controller.abort(), PING_TIMEOUT);
 
     try {
-      await fetch('/favicon.ico', {
-        mode: 'no-cors',
+      await fetch('/ping', {
+        method: 'HEAD',
         cache: 'no-store',
         signal: controller.signal,
       });
