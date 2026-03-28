@@ -256,7 +256,13 @@ export default function InstructionsPage() {
 
         <AppNavTabs activePage="plan" />
 
-        <Card className="mt-6 mb-8">
+        <Card className="relative mt-6 mb-8">
+          {(isEncrypting || isDecrypting) && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/50 rounded-lg backdrop-blur-sm">
+              <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
+              <p className="mt-3 text-sm text-stone-300">{isEncrypting ? 'Encrypting your plan…' : 'Decrypting your plan…'}</p>
+            </div>
+          )}
           <CardContent className="p-6 pt-6">
             <h2 className="text-2xl font-bold text-foreground">Inheritance Planning</h2>
             <p className="text-muted-foreground text-sm mb-4">

@@ -510,7 +510,13 @@ export function RestoreSecretForm() {
 
 
   return (
-    <Card className="shadow-lg dark:shadow-[0_4px_24px_rgba(0,0,0,0.6)] dark:border-2">
+    <Card className="relative shadow-lg dark:shadow-[0_4px_24px_rgba(0,0,0,0.6)] dark:border-2">
+      {isRestoring && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/50 rounded-lg backdrop-blur-sm">
+          <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
+          <p className="mt-3 text-sm text-[hsl(37,10%,75%)]">Restoring your secret…</p>
+        </div>
+      )}
       <CardHeader className="p-10">
         <CardTitle>Restore From Backup</CardTitle>
         <CardDescription>Follow the steps to restore a secret from your backups.</CardDescription>
