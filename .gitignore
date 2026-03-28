@@ -45,6 +45,9 @@ packages/desktop/src-tauri/target/
 # Proprietary guides (published in separate repo)
 /guides/
 
+# Developer memory (session-specific, not for version control)
+memory.md
+
 # Other
 .DS_Store
 *.pem

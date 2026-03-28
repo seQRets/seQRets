@@ -28,6 +28,7 @@ v1.5.0 "Liftoff" — Available as a web app (Next.js) and native desktop app (Ta
 - **Flexible Backup Options:** Download individual Qards as QR code images (PNG) or raw text files (TXT), or download all Qards at once as a ZIP archive (includes PNGs, TXTs, and encrypted instructions). Print individual Qards or all Qards in A5 card format directly from the app.
 - **Write to JavaCard Smartcard:** Store individual shares, full vaults, or keyfiles on JCOP3 hardware smartcards with optional PIN protection (desktop only).
 - **QR Code Size Estimation:** Real-time byte estimate per share with a visual progress bar during encryption. Warnings appear when share data approaches QR scanning reliability limits (~900 bytes yellow warning, ~1400 bytes red warning). Oversized payloads automatically switch to text-only export mode.
+- **QR Scanability Prevention:** After encryption, each generated QR code is automatically verified for scanability. If any Qard produces an unscannable QR code, the user is prompted with a modal dialog to re-encrypt (which generates new random salt/nonce and may produce scannable results) or to export as text-only files instead. This prevents users from distributing QR Qards that cannot be scanned during recovery.
 - **Secure Memory Handling:** **Desktop:** Rust zeroize crate — compiler-fence guaranteed key zeroization, optimizer-proof. The derived encryption key stays entirely in Rust and never enters the JS heap. The password string does transit JS briefly via IPC but cannot be zeroed (JS string limitation). **Web:** Zeroes cryptographic byte buffers (derived keys, decrypted data, keyfile bytes) in finally blocks using fill(0). Keyfile data and Shamir share data are cleared from UI state immediately after a successful operation. Note: JS strings (passwords) cannot be cryptographically zeroed — a known limitation of browser-based applications.
 - **Clipboard Auto-Clear:** When copying a restored secret or seed phrase to the clipboard, the app automatically clears the clipboard after 60 seconds to prevent accidental exposure.
 
@@ -59,15 +60,16 @@ v1.5.0 "Liftoff" — Available as a web app (Next.js) and native desktop app (Ta
 - **Keyfile smart card storage** — write keyfiles to a card from the Smart Card Manager page; load keyfiles from a card anywhere keyfiles are accepted (Secure Secret, Restore Secret, Inheritance Plan).
 - **Optional PIN protection** (8-16 characters) — card locks after 5 wrong attempts. A real-time PIN retry countdown (color-coded: gray → amber → red) warns users of remaining attempts.
 - **Generate PIN** button — uses CSPRNG to create a secure 16-character PIN (upper/lowercase, numbers, symbols) with copy-to-clipboard and reveal/hide toggle.
+- **Wipe protection** — opt-in flag that prevents factory reset (forceEraseCard) unless the correct PIN is provided first. When wipe protection is enabled and the card is locked (0 PIN retries remaining), the data becomes permanently inaccessible by design — the card cannot be erased or read. This is intended for high-security scenarios where data destruction prevention is more important than card recovery.
 - **Clone card** — read all items from one card and write them to another via the Smart Card Manager page; supports single-reader (swap card) and dual-reader workflows with optional destination PIN.
-- **Smart Card Manager** page for PIN management, keyfile writing, card cloning, per-item deletion, and factory reset.
+- **Smart Card Manager** page for PIN management, keyfile writing, card cloning, per-item deletion, wipe protection toggle, and factory reset.
 - Requires a PC/SC-compatible USB smart card reader.
 
 ### Helper Tools
 - **Password Generator** — cryptographically secure 32-character passwords.
 - **Seed Phrase Generator** — generate valid BIP-39 mnemonic phrases (12 or 24 words).
 - **Bitcoin Ticker** — live BTC/USD price display.
-- **Bob AI Assistant** — Google Gemini-powered AI for setup guidance and questions (optional, user-provided API key). Users can disconnect Bob and remove their API key at any time via the "Remove API Key" link at the bottom of the chat interface.
+- **Bob AI Assistant** — Google Gemini-powered AI for setup guidance and questions (optional, user-provided API key). Users choose whether to remember their key (saved to localStorage on web, OS keychain on desktop) or use it for the current session only. Users can disconnect Bob and remove their API key at any time via the "Remove API Key" link at the bottom of the chat interface.
 
 ## How to Use seQRets
 
@@ -172,7 +174,8 @@ const cryptoDetails = `
     *   **Card model:** JCOP3 J3H145 — NXP SmartMX2-based JavaCard 3.0.4, dual-interface (contact + contactless/NFC), 144 KB EEPROM, ~110 KB usable after OS/GP overhead, Common Criteria EAL5+ certified hardware with PUF (Physical Unclonable Function), over 100 hardware security features including active shield layers, glitch detectors, and DPA-resistant crypto coprocessors.
     *   **Application storage limit:** 8,192 bytes (8 KB) per card for user data. Each card can hold multiple items (shares, vaults, keyfiles, instructions) stored as a JSON array. New writes append to existing data.
     *   **Communication:** APDU (Application Protocol Data Unit) commands over PC/SC via the Rust pcsc crate. The host sends command APDUs (CLA, INS, P1, P2, data) and receives response APDUs (data + status word). A USB PC/SC-compatible smart card reader is required (contact readers like the Identiv SCR3310 or dual-interface readers like the HID OMNIKEY 5422).
-    *   **PIN protection:** Optional, 8-16 characters, 5 wrong attempts permanently locks the card (only recovery is factory reset which erases all data). Uses the JavaCard OwnerPIN class with a hardware-enforced retry counter that cannot be rolled back by software. Real-time PIN retry countdown (color-coded: gray → amber → red) displayed after each failed attempt.
+    *   **PIN protection:** Optional, 8-16 characters, 5 wrong attempts permanently locks the card (only recovery is factory reset which erases all data — unless wipe protection is enabled). Uses the JavaCard OwnerPIN class with a hardware-enforced retry counter that cannot be rolled back by software. Real-time PIN retry countdown (color-coded: gray → amber → red) displayed after each failed attempt.
+    *   **Wipe protection:** Opt-in flag that gates the factory reset (forceEraseCard) command behind PIN verification. When enabled and the card is locked (0 retries), the card becomes permanently inaccessible — it cannot be erased or read. Designed for high-security scenarios where preventing data destruction is more important than card recovery.
     *   **Generate PIN:** CSPRNG-powered button creates secure 16-character PINs (upper/lowercase, numbers, symbols) with copy-to-clipboard and reveal/hide support.
     *   **Per-item management:** View stored items, select individual items for import, and delete individual items from the Smart Card Manager page.
     *   **Clone card:** Read all items from one card and write them to another via the Smart Card Manager; supports single-reader (swap card) and dual-reader workflows with optional destination PIN.
@@ -197,7 +200,8 @@ Key properties:
 ### How seQRets Uses JavaCards
 seQRets uses JCOP3 J3H145 cards (NXP, JavaCard 3.0.4, 144 KB EEPROM, dual-interface). A custom JavaCard applet is loaded onto the card that provides:
 - **Encrypted data storage:** Shares, vaults, keyfiles, and inheritance plans are stored as a JSON array in the card's persistent EEPROM, up to 8 KB total.
-- **PIN authentication:** Optional PIN (8-16 characters) using the JavaCard OwnerPIN class. The retry counter is hardware-enforced and cannot be bypassed or rolled back by software — 5 wrong attempts permanently lock the card. The only recovery is a factory reset (forceEraseCard), which wipes all data.
+- **PIN authentication:** Optional PIN (8-16 characters) using the JavaCard OwnerPIN class. The retry counter is hardware-enforced and cannot be bypassed or rolled back by software — 5 wrong attempts permanently lock the card. The only recovery is a factory reset (forceEraseCard), which wipes all data — unless wipe protection is enabled.
+- **Wipe protection:** An opt-in flag that gates factory reset behind PIN verification. When enabled and the card is locked, the data becomes permanently inaccessible by design — the card cannot be erased or read. This prevents an attacker from wiping the card to destroy evidence or deny access to legitimate owners.
 - **Atomic writes:** The JavaCard transaction mechanism protects against card tears (removing the card mid-write). If power is lost during a write, all changes within that transaction are automatically rolled back on next power-up.
 - **Multi-item management:** Each card can hold multiple items. Users can view, select, import, delete individual items, or clone all items to another card.
 - **PC/SC communication:** The desktop app communicates with the card via APDU commands over PC/SC using a USB smart card reader and the Rust pcsc crate.
@@ -236,7 +240,7 @@ All three major operating systems (Windows, macOS, Linux) have built-in PC/SC su
 ### Common User Questions About Smart Cards
 
 **"Can someone read my card without my PIN?"**
-No. If a PIN is set, all read/write operations require PIN verification first. Without the correct PIN, the card returns an error. After 5 wrong attempts, the card locks permanently. The only option is a factory reset which erases everything.
+No. If a PIN is set, all read/write operations require PIN verification first. Without the correct PIN, the card returns an error. After 5 wrong attempts, the card locks permanently. Without wipe protection, the only option is a factory reset which erases everything. With wipe protection enabled, even factory reset is blocked — the card becomes permanently inaccessible.
 
 **"What happens if my card breaks or is lost?"**
 The data on the card is an encrypted copy — not the only copy. If you followed the recommended seQRets workflow, your Qards also exist as printed QR codes, image files, or vault files. The card is one distribution method, not a single point of failure.
