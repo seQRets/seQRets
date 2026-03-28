@@ -11,7 +11,7 @@ seQRets is a hyper-secure, open-source application designed to protect your most
 
 To restore your original secret, you must bring a specific number of these Qards back together. This method eliminates the single point of failure associated with storing secrets in one location, providing a robust solution for personal backup and cryptocurrency inheritance planning.
 
-v1.5.2 "Ignition" — Available as a web app (Next.js) and native desktop app (Tauri).
+v1.5.3 "Ignition" — Available as a web app (Next.js) and native desktop app (Tauri).
 
 ## Core Features
 
@@ -69,6 +69,7 @@ v1.5.2 "Ignition" — Available as a web app (Next.js) and native desktop app (T
 - **Password Generator** — cryptographically secure 32-character passwords.
 - **Seed Phrase Generator** — generate valid BIP-39 mnemonic phrases (12 or 24 words).
 - **Bitcoin Ticker** — live BTC/USD price display.
+- **Connection Status** — real-time online/offline indicator in the footer. Uses a periodic ping (every 5 seconds) to reliably detect connectivity, not just browser events. Red dot + "Online" means the device has internet access; green dot + "Offline" means the device is safely disconnected. The inverted colors are intentional — for a security app, being offline is the safer state.
 - **Bob AI Assistant** — Google Gemini-powered AI for setup guidance and questions (optional, user-provided API key). Users choose whether to remember their key (saved to localStorage on web, OS keychain on desktop) or use it for the current session only. Users can disconnect Bob and remove their API key at any time via the "Remove API Key" link at the bottom of the chat interface.
 
 ## How to Use seQRets
