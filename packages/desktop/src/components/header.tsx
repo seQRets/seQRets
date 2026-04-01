@@ -11,6 +11,7 @@ import {
   CreditCard,
   FileText,
   RefreshCw,
+  Mail,
 } from 'lucide-react';
 import { UpdateChecker } from '@/components/update-checker';
 import { Link, useLocation } from 'react-router-dom';
@@ -115,6 +116,12 @@ function MobileMenu({ activeTab, onTabChange }: HeaderProps) {
                 <Link to="/about" className="flex items-center gap-3 p-2 rounded-md hover:bg-muted" onClick={() => handleLinkClick()}>
                     <Info className="h-5 w-5" />
                     <span>About</span>
+                </Link>
+                )}
+                {pathname !== '/contact' && (
+                <Link to="/contact" className="flex items-center gap-3 p-2 rounded-md hover:bg-muted" onClick={() => handleLinkClick()}>
+                    <Mail className="h-5 w-5" />
+                    <span>Contact Us</span>
                 </Link>
                 )}
                 </div>
@@ -240,6 +247,14 @@ function DesktopMenu({ activeTab, onTabChange }: HeaderProps) {
             <Link to="/about">
               <Info className="mr-2 h-4 w-4" />
               <span>About</span>
+            </Link>
+          </DropdownMenuItem>
+          )}
+          {pathname !== '/contact' && (
+          <DropdownMenuItem asChild>
+            <Link to="/contact">
+              <Mail className="mr-2 h-4 w-4" />
+              <span>Contact Us</span>
             </Link>
           </DropdownMenuItem>
           )}

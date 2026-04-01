@@ -9,6 +9,7 @@ import SmartCardPage from '@/pages/SmartCardPage';
 import InstructionsPage from '@/pages/InstructionsPage';
 import PrivacyPage from '@/pages/PrivacyPage';
 import TermsPage from '@/pages/TermsPage';
+import ContactPage from '@/pages/ContactPage';
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/support" element={<SupportPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/smartcard" element={<SmartCardPage />} />
         <Route path="/inheritance" element={<InstructionsPage />} />
       </Routes>

@@ -13,6 +13,7 @@ import {
   Home,
   FileText,
   Rocket,
+  Mail,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
@@ -110,6 +111,12 @@ function MobileMenu({ activeTab, onTabChange }: HeaderProps) {
                 <Link href="/about" className="flex items-center gap-3 p-2 rounded-md hover:bg-muted" onClick={() => handleLinkClick()}>
                     <Info className="h-5 w-5" />
                     <span>About</span>
+                </Link>
+                )}
+                {pathname !== '/contact' && (
+                <Link href="/contact" className="flex items-center gap-3 p-2 rounded-md hover:bg-muted" onClick={() => handleLinkClick()}>
+                    <Mail className="h-5 w-5" />
+                    <span>Contact Us</span>
                 </Link>
                 )}
                 </div>
@@ -225,6 +232,14 @@ function DesktopMenu({ activeTab, onTabChange }: HeaderProps) {
             <Link href="/about">
               <Info className="mr-2 h-4 w-4" />
               <span>About</span>
+            </Link>
+          </DropdownMenuItem>
+          )}
+          {pathname !== '/contact' && (
+          <DropdownMenuItem asChild>
+            <Link href="/contact">
+              <Mail className="mr-2 h-4 w-4" />
+              <span>Contact Us</span>
             </Link>
           </DropdownMenuItem>
           )}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Bot } from "lucide-react";
+import { ArrowLeft, Bot, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/header";
 import { useTheme } from "@/components/theme-provider";
@@ -17,7 +17,7 @@ export default function SupportPage() {
 
     return (
         <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 md:p-12">
-            <div className="w-full max-w-4xl mx-auto relative flex flex-col h-[calc(100vh*1.20-6rem)]">
+            <div className="w-full max-w-4xl mx-auto relative flex flex-col min-h-[calc(100vh-6rem)]">
                 <div className="absolute top-4 left-4 z-50">
                     <Button asChild variant="outline" size="sm">
                         <Link to="/">
@@ -56,6 +56,14 @@ export default function SupportPage() {
                        <BobChatInterface initialMessage="How can I help you with seQRets today?" />
                     </CardContent>
                 </Card>
+
+                <div className="flex items-center justify-center gap-2 mt-4 py-2 text-sm text-muted-foreground">
+                    <Mail className="h-4 w-4" />
+                    <span>Need to talk to a human?</span>
+                    <Link to="/contact" className="underline font-medium text-foreground hover:text-primary">
+                        Contact our team
+                    </Link>
+                </div>
                 <AppFooter />
             </div>
         </main>
