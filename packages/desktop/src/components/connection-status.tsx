@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-const PING_URL = 'https://app.seqrets.app/ping';
+// Use Coinbase API (already in CSP connect-src, returns CORS headers)
+const PING_URL = 'https://api.coinbase.com/v2/prices/BTC-USD/buy';
 const PING_INTERVAL = 5_000; // 5 seconds
 const PING_TIMEOUT = 4_000; // 4 second fetch timeout
 
@@ -16,7 +17,7 @@ export function ConnectionStatus() {
 
     try {
       await fetch(PING_URL, {
-        mode: 'no-cors',
+        method: 'HEAD',
         cache: 'no-store',
         signal: controller.signal,
       });
