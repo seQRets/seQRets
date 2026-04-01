@@ -1,15 +1,18 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Mail, ShieldCheck, Bot } from "lucide-react";
+import { ArrowLeft, Mail, ShieldCheck, Bot, ExternalLink, Copy, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/header";
 import { AppFooter } from "@/components/app-footer";
 import { useTheme } from "@/components/theme-provider";
+import { useToast } from "@/hooks/use-toast";
 import logoLight from "@/assets/icons/logo-light.webp";
 import logoDark from "@/assets/icons/logo-dark.webp";
 
 export default function ContactPage() {
+    const { toast } = useToast();
+    const [copied, setCopied] = React.useState(false);
     const { theme } = useTheme();
     const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     const appIcon = isDark ? logoDark : logoLight;
@@ -58,13 +61,27 @@ export default function ContactPage() {
                             <p>
                                 For general inquiries, feature requests, or support questions, email us at:
                             </p>
-                            <a
-                                href="mailto:hello@seqrets.app?subject=seQRets Support Request"
-                                className="inline-flex items-center gap-2 rounded-md border px-4 py-2 font-medium text-foreground transition-colors hover:bg-muted"
-                            >
-                                <Mail className="h-4 w-4" />
-                                hello@seqrets.app
-                            </a>
+                            <div className="flex items-center gap-2">
+                                <a
+                                    href="mailto:hello@seqrets.app?subject=seQRets Support Request"
+                                    className="inline-flex items-center gap-2 rounded-md border px-4 py-2 font-medium text-foreground transition-colors hover:bg-muted"
+                                >
+                                    <Mail className="h-4 w-4" />
+                                    hello@seqrets.app
+                                </a>
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText('hello@seqrets.app');
+                                        setCopied(true);
+                                        toast({ description: "Email address copied to clipboard" });
+                                        setTimeout(() => setCopied(false), 2000);
+                                    }}
+                                    className="inline-flex items-center justify-center rounded-md border p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                    aria-label="Copy email address"
+                                >
+                                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                </button>
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -74,18 +91,21 @@ export default function ContactPage() {
                                 <ShieldCheck className="h-6 w-6 text-primary" />
                                 <CardTitle>Send Encrypted Email</CardTitle>
                             </div>
-                            <CardDescription>PGP-encrypted via Proton Mail</CardDescription>
+                            <CardDescription>PGP-encrypted for sensitive inquiries</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-3 text-sm text-muted-foreground">
                             <p>
-                                For sensitive inquiries, use our Proton Mail address. Emails between Proton Mail accounts are automatically PGP-encrypted.
+                                For sensitive inquiries, encrypt your email with our PGP public key. Download the key and use it with any PGP-compatible email client.
                             </p>
                             <a
-                                href="mailto:seqrets@proton.me?subject=seQRets Support Request (Encrypted)"
+                                href="https://seqrets.app/pgp"
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2 rounded-md border px-4 py-2 font-medium text-foreground transition-colors hover:bg-muted"
                             >
                                 <ShieldCheck className="h-4 w-4" />
-                                seqrets@proton.me
+                                Get Our PGP Key
+                                <ExternalLink className="h-3 w-3" />
                             </a>
                         </CardContent>
                     </Card>
