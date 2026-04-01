@@ -12,7 +12,7 @@ import logoDark from "@/assets/icons/logo-dark.webp";
 
 export default function ContactPage() {
     const { toast } = useToast();
-    const [copied, setCopied] = React.useState(false);
+    const [copied, setCopied] = React.useState<string | null>(null);
     const { theme } = useTheme();
     const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     const appIcon = isDark ? logoDark : logoLight;
@@ -72,14 +72,14 @@ export default function ContactPage() {
                                 <button
                                     onClick={() => {
                                         navigator.clipboard.writeText('hello@seqrets.app');
-                                        setCopied(true);
+                                        setCopied('hello@seqrets.app');
                                         toast({ description: "Email address copied to clipboard" });
-                                        setTimeout(() => setCopied(false), 2000);
+                                        setTimeout(() => setCopied(null), 2000);
                                     }}
                                     className="inline-flex items-center justify-center rounded-md border p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                     aria-label="Copy email address"
                                 >
-                                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                    {copied === 'hello@seqrets.app' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                                 </button>
                             </div>
                         </CardContent>
@@ -95,18 +95,38 @@ export default function ContactPage() {
                         </CardHeader>
                         <CardContent className="space-y-3 text-sm text-muted-foreground">
                             <p>
-                                For sensitive inquiries, encrypt your email with our PGP public key. Download the key and use it with any PGP-compatible email client.
+                                For sensitive inquiries, email us at the address below and encrypt with our PGP public key.
                             </p>
-                            <a
-                                href="https://seqrets.app/pgp"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 rounded-md border px-4 py-2 font-medium text-foreground transition-colors hover:bg-muted"
-                            >
-                                <ShieldCheck className="h-4 w-4" />
-                                Get Our PGP Key
-                                <ExternalLink className="h-3 w-3" />
-                            </a>
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <a
+                                    href="mailto:seqrets@proton.me?subject=seQRets Support Request (Encrypted)"
+                                    className="inline-flex items-center gap-2 rounded-md border px-4 py-2 font-medium text-foreground transition-colors hover:bg-muted"
+                                >
+                                    <ShieldCheck className="h-4 w-4" />
+                                    seqrets@proton.me
+                                </a>
+                                <button
+                                    onClick={() => {
+                                        navigator.clipboard.writeText('seqrets@proton.me');
+                                        setCopied('seqrets@proton.me');
+                                        toast({ description: "Email address copied to clipboard" });
+                                        setTimeout(() => setCopied(null), 2000);
+                                    }}
+                                    className="inline-flex items-center justify-center rounded-md border p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                    aria-label="Copy encrypted email address"
+                                >
+                                    {copied === 'seqrets@proton.me' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                </button>
+                                <a
+                                    href="https://seqrets.app/pgp"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 rounded-md border px-4 py-2 font-medium text-foreground transition-colors hover:bg-muted"
+                                >
+                                    PGP Key
+                                    <ExternalLink className="h-3 w-3" />
+                                </a>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
@@ -116,7 +136,7 @@ export default function ContactPage() {
                         <CardTitle>Before You Email</CardTitle>
                         <CardDescription>You might find your answer faster with Bob AI</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4 text-sm text-muted-foreground">
+                    <CardContent className="space-y-4 text-sm text-muted-foreground text-center">
                         <p>
                             Our AI assistant Bob is an expert on seQRets and can help with most questions about encryption, Qard management, inheritance planning, smart cards, and more.
                         </p>
