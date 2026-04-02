@@ -1,23 +1,30 @@
 import { CreateSharesForm } from "@/components/create-shares-form";
 import { RestoreSecretForm } from "@/components/restore-secret-form";
 import { Bot } from "lucide-react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Header } from "@/components/header";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AppNavTabs } from "@/components/app-nav-tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { BobChatInterface } from "@/components/bob-chat-interface";
 import { BitcoinTicker } from "@/components/bitcoin-ticker";
 import { AppFooter } from "@/components/app-footer";
-import { WelcomeGuide } from "@/components/welcome-guide";
+import { WelcomeCards } from "@/components/welcome-cards";
 import { useTheme } from "@/components/theme-provider";
 import logoLight from "@/assets/icons/logo-light.webp";
 import logoDark from "@/assets/icons/logo-dark.webp";
+import { AnimatePresence, motion } from "framer-motion";
+
+const SKIP_WELCOME_KEY = 'seQRets_skipWelcome';
+
+type ActivePage = "create" | "plan" | "restore";
 
 export default function HomePage() {
   const [activeTab, setActiveTab] = React.useState<'create' | 'restore'>('create');
+  const [showWelcomeCards, setShowWelcomeCards] = useState(true);
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { theme } = useTheme();
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
   const appIcon = isDark ? logoDark : logoLight;
@@ -29,9 +36,28 @@ export default function HomePage() {
     }
   }, [searchParams]);
 
+  // Skip welcome screen if user opted out
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(SKIP_WELCOME_KEY) === 'true') {
+        setShowWelcomeCards(false);
+      }
+    } catch { /* show welcome by default */ }
+  }, []);
+
+  const handleCardSelect = useCallback((tab: ActivePage) => {
+    if (tab === 'plan') {
+      setShowWelcomeCards(false);
+      navigate('/inheritance');
+      return;
+    }
+
+    setActiveTab(tab);
+    setShowWelcomeCards(false);
+  }, [navigate]);
+
   return (
     <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 md:p-12">
-      <WelcomeGuide activeTab={activeTab} />
       <div className="w-full max-w-4xl mx-auto relative">
         <div className="absolute top-4 left-4 z-50">
             <Popover>
@@ -70,17 +96,42 @@ export default function HomePage() {
           </div>
         </header>
 
-        <div className="mb-10">
-          <BitcoinTicker />
-        </div>
+        <AnimatePresence mode="wait">
+          {showWelcomeCards ? (
+            <motion.div
+              key="welcome"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="mt-8 mb-10"
+            >
+              <h2 className="text-center text-foreground mb-8 text-2xl sm:text-3xl font-bold">
+                What would you like to do?
+              </h2>
+              <WelcomeCards onSelect={handleCardSelect} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="tabs"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+            >
+              <div className="mb-10">
+                <BitcoinTicker />
+              </div>
 
-        <AppNavTabs activePage={activeTab} onHomeTabChange={setActiveTab} />
+              <AppNavTabs activePage={activeTab} onHomeTabChange={setActiveTab} />
 
-        <div className="mt-6">
-          {activeTab === 'create' ? <CreateSharesForm /> : <RestoreSecretForm />}
-        </div>
+              <div className="mt-6">
+                {activeTab === 'create' ? <CreateSharesForm /> : <RestoreSecretForm />}
+              </div>
 
-        <AppFooter />
+              <AppFooter />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </main>
   );

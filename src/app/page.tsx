@@ -5,20 +5,26 @@ import { RestoreSecretForm } from "@/app/components/restore-secret-form";
 import { Bot } from "lucide-react";
 import { AppNavTabs } from "./components/app-nav-tabs";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Header } from "./components/header";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { BobChatInterface } from "./components/bob-chat-interface";
 import { BitcoinTicker } from "./components/bitcoin-ticker";
 import { AppFooter } from "./components/app-footer";
-import { WelcomeGuide } from "./components/welcome-guide";
+import { WelcomeCards } from "./components/welcome-cards";
+import { AnimatePresence, motion } from "framer-motion";
 
+const SKIP_WELCOME_KEY = 'seQRets_skipWelcome';
+
+type ActivePage = "create" | "plan" | "restore";
 
 function App() {
   const [activeTab, setActiveTab] = React.useState<'create' | 'restore'>('create');
+  const [showWelcomeCards, setShowWelcomeCards] = useState(true);
+  const router = useRouter();
 
   const searchParams = useSearchParams();
 
@@ -29,10 +35,28 @@ function App() {
     }
   }, [searchParams]);
 
+  // Skip welcome screen if user opted out
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(SKIP_WELCOME_KEY) === 'true') {
+        setShowWelcomeCards(false);
+      }
+    } catch { /* show welcome by default */ }
+  }, []);
+
+  const handleCardSelect = useCallback((tab: ActivePage) => {
+    if (tab === 'plan') {
+      setShowWelcomeCards(false);
+      router.push('/inheritance');
+      return;
+    }
+
+    setActiveTab(tab);
+    setShowWelcomeCards(false);
+  }, [router]);
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 md:p-12">
-      <WelcomeGuide activeTab={activeTab} />
       <div className="w-full max-w-4xl mx-auto relative">
         <div className="absolute top-4 left-4 z-50">
             <Popover>
@@ -72,17 +96,44 @@ function App() {
           </div>
         </header>
 
-        <div className="mb-10">
-          <BitcoinTicker />
-        </div>
+        <AnimatePresence mode="wait">
+          {showWelcomeCards ? (
+            /* ── Welcome cards (first-time visitors) ── */
+            <motion.div
+              key="welcome"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="mt-8 mb-10"
+            >
+              <h2 className="text-center text-foreground mb-8 text-2xl sm:text-3xl font-bold">
+                What would you like to do?
+              </h2>
+              <WelcomeCards onSelect={handleCardSelect} />
+            </motion.div>
+          ) : (
+            /* ── Normal tabbed interface ── */
+            <motion.div
+              key="tabs"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+            >
+              <div className="mb-10">
+                <BitcoinTicker />
+              </div>
 
-        <AppNavTabs activePage={activeTab} onHomeTabChange={setActiveTab} />
+              <AppNavTabs activePage={activeTab} onHomeTabChange={setActiveTab} />
 
-        <div className="mt-6">
-          {activeTab === 'create' ? <CreateSharesForm /> : <RestoreSecretForm />}
-        </div>
+              <div className="mt-6">
+                {activeTab === 'create' ? <CreateSharesForm /> : <RestoreSecretForm />}
+              </div>
 
-        <AppFooter />
+              <AppFooter />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </main>
   );
