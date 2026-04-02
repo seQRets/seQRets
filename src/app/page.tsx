@@ -18,12 +18,23 @@ import { WelcomeCards } from "./components/welcome-cards";
 import { AnimatePresence, motion } from "framer-motion";
 
 const SKIP_WELCOME_KEY = 'seQRets_skipWelcome';
+const SESSION_DISMISSED_KEY = 'seQRets_welcomeDismissed';
 
 type ActivePage = "create" | "plan" | "restore";
 
+function shouldShowWelcome(): boolean {
+  try {
+    // User opted out permanently
+    if (localStorage.getItem(SKIP_WELCOME_KEY) === 'true') return false;
+    // Already dismissed this session (survives tab navigation / remounts)
+    if (sessionStorage.getItem(SESSION_DISMISSED_KEY) === 'true') return false;
+  } catch { /* default to showing */ }
+  return true;
+}
+
 function App() {
   const [activeTab, setActiveTab] = React.useState<'create' | 'restore'>('create');
-  const [showWelcomeCards, setShowWelcomeCards] = useState(true);
+  const [showWelcomeCards, setShowWelcomeCards] = useState(shouldShowWelcome);
   const router = useRouter();
 
   const searchParams = useSearchParams();
@@ -35,16 +46,9 @@ function App() {
     }
   }, [searchParams]);
 
-  // Skip welcome screen if user opted out
-  useEffect(() => {
-    try {
-      if (localStorage.getItem(SKIP_WELCOME_KEY) === 'true') {
-        setShowWelcomeCards(false);
-      }
-    } catch { /* show welcome by default */ }
-  }, []);
-
   const handleCardSelect = useCallback((tab: ActivePage) => {
+    try { sessionStorage.setItem(SESSION_DISMISSED_KEY, 'true'); } catch { /* ignore */ }
+
     if (tab === 'plan') {
       setShowWelcomeCards(false);
       router.push('/inheritance');

@@ -17,12 +17,21 @@ import logoDark from "@/assets/icons/logo-dark.webp";
 import { AnimatePresence, motion } from "framer-motion";
 
 const SKIP_WELCOME_KEY = 'seQRets_skipWelcome';
+const SESSION_DISMISSED_KEY = 'seQRets_welcomeDismissed';
 
 type ActivePage = "create" | "plan" | "restore";
 
+function shouldShowWelcome(): boolean {
+  try {
+    if (localStorage.getItem(SKIP_WELCOME_KEY) === 'true') return false;
+    if (sessionStorage.getItem(SESSION_DISMISSED_KEY) === 'true') return false;
+  } catch { /* default to showing */ }
+  return true;
+}
+
 export default function HomePage() {
   const [activeTab, setActiveTab] = React.useState<'create' | 'restore'>('create');
-  const [showWelcomeCards, setShowWelcomeCards] = useState(true);
+  const [showWelcomeCards, setShowWelcomeCards] = useState(shouldShowWelcome);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { theme } = useTheme();
@@ -36,16 +45,9 @@ export default function HomePage() {
     }
   }, [searchParams]);
 
-  // Skip welcome screen if user opted out
-  useEffect(() => {
-    try {
-      if (localStorage.getItem(SKIP_WELCOME_KEY) === 'true') {
-        setShowWelcomeCards(false);
-      }
-    } catch { /* show welcome by default */ }
-  }, []);
-
   const handleCardSelect = useCallback((tab: ActivePage) => {
+    try { sessionStorage.setItem(SESSION_DISMISSED_KEY, 'true'); } catch { /* ignore */ }
+
     if (tab === 'plan') {
       setShowWelcomeCards(false);
       navigate('/inheritance');
