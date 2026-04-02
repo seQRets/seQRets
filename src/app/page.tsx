@@ -130,10 +130,11 @@ function App() {
                 {activeTab === 'create' ? <CreateSharesForm /> : <RestoreSecretForm />}
               </div>
 
-              <AppFooter />
             </motion.div>
           )}
         </AnimatePresence>
+
+        <AppFooter />
       </div>
     </main>
   );
