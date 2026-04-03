@@ -371,7 +371,7 @@ export default function InstructionsPage() {
               <TabsList className="grid w-full grid-cols-3 mb-6">
                 <TabsTrigger value="encrypt"><Lock className="mr-2 h-4 w-4" /> Encrypt Plan</TabsTrigger>
                 <TabsTrigger value="create"><FilePenLine className="mr-2 h-4 w-4" /> Create Plan</TabsTrigger>
-                <TabsTrigger value="decrypt"><Download className="mr-2 h-4 w-4" /> Decrypt Plan</TabsTrigger>
+                <TabsTrigger value="decrypt"><Download className="mr-2 h-4 w-4" /> Decrypt / Edit Plan</TabsTrigger>
               </TabsList>
 
               {/* ════════ Encrypt Tab ════════ */}
@@ -931,6 +931,14 @@ export default function InstructionsPage() {
                         }
                       }}
                       onExportPdf={() => handleExportPdf(decryptedPlan)}
+                      onEditPlan={(plan) => {
+                        setInheritancePlan(plan);
+                        setEncryptStep(1);
+                        setShowPlanViewer(false);
+                        setDecryptedPlan(null);
+                        setActiveTab('create');
+                        toast({ title: 'Plan loaded for editing', description: 'Make your changes and re-encrypt when ready.' });
+                      }}
                     />
                     <div className="flex justify-end pt-2">
                       <Button variant="ghost" size="sm" onClick={handleDecryptReset}>

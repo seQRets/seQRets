@@ -222,12 +222,13 @@ export async function generatePlanPdf(plan: InheritancePlan): Promise<jsPDF> {
   doc.line(MARGIN_L, currentY, PAGE_W - MARGIN_R, currentY);
   currentY += 8;
 
-  // Plan info
+  // Plan info line
   doc.setFontSize(BODY_SIZE);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(...MUTED_COLOR);
   const infoLines = [];
   if (plan.planInfo.preparedBy) infoLines.push(`Prepared by: ${plan.planInfo.preparedBy}`);
+  if (plan.planInfo.planVersion) infoLines.push(`Plan v${plan.planInfo.planVersion}`);
   if (plan.planInfo.dateCreated) infoLines.push(`Created: ${plan.planInfo.dateCreated}`);
   if (plan.planInfo.lastUpdated) infoLines.push(`Last updated: ${plan.planInfo.lastUpdated}`);
   if (plan.planInfo.reviewSchedule) infoLines.push(`Review schedule: ${plan.planInfo.reviewSchedule}`);
@@ -244,20 +245,95 @@ export async function generatePlanPdf(plan: InheritancePlan): Promise<jsPDF> {
   );
   currentY += 10;
 
-  // ── Section 1: Recovery Credentials ──
-  const creds = plan.recoveryCredentials;
-  if (creds.password || creds.keyfilePrimaryLocation || creds.keyfileBackupLocation) {
-    addSectionHeader('1. Recovery Credentials');
-    addLabelValue('Password', creds.password);
-    addLabelValue('Keyfile Primary Location', creds.keyfilePrimaryLocation);
-    addLabelValue('Keyfile Backup Location', creds.keyfileBackupLocation);
+  let sectionNum = 1;
+
+  // ── Beneficiaries ──
+  const beneficiaryRows = (plan.beneficiaries ?? []).map(b => [b.name, b.relationship, b.contactInfo, b.assignedAssets]);
+  if (beneficiaryRows.some(rowHasData) || plan.distributionInstructions?.trim()) {
+    addSectionHeader(`${sectionNum++}. Beneficiaries`);
+    addTable(
+      ['Name', 'Relationship', 'Contact Info', 'Assigned Assets'],
+      beneficiaryRows,
+      [35, 30, 45, 65],
+    );
+    if (plan.distributionInstructions?.trim()) {
+      addLabelValue('Distribution Instructions', plan.distributionInstructions);
+    }
     currentY += 4;
   }
 
-  // ── Section 2: Device & Account Access ──
+  // ── Secret Sets (Recovery Credentials + Qard Locations) ──
+  const secretSets = plan.secretSets ?? [];
+  const hasSecretData = secretSets.some(s =>
+    s.password || s.description || s.keyfilePrimaryLocation ||
+    s.qardLocations?.some(q => q.location || q.heldBy) ||
+    s.smartCardPin || s.vaultFileLocation
+  );
+  if (hasSecretData) {
+    addSectionHeader(`${sectionNum++}. Secret Sets`);
+
+    for (let i = 0; i < secretSets.length; i++) {
+      const s = secretSets[i];
+      checkPageBreak(20);
+
+      // Secret sub-header
+      doc.setFontSize(BODY_SIZE + 1);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...PRIMARY_COLOR);
+      const secretTitle = s.description
+        ? `Secret ${i + 1}: ${s.description}`
+        : `Secret ${i + 1}`;
+      doc.text(secretTitle, MARGIN_L + 2, currentY);
+      currentY += 6;
+
+      // Credentials
+      addLabelValue('Password', s.password);
+      addLabelValue('Keyfile Primary', s.keyfilePrimaryLocation);
+      addLabelValue('Keyfile Backup', s.keyfileBackupLocation);
+
+      // Qard config + locations table
+      if (s.configuration || s.label) {
+        doc.setFontSize(BODY_SIZE);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...PRIMARY_COLOR);
+        const configLine = [
+          s.configuration && `Configuration: ${s.configuration}`,
+          s.label && `Label: ${s.label}`,
+        ].filter(Boolean).join('   |   ');
+        doc.text(configLine, MARGIN_L + 2, currentY);
+        currentY += 6;
+      }
+
+      const qardRows = (s.qardLocations ?? []).map(q => [String(q.qardNumber), q.location, q.heldBy, q.accessNotes]);
+      if (qardRows.some(rowHasData)) {
+        addTable(
+          ['#', 'Location', 'Held By', 'Access Notes'],
+          qardRows,
+          [10, 55, 45, 65]
+        );
+      }
+
+      // Smart card & vault info
+      addLabelValue('Smart Card PIN', s.smartCardPin);
+      addLabelValue('Card Reader', s.smartCardReaderModel);
+      addLabelValue('Vault File', s.vaultFileLocation);
+
+      // Separator between secret sets
+      if (i < secretSets.length - 1) {
+        currentY += 2;
+        doc.setDrawColor(...LINE_COLOR);
+        doc.setLineWidth(0.3);
+        doc.line(MARGIN_L + 10, currentY, MARGIN_L + CONTENT_W - 10, currentY);
+        currentY += 6;
+      }
+    }
+    currentY += 4;
+  }
+
+  // ── Device & Account Access ──
   const deviceRows = (plan.deviceAccounts ?? []).map(d => [d.label, d.type, d.location, d.username, d.password, d.notes]);
   if (deviceRows.some(r => rowHasData(r, 2))) {
-    addSectionHeader('2. Device & Account Access');
+    addSectionHeader(`${sectionNum++}. Device & Account Access`);
     // 2FA deadlock warning
     doc.setFontSize(SMALL_SIZE);
     doc.setFont('helvetica', 'bolditalic');
@@ -276,33 +352,10 @@ export async function generatePlanPdf(plan: InheritancePlan): Promise<jsPDF> {
     );
   }
 
-  // ── Section 3: Qard Locations ──
-  const qards = plan.qardConfig;
-  const qardRows = (qards.locations ?? []).map(q => [String(q.qardNumber), q.location, q.heldBy, q.accessNotes]);
-  if (qardRows.some(rowHasData)) {
-    addSectionHeader('3. Qard Locations');
-    if (qards.configuration || qards.label) {
-      doc.setFontSize(BODY_SIZE);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...PRIMARY_COLOR);
-      const configLine = [
-        qards.configuration && `Configuration: ${qards.configuration}`,
-        qards.label && `Label: ${qards.label}`,
-      ].filter(Boolean).join('   |   ');
-      doc.text(configLine, MARGIN_L + 2, currentY);
-      currentY += 7;
-    }
-    addTable(
-      ['#', 'Location', 'Held By', 'Access Notes'],
-      qardRows,
-      [10, 55, 45, 65]
-    );
-  }
-
-  // ── Section 4: Digital Asset Inventory ──
+  // ── Digital Asset Inventory ──
   const assets = (plan.digitalAssets ?? []).filter(a => a.name || a.platform);
   if (assets.length > 0) {
-    addSectionHeader('4. Digital Asset Inventory');
+    addSectionHeader(`${sectionNum++}. Digital Asset Inventory`);
     for (const asset of assets) {
       checkPageBreak(30);
       doc.setFontSize(BODY_SIZE);
@@ -332,17 +385,17 @@ export async function generatePlanPdf(plan: InheritancePlan): Promise<jsPDF> {
     }
   }
 
-  // ── Section 5: How to Restore Your Secret ──
+  // ── How to Restore Your Secret ──
   if (plan.howToRestore) {
-    addSectionHeader('5. How to Restore Your Secret');
+    addSectionHeader(`${sectionNum++}. How to Restore Your Secret`);
     addTextBlock(plan.howToRestore);
     currentY += 4;
   }
 
-  // ── Section 6: Professional Contacts ──
+  // ── Professional Contacts ──
   const contactRows = (plan.professionalContacts ?? []).map(c => [c.role, c.name, c.phone, c.email]);
   if (contactRows.some(rowHasData)) {
-    addSectionHeader('6. Professional Contacts');
+    addSectionHeader(`${sectionNum++}. Professional Contacts`);
     addTable(
       ['Role', 'Name', 'Phone', 'Email'],
       contactRows,
@@ -350,9 +403,47 @@ export async function generatePlanPdf(plan: InheritancePlan): Promise<jsPDF> {
     );
   }
 
-  // ── Section 7: Personal Message ──
+  // ── Emergency Access ──
+  const ea = plan.emergencyAccess;
+  if (ea && (ea.emergencyContact || ea.triggerConditions || ea.accessProcedure || ea.immediateActions || ea.scopeLimitations)) {
+    addSectionHeader(`${sectionNum++}. Emergency Access`);
+    addLabelValue('Emergency Contact', ea.emergencyContact);
+    if (ea.triggerConditions) {
+      checkPageBreak(10);
+      doc.setFontSize(BODY_SIZE);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(...PRIMARY_COLOR);
+      doc.text('Trigger Conditions:', MARGIN_L + 2, currentY);
+      currentY += 5;
+      addTextBlock(ea.triggerConditions);
+    }
+    if (ea.accessProcedure) {
+      checkPageBreak(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Access Procedure:', MARGIN_L + 2, currentY);
+      currentY += 5;
+      addTextBlock(ea.accessProcedure);
+    }
+    if (ea.immediateActions) {
+      checkPageBreak(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Immediate Actions:', MARGIN_L + 2, currentY);
+      currentY += 5;
+      addTextBlock(ea.immediateActions);
+    }
+    if (ea.scopeLimitations) {
+      checkPageBreak(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Scope Limitations:', MARGIN_L + 2, currentY);
+      currentY += 5;
+      addTextBlock(ea.scopeLimitations);
+    }
+    currentY += 4;
+  }
+
+  // ── Personal Message ──
   if (plan.personalMessage?.trim()) {
-    addSectionHeader('7. Personal Message to Your Heirs');
+    addSectionHeader(`${sectionNum++}. Personal Message to Your Heirs`);
     addTextBlock(plan.personalMessage);
     currentY += 4;
   }

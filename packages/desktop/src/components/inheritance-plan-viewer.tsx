@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { FileDown, FileText } from 'lucide-react';
+import { FileDown, FileText, Pencil } from 'lucide-react';
 import { InheritancePlanForm } from '@/components/inheritance-plan-form';
 import type { InheritancePlan } from '@/lib/inheritance-plan-types';
 
@@ -9,9 +9,10 @@ interface InheritancePlanViewerProps {
   plan: InheritancePlan;
   onSaveAsFile: () => void;
   onExportPdf?: () => void;
+  onEditPlan?: (plan: InheritancePlan) => void;
 }
 
-export function InheritancePlanViewer({ plan, onSaveAsFile, onExportPdf }: InheritancePlanViewerProps) {
+export function InheritancePlanViewer({ plan, onSaveAsFile, onExportPdf, onEditPlan }: InheritancePlanViewerProps) {
   const sizeEstimate = useMemo(() => {
     const bytes = new TextEncoder().encode(JSON.stringify(plan)).length;
     return bytes < 1024 ? `${bytes} bytes` : `${(bytes / 1024).toFixed(1)} KB`;
@@ -33,6 +34,12 @@ export function InheritancePlanViewer({ plan, onSaveAsFile, onExportPdf }: Inher
             <Button variant="outline" size="sm" onClick={onExportPdf}>
               <FileText className="h-4 w-4 mr-2" />
               Export PDF
+            </Button>
+          )}
+          {onEditPlan && (
+            <Button size="sm" onClick={() => onEditPlan(plan)}>
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit &amp; Re-encrypt
             </Button>
           )}
         </div>
