@@ -122,8 +122,8 @@ export function WelcomeCards({ onSelect }: WelcomeCardsProps) {
           <div className="flex items-start gap-2.5 flex-1">
             <Lock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#38bdf8' }} />
             <p className="text-muted-foreground">
-              <strong className="text-card-foreground">No backdoors.</strong>{' '}
-              Lose your password or Qards, and your data is gone forever.
+              <strong className="text-card-foreground">Zero knowledge.</strong>{' '}
+              No accounts, no servers, no data collection. Lose your password or Qards, and it's gone forever.
             </p>
           </div>
         </div>

@@ -1,5 +1,5 @@
 // seQRets Service Worker — v1.7.0
-// Cache-first for static assets, network-first for navigation
+// Network-first for hashed assets & navigation, cache-first for stable assets
 
 const CACHE_VERSION = 'seqrets-v1.7.0';
 const PRECACHE_URLS = [
@@ -35,7 +35,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: cache-first for assets, network-first for pages
+// Fetch handler with proper error handling
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
@@ -54,24 +54,47 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_VERSION).then((cache) => cache.put(request, clone));
           return response;
         })
-        .catch(() => caches.match(request) || caches.match('/'))
+        .catch(() =>
+          caches.match(request).then((cached) => cached || caches.match('/'))
+        )
     );
     return;
   }
 
-  // Cache-first for everything else (JS, CSS, images, fonts)
+  // Network-first for _next/static/ chunks — these are content-hashed per build,
+  // so stale cache entries from a previous deployment will reference filenames
+  // that no longer exist on the server. Fetching network-first ensures we always
+  // get the correct chunk for the current build, with cache as offline fallback.
+  if (request.url.includes('/_next/static/')) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_VERSION).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request).then((cached) => cached || new Response('', { status: 503 })))
+    );
+    return;
+  }
+
+  // Cache-first for stable assets (icons, manifest, fonts, images)
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached;
 
-      return fetch(request).then((response) => {
-        // Only cache successful responses
-        if (!response || response.status !== 200) return response;
+      return fetch(request)
+        .then((response) => {
+          // Only cache successful responses
+          if (!response || response.status !== 200) return response;
 
-        const clone = response.clone();
-        caches.open(CACHE_VERSION).then((cache) => cache.put(request, clone));
-        return response;
-      });
+          const clone = response.clone();
+          caches.open(CACHE_VERSION).then((cache) => cache.put(request, clone));
+          return response;
+        })
+        .catch(() => new Response('', { status: 503 }));
     })
   );
 });

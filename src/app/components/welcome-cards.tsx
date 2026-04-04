@@ -113,7 +113,7 @@ export function WelcomeCards({ onSelect, variant = 'web' }: WelcomeCardsProps) {
             <p className="text-muted-foreground">
               <strong className="text-card-foreground">All encryption runs locally.</strong>{' '}
               {variant === 'web'
-                ? 'This is a web app — consider the desktop app for maximum security.'
+                ? <>Nothing is ever sent to a server — consider the <a href="https://seqrets.app/shop" target="_blank" rel="noopener noreferrer" className="underline text-card-foreground hover:text-primary">desktop app</a> for maximum security.</>
                 : 'Native Rust crypto. Your secrets never leave this machine.'}
             </p>
           </div>
@@ -127,8 +127,8 @@ export function WelcomeCards({ onSelect, variant = 'web' }: WelcomeCardsProps) {
           <div className="flex items-start gap-2.5 flex-1">
             <Lock className="h-5 w-5 shrink-0 mt-0.5" style={{ color: '#38bdf8' }} />
             <p className="text-muted-foreground">
-              <strong className="text-card-foreground">No backdoors.</strong>{' '}
-              Lose your password or Qards, and your data is gone forever.
+              <strong className="text-card-foreground">Zero knowledge.</strong>{' '}
+              No accounts, no servers, no data collection. Lose your password or Qards, and it's gone forever.
             </p>
           </div>
         </div>
