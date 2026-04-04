@@ -83,7 +83,7 @@ Purchase an official release and receive:
 - Success sound plays on each accepted share
 
 ### 📜 Inheritance Plan
-- **In-app plan builder** (desktop only) — create your inheritance plan directly inside the app using a structured, 8-section form. No need to type sensitive information into external editors. The plan is encrypted natively as a compact JSON blob (~2-4 KB) that fits on a smart card.
+- **In-app plan builder** (desktop only) — create your inheritance plan directly inside the app using a structured, 9-section form. No need to type sensitive information into external editors. The plan is encrypted natively as a compact JSON blob (~2-4 KB) that fits on a smart card.
 - **File upload** — alternatively, encrypt any file (PDF, DOCX, ODT, TXT) with the same XChaCha20-Poly1305 + Argon2id security (available on both web and desktop)
 - Three tabs: **Encrypt Plan** (upload a file) | **Create Plan** (in-app builder, desktop only) | **Decrypt Plan**
 - Password generator with the same 24-character multi-character-class requirement

@@ -286,9 +286,11 @@ export default function InstructionsPage() {
                     </p>
                     <InstructionsFileUpload onFileSelected={setInstructionsFile} selectedFile={instructionsFile} />
                     <p className="text-xs text-muted-foreground/70">
-                      Need a guided plan builder with printable PDF export? The{' '}
+                      Want a guided plan builder? The{' '}
                       <a href="https://seqrets.app/shop" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-primary">seQRets desktop app</a>{' '}
-                      includes an 8-section inheritance planner.
+                      includes a built-in 9-section planner with PDF export, or try the{' '}
+                      <a href="https://seqrets.app/shop" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-primary">standalone seQRets Planner</a>{' '}
+                      for an even more comprehensive experience.
                     </p>
                     {encryptStep === 1 && (
                       <div className="flex justify-end pt-2">
