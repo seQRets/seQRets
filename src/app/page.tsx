@@ -34,10 +34,16 @@ function shouldShowWelcome(): boolean {
 
 function App() {
   const [activeTab, setActiveTab] = React.useState<'create' | 'restore'>('create');
-  const [showWelcomeCards, setShowWelcomeCards] = useState(shouldShowWelcome);
+  // SSR-safe default: server renders tabs view, client resolves welcome-card
+  // visibility from localStorage/sessionStorage after hydration.
+  const [showWelcomeCards, setShowWelcomeCards] = useState(false);
   const router = useRouter();
 
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    setShowWelcomeCards(shouldShowWelcome());
+  }, []);
 
   useEffect(() => {
     const tab = searchParams.get('tab');
