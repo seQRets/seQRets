@@ -31,6 +31,55 @@ Disconnecting from the network after the page has loaded provides limited but re
 - Clipboard and screen recording — OS-level, not network-dependent
 - Any malicious JS that was already loaded — it can queue exfiltration and fire it when connectivity is restored
 
+## Threats Mitigated by the Optional Keyfile
+
+A keyfile is a 32-byte random value that is concatenated with the password before key derivation (see [ARCHITECTURE.md](ARCHITECTURE.md#optional-keyfile-second-factor) for the cryptographic details). Both the password AND the keyfile are required — one without the other is useless. This section describes the attack vectors a keyfile meaningfully changes.
+
+### Password compromise becomes insufficient
+
+Most realistic password-compromise vectors yield only the password, not the keyfile:
+
+| Threat | Password only | Password + keyfile |
+|---|---|---|
+| **Keylogger** captures password as typed | ✗ Secret compromised | ✓ Attacker still needs the keyfile |
+| **Shoulder-surf** of password entry | ✗ Secret compromised | ✓ Keyfile is binary, not typed |
+| **Phishing** tricks user into revealing password | ✗ Secret compromised | ✓ Keyfile is a file, not a memorable string |
+| **Password reuse breach** (another site leaks the same password) | ✗ Secret compromised | ✓ Leaked password is useless without the keyfile |
+| **Acoustic / EM keystroke analysis** | ✗ Secret compromised | ✓ Keyfile isn't typed |
+| **Brute-force / dictionary attack** against weak password | ✗ Eventually compromised | ✓ Adding 256 bits of unknown entropy makes brute-force infeasible regardless of password strength |
+| **RAM/V8 heap forensics after a session** (web limitation) | ⚠️ Password may be recoverable from heap | ⚠️ Both would need to be recoverable; keyfile has no JS-string lifetime problem because it's loaded as bytes, not a string |
+
+### Coercion and duress ("$5 wrench attack")
+
+This is the most distinctive thing a keyfile buys you, and it only works if you **deliberately do not co-locate the keyfile with yourself**.
+
+| Scenario | Password only | Password + keyfile (stored elsewhere) |
+|---|---|---|
+| **Physical coercion to decrypt on the spot** | ✗ You know the password — "I won't" is your only defense | ✓ You genuinely *cannot* decrypt; "I can't" is a factually true answer |
+| **Border crossing — agent demands decryption** | ✗ You have to comply or refuse | ✓ Keyfile in a safe deposit box / other jurisdiction means compliance is physically impossible |
+| **Traveling with crypto wealth** | ✗ Full access lives in your head | ✓ Leave the keyfile at home; you carry only half the factor |
+| **Legal compulsion to produce a password** | ⚠️ Jurisdiction-dependent, but the password exists in your mind | ✓ You cannot be compelled to produce a file you don't physically possess |
+
+The mechanism is simple: *"I cannot unlock this without a file I don't have on me"* is a verifiable statement, unlike *"I refuse to unlock this."* The former is factual, the latter is a choice the adversary can try to change.
+
+### Not mitigated by a keyfile
+
+A keyfile is not a magic bullet. These threats are unchanged or only marginally improved:
+
+- **Both factors compromised simultaneously** — malware that reads files from disk AND logs keystrokes captures both
+- **You are carrying the keyfile when attacked** — if the keyfile is on your laptop, phone, or USB stick on your person, the coercion defense evaporates
+- **Physical access to the storage location** holding both factors — e.g., keyfile and password-containing notebook in the same drawer
+- **Threshold reached on the Qard side** — if an attacker already has enough Qards AND both factors, the keyfile adds nothing
+- **Loss of the keyfile** — there is no recovery path. Losing the keyfile is equivalent to losing the secret itself. This is the tradeoff for the coercion defense.
+
+### Practical distribution patterns
+
+Good keyfile storage patterns map to the threat you care about most:
+
+- **Coercion defense** → keyfile in a bank safe deposit box, a trusted third party in another jurisdiction, or a smart card stored physically separate from the user
+- **Password-compromise defense** → keyfile on a smart card or hardware token kept on the user's person, password memorized or in a password manager
+- **Inheritance use case** → keyfile distributed as one of the Qards' physical artifacts (e.g., smart card at the attorney's office alongside the sealed instructions)
+
 ## Desktop vs Web Comparison
 
 | Threat | Web | Desktop |

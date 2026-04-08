@@ -30,6 +30,39 @@ Secret → [BIP-39 optimize] → Compress → Argon2id → Encrypt → Shamir Sp
 T Qards → Shamir Reconstruct → Argon2id → Decrypt + Verify → Decompress → Secret
 ```
 
+## Optional Keyfile (Second Factor)
+
+seQRets supports an optional **keyfile** as a second factor alongside the password. When used, both the password AND the keyfile are required to derive the encryption key — one without the other is useless.
+
+### How it works
+
+A keyfile is a **32-byte (256-bit) random value** generated from the OS CSPRNG (`crypto.getRandomValues`) and stored as base64. During key derivation, the keyfile bytes are appended to the password bytes, and the concatenated buffer is fed into Argon2id as the secret input:
+
+```
+argon2id(password_bytes || keyfile_bytes, salt, 64MB, 4 iters) → 256-bit key
+```
+
+The salt is still randomly generated per-operation, so two encryptions with the same password + keyfile pair produce different keys. Restoration requires the exact same password AND the exact same keyfile bytes — there is no "recovery mode" that accepts one without the other.
+
+### Why it matters
+
+- **Defense in depth** — an attacker who compromises your password (phishing, keylogger, shoulder-surf) still cannot decrypt without the keyfile
+- **Physical/digital split** — store the keyfile on a different medium than the password (keyfile on a smart card, password memorized; or keyfile in a password manager, password on paper)
+- **Brute-force resistance** — even a weak password becomes computationally infeasible to guess when concatenated with 256 bits of unknown random data
+- **Coercion resistance** — if the keyfile is stored somewhere you cannot physically reach (safe deposit box, another jurisdiction, a trusted party), you genuinely cannot decrypt on demand. See [THREAT_MODEL.md](THREAT_MODEL.md#threats-mitigated-by-the-optional-keyfile) for a full breakdown.
+
+### Storage and distribution
+
+- **Download** — save as a `.bin` file to any location (USB, encrypted drive, printed as a QR code, etc.)
+- **Smart card** (desktop only) — write to a JavaCard alongside shares, vaults, or inheritance plans; load from the card anywhere a keyfile is accepted
+- **Generate or upload** — create a fresh keyfile with the built-in generator, or bring your own
+
+### Operational caveats
+
+- **Losing the keyfile = losing the secret.** There is no recovery path. Treat the keyfile with the same care as a hardware wallet seed — back it up to multiple locations.
+- **Keyfile ≠ password.** The keyfile does not replace the password; both are required. Do not reuse the same keyfile across unrelated secrets unless you want them to share the same second factor.
+- **Keyfile bytes are zeroized after use** on both platforms (`fill(0)` on web, Rust `zeroize` on desktop).
+
 ## Primitives
 
 | Layer | Algorithm | Purpose |
