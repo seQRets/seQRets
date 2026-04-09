@@ -55,7 +55,7 @@ Official release: **<a href="https://seqrets.app" target="_blank" rel="noopener 
 
 ## 🔐 Security
 
-seQRets uses industry-standard primitives entirely client-side:
+seQRets uses industry-standard primitives entirely client-side. **All cryptographic code lives in a single ~450-line file: [`packages/crypto/src/crypto.ts`](packages/crypto/src/crypto.ts).** The desktop app additionally runs Argon2id + XChaCha20-Poly1305 natively in Rust via Tauri, so derived keys never enter the JS runtime.
 
 - **Key derivation:** Argon2id (64MB memory, 4 iterations)
 - **Encryption:** XChaCha20-Poly1305 (AEAD)
