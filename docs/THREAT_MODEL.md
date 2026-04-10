@@ -98,6 +98,33 @@ Good keyfile storage patterns map to the threat you care about most:
 - **Password-compromise defense** → keyfile on a smart card or hardware token kept on the user's person, password memorized or in a password manager
 - **Inheritance use case** → keyfile distributed as one of the Qards' physical artifacts (e.g., smart card at the attorney's office alongside the sealed instructions)
 
+## Review Reminder Sidecar
+
+The desktop app offers an opt-in review reminder that nudges users to open and verify their inheritance plan on a 6/12/24 month cadence. To avoid requiring the user's password on every app launch just to check if a reminder is due, a small plaintext JSON sidecar (`review-reminder.json`) is stored in the Tauri app data directory alongside other local config.
+
+**What the sidecar contains:**
+- `nextReviewAt` — a future ISO date
+- `lastReviewedAt` — the last time the user clicked "Mark as reviewed"
+- `intervalMonths` — the user's chosen review interval
+- `snoozedUntil` — a snooze date (if active)
+- `enabled` — whether the reminder is active
+
+**What the sidecar does NOT contain:**
+- Plan contents (names, beneficiaries, secrets, passwords)
+- Which plan it refers to (no file paths, hashes, or identifiers)
+- Cryptographic material of any kind
+
+**Accepted tradeoffs:**
+- The sidecar reveals that the user has opted into review reminders and when the next review is scheduled. This is marginal — the encrypted plan file's existence already reveals far more (that the user has an inheritance plan).
+- An attacker with write access to the app data dir can suppress, fake, or spam the reminder. This is accepted because the same attacker could modify the app binary, read the OS keychain, or watch the user type their password — defeating a plaintext reminder is the least of their capabilities.
+- The sidecar is not tamper-proof. Its only integrity check is reconciliation: when the user opens the encrypted plan, the in-plan `lastReviewedAt` (authoritative) is compared against the sidecar. If they disagree by more than 30 days, the app warns the user.
+- The sidecar is not synced across devices or backed up with the plan. On a new machine, it is rebuilt from the encrypted plan's `lastReviewedAt` with conservative defaults the first time the user decrypts.
+
+**Privacy properties:**
+- Opt-in, not opt-out. Users who decline leave only a minimal marker (`enabled: false`) that prevents re-prompting on every launch.
+- Fully reversible. "Disable and delete" in the plan editor removes the file entirely.
+- Local-only. Never transmitted, never read by any server.
+
 ## Desktop vs Web Comparison
 
 | Threat | Web | Desktop |

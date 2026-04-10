@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { FileDown, FileText, Pencil } from 'lucide-react';
 import { InheritancePlanForm } from '@/components/inheritance-plan-form';
+import { ReviewReminderPanel } from '@/components/review-reminder-panel';
 import type { InheritancePlan } from '@/lib/inheritance-plan-types';
 
 interface InheritancePlanViewerProps {
@@ -44,6 +45,10 @@ export function InheritancePlanViewer({ plan, onSaveAsFile, onExportPdf, onEditP
           )}
         </div>
       </div>
+
+      <Separator />
+
+      <ReviewReminderPanel canMarkReviewed />
 
       <Separator />
 

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
@@ -10,8 +11,15 @@ import InstructionsPage from '@/pages/InstructionsPage';
 import PrivacyPage from '@/pages/PrivacyPage';
 import TermsPage from '@/pages/TermsPage';
 import ContactPage from '@/pages/ContactPage';
+import { maybeFireLaunchNotification } from '@/lib/review-reminder';
 
 export default function App() {
+  useEffect(() => {
+    // Fire the OS notification once per session if a review is overdue
+    // and the user has opted into notifications on this machine.
+    void maybeFireLaunchNotification();
+  }, []);
+
   return (
     <ThemeProvider defaultTheme="system">
       <Routes>

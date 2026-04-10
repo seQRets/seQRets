@@ -26,9 +26,15 @@ import { generatePlanPdf, getPlanPdfFilename } from '@/lib/generate-plan-pdf';
 import { encryptInstructions, decryptInstructions } from '@/lib/desktop-crypto';
 import { InheritancePlanForm } from '@/components/inheritance-plan-form';
 import { InheritancePlanViewer } from '@/components/inheritance-plan-viewer';
+import { ReviewReminderPrompt } from '@/components/review-reminder-prompt';
 import { createBlankPlan } from '@/lib/inheritance-plan-types';
 import type { InheritancePlan } from '@/lib/inheritance-plan-types';
 import { planToRawInstruction, isInheritancePlan, rawInstructionToPlan } from '@/lib/inheritance-plan-utils';
+import {
+  getReminderState,
+  reconcileWithPlan,
+  SIDECAR_DISAGREEMENT_WARN_DAYS,
+} from '@/lib/review-reminder';
 import { AppFooter } from '@/components/app-footer';
 import { AppNavTabs } from '@/components/app-nav-tabs';
 import { BitcoinTicker } from '@/components/bitcoin-ticker';
@@ -88,6 +94,7 @@ export default function InstructionsPage() {
   const [isDecrypting, setIsDecrypting] = useState(false);
   const [decryptedPlan, setDecryptedPlan] = useState<InheritancePlan | null>(null);
   const [showPlanViewer, setShowPlanViewer] = useState(false);
+  const [showReminderPrompt, setShowReminderPrompt] = useState(false);
 
   // No Worker setup needed — crypto runs natively in Rust via Tauri IPC.
 
@@ -129,6 +136,18 @@ export default function InstructionsPage() {
       setEncryptedResult(result);
       setEncryptStep(4);
       toast({ title: 'Instructions Encrypted!', description: 'Choose how to save your encrypted instructions below.' });
+
+      // First-save prompt: if the user just created an in-app plan and
+      // has never set up (or declined) a review reminder on this machine,
+      // offer to enable one. Safe to await — the prompt is non-blocking UI.
+      if (encryptMode === 'create') {
+        try {
+          const state = await getReminderState();
+          if (state.kind === 'missing') setShowReminderPrompt(true);
+        } catch {
+          // If sidecar read fails, skip the prompt — it's optional UX.
+        }
+      }
     } catch (e: any) {
       toast({ variant: 'destructive', title: 'Encryption Failed', description: e?.message || 'Could not encrypt the instructions file.' });
     } finally {
@@ -274,6 +293,22 @@ export default function InstructionsPage() {
           setDecryptedPlan(plan);
           setShowPlanViewer(true);
           toast({ title: 'Plan Decrypted!', description: 'Your inheritance plan has been decrypted and is ready to view.' });
+
+          // Reconcile the sidecar against the encrypted plan's authoritative
+          // lastReviewedAt. Handles machine switches (sidecar missing) and
+          // surfaces tampering if the two disagree by more than the threshold.
+          try {
+            const reconcile = await reconcileWithPlan(plan.planInfo.lastReviewedAt ?? null);
+            if (reconcile.disagreementWarning) {
+              toast({
+                variant: 'destructive',
+                title: 'Review reminder mismatch',
+                description: `The review reminder sidecar and this plan disagree by ${reconcile.disagreementDays} days (warning threshold: ${SIDECAR_DISAGREEMENT_WARN_DAYS}). Check the Review Reminder panel below.`,
+              });
+            }
+          } catch {
+            // Reconcile failure is non-fatal; the panel will surface corrupt state.
+          }
           return;
         }
       }
@@ -998,6 +1033,12 @@ export default function InstructionsPage() {
         writeData={encryptKeyfile || undefined}
         writeLabel={encryptKeyfileWriteLabel || 'Keyfile'}
         writeItemType="keyfile"
+      />
+
+      {/* First-save review reminder prompt (shown once after creating a new plan) */}
+      <ReviewReminderPrompt
+        open={showReminderPrompt}
+        onClose={() => setShowReminderPrompt(false)}
       />
     </main>
   );

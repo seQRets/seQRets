@@ -11,6 +11,7 @@ import { BobChatInterface } from "@/components/bob-chat-interface";
 import { BitcoinTicker } from "@/components/bitcoin-ticker";
 import { AppFooter } from "@/components/app-footer";
 import { WelcomeCards } from "@/components/welcome-cards";
+import { ReviewReminderBanner } from "@/components/review-reminder-banner";
 import { useTheme } from "@/components/theme-provider";
 import logoLight from "@/assets/icons/logo-light.webp";
 import logoDark from "@/assets/icons/logo-dark.webp";
@@ -123,6 +124,8 @@ export default function HomePage() {
               <div className="mb-10">
                 <BitcoinTicker />
               </div>
+
+              <ReviewReminderBanner />
 
               <AppNavTabs activePage={activeTab} onHomeTabChange={setActiveTab} />
 

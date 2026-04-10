@@ -35,3 +35,6 @@ zeroize = { version = "1", features = ["derive"] }
 flate2 = "1"
 rand = "0.8"
 base64 = "0.22"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"

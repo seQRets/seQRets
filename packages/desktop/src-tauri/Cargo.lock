@@ -3841,6 +3841,7 @@ dependencies = [
  "chacha20poly1305",
  "flate2",
  "keyring",
+ "libc",
  "log",
  "pcsc",
  "rand 0.8.5",

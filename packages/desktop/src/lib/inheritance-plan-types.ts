@@ -3,7 +3,7 @@
 // Plans are serialized to JSON, encrypted via the existing
 // encryptInstructions pipeline, and stored on smart card or file.
 
-export const INHERITANCE_PLAN_VERSION = 4;
+export const INHERITANCE_PLAN_VERSION = 5;
 export const INHERITANCE_PLAN_FILENAME = 'inheritance-plan.json';
 export const INHERITANCE_PLAN_FILETYPE = 'application/json';
 
@@ -11,6 +11,14 @@ export interface PlanInfo {
   preparedBy: string;
   dateCreated: string;
   lastUpdated: string;
+  /**
+   * ISO date (YYYY-MM-DD) of the last time the user explicitly confirmed
+   * the plan was reviewed. Distinct from `lastUpdated`, which tracks the
+   * last edit. This is the authoritative "cold storage" copy of the review
+   * timestamp — the sidecar in app data is a cache that can be rebuilt
+   * from this field when missing. Introduced in plan schema v5.
+   */
+  lastReviewedAt: string;
   reviewSchedule: string;
   planVersion: string;
   changeLog: string;
@@ -138,7 +146,8 @@ export function createBlankPlan(): InheritancePlan {
       preparedBy: '',
       dateCreated: today,
       lastUpdated: today,
-      reviewSchedule: 'Every 6 months',
+      lastReviewedAt: today,
+      reviewSchedule: 'Every 12 months',
       planVersion: '',
       changeLog: '',
     },

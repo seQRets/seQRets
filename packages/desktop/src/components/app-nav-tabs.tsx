@@ -1,5 +1,7 @@
 import { Lock, FileText, Combine } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getReminderState } from "@/lib/review-reminder";
 
 type ActivePage = "create" | "plan" | "restore";
 
@@ -10,6 +12,22 @@ interface AppNavTabsProps {
 
 export function AppNavTabs({ activePage, onHomeTabChange }: AppNavTabsProps) {
   const navigate = useNavigate();
+  const [reminderDue, setReminderDue] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const state = await getReminderState();
+        if (!cancelled) setReminderDue(state.kind === "active" && state.due);
+      } catch {
+        /* ignore — badge is best-effort */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activePage]);
 
   const tabs: { value: ActivePage; label: string; icon: React.ReactNode }[] = [
     { value: "create", label: "Secure Secret", icon: <Lock className="mr-2 h-5 w-5" /> },
@@ -35,7 +53,7 @@ export function AppNavTabs({ activePage, onHomeTabChange }: AppNavTabsProps) {
         <button
           key={tab.value}
           onClick={() => handleClick(tab.value)}
-          className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+          className={`relative inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
             activePage === tab.value
               ? "bg-primary text-primary-foreground shadow-sm"
               : "hover:text-black"
@@ -43,6 +61,12 @@ export function AppNavTabs({ activePage, onHomeTabChange }: AppNavTabsProps) {
         >
           {tab.icon}
           {tab.label}
+          {tab.value === "plan" && reminderDue && (
+            <span
+              aria-label="Review reminder due"
+              className="absolute top-1.5 right-2 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-accent"
+            />
+          )}
         </button>
       ))}
     </div>

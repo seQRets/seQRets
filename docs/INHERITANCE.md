@@ -44,6 +44,20 @@ The desktop app's **Create Plan** tab provides a structured 9-section form cover
 - ❌ Giving one person all Qards + the password
 - ❌ Never testing the recovery process
 - ❌ Forgetting to update after acquiring new assets or changing passwords
+- ❌ Letting the plan go stale for years without verification
+
+## Review Reminders (Desktop App)
+
+The desktop app can remind you to open, verify, and update your inheritance plan on a regular schedule (6, 12, or 24 months). Stale plans are one of the most common failure modes — beneficiaries move, new assets are acquired, passwords rotate, and Qard locations change.
+
+**How it works:**
+- After creating and encrypting a plan for the first time, the app offers to set up a local review reminder. This is opt-in.
+- A small plaintext file records when the next review is due. No plan contents are ever stored outside the encrypted file.
+- When the date arrives, you'll see a banner on the home tab and (if enabled) an OS notification reminding you to open the plan.
+- After decrypting and verifying the plan, click **Mark as reviewed** to reset the timer.
+- You can change the interval, snooze, or disable reminders entirely from the review panel in the plan editor.
+
+**Privacy:** The reminder file stores only a date. It does not contain your plan's contents, identity, or any cryptographic material. See [THREAT_MODEL.md](THREAT_MODEL.md#review-reminder-sidecar) for the full analysis.
 
 ## Legal Considerations
 

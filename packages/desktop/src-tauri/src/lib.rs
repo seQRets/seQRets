@@ -1,5 +1,6 @@
 mod crypto;
 mod keychain;
+mod review_reminder;
 mod smartcard;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -44,6 +45,10 @@ pub fn run() {
       keychain::keychain_get,
       keychain::keychain_set,
       keychain::keychain_delete,
+      // Inheritance plan review-reminder sidecar
+      review_reminder::reminder_read,
+      review_reminder::reminder_write,
+      review_reminder::reminder_delete,
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

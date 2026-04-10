@@ -33,7 +33,7 @@ export function isInheritancePlan(instruction: RawInstruction): boolean {
 /**
  * Parse the base64 fileContent of a RawInstruction back into an
  * InheritancePlan object. Returns null if parsing or validation fails.
- * Handles migrations from v1/v2/v3 → v4.
+ * Handles migrations from v1/v2/v3/v4 → v5.
  */
 export function rawInstructionToPlan(instruction: RawInstruction): InheritancePlan | null {
   try {
@@ -57,6 +57,15 @@ export function rawInstructionToPlan(instruction: RawInstruction): InheritancePl
       if (parsed.planInfo && !('planVersion' in parsed.planInfo)) {
         parsed.planInfo.planVersion = '';
         parsed.planInfo.changeLog = '';
+      }
+
+      // v4 → v5 migration: add lastReviewedAt, defaulting to the most
+      // reasonable existing timestamp on the plan so reconciliation with
+      // the sidecar has something to anchor against.
+      if (parsed.planInfo && !('lastReviewedAt' in parsed.planInfo)) {
+        const today = new Date().toISOString().split('T')[0];
+        parsed.planInfo.lastReviewedAt =
+          parsed.planInfo.lastUpdated || parsed.planInfo.dateCreated || today;
       }
 
       // v2/v3 → v4 migration: merge recoveryCredentials + qardConfig into secretSets
