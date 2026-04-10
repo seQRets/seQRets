@@ -11,7 +11,7 @@ seQRets is a hyper-secure, open-source application designed to protect your most
 
 To restore your original secret, you must bring a specific number of these Qards back together. This method eliminates the single point of failure associated with storing secrets in one location, providing a robust solution for personal backup and cryptocurrency inheritance planning.
 
-v1.7.2 "Ignition" — Available as a web app (Next.js) and native desktop app (Tauri).
+v1.8.0 "Spark" — Available as a web app (Next.js) and native desktop app (Tauri).
 
 ## Core Features
 
@@ -44,6 +44,7 @@ v1.7.2 "Ignition" — Available as a web app (Next.js) and native desktop app (T
 - After encrypting, users can **Save to File** and/or **Write to Smart Card** (desktop only, if encrypted size fits within 8KB).
 - **PDF export** (desktop only) — after encrypting an in-app plan or after decrypting one, users can export a printable PDF document with all 9 sections formatted as a clear, readable paper document. This is designed for heirs who need instructions without needing the app. The PDF is generated client-side and never transmitted.
 - Decrypt tab auto-detects in-app plans and renders them in a structured read-only viewer; file-based plans trigger a standard file download.
+- **Review reminders** (desktop only, v1.8.0+) — opt-in local reminder that nudges users to open and verify their inheritance plan on a 6/12/24 month schedule. A plaintext sidecar file (review-reminder.json) in the app data directory stores only the next review date — no plan contents, no encryption material. After decrypting a plan, users click "Mark as reviewed" to reset the timer. A banner appears on the home tab and an amber badge dot on the Inheritance Plan nav tab when a review is due. Optional OS notification on app launch (generic text, no plan details on lock screen). Fully local, no server. Can be snoozed 7 days, interval changed, or disabled and deleted from the review panel in the plan viewer. On machine switch or reinstall, the reminder rebuilds from the plan's encrypted lastReviewedAt field on the next decrypt.
 - Available on both web and desktop (in-app builder is desktop only).
 
 ### Restore Your Secret
