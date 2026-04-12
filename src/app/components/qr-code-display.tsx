@@ -69,8 +69,8 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
   }, []);
 
   const getShareTitle = (index: number) => {
-    const sanitizedLabel = label ? `-${label.replace(/[^a-zA-Z0-9_-]/g, '')}` : '';
-    return `seQRets-Share-${index + 1}${sanitizedLabel}`;
+    const sanitizedLabel = label ? `${label.replace(/[^a-zA-Z0-9_-]/g, '')}-` : '';
+    return `seQRets-Qard-${sanitizedLabel}${String(index + 1).padStart(2, '0')}`;
   }
 
   const getPrintableStyles = (forPrintAll: boolean = false) => `
