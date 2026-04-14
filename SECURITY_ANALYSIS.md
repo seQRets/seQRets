@@ -1,6 +1,6 @@
 # seQRets Desktop App — Security Analysis
 
-> **Audit Date:** March 2026 · **App Version:** 1.8.3 · **Auditor:** Independent code review via Claude (Anthropic)
+> **Audit Date:** March 2026 · **App Version:** 1.9.0 · **Auditor:** Independent code review via Claude (Anthropic)
 > **Scope:** Full source audit of `packages/desktop/`, `packages/crypto/`, and `src-tauri/` (Rust backend)
 
 ---
@@ -101,7 +101,7 @@ The application demonstrates excellent cryptographic engineering with proper alg
                             │
                 ┌───────────▼───────────┐
                 │   QR Codes / Cards    │    Each share = 1 QR code
-                │   (Distributed)       │    Format: seQRets|salt|data
+                │   (Distributed)       │    Format: seQRets|salt|data|sha256:hash
                 └───────────────────────┘
 ```
 

@@ -8,7 +8,7 @@ seQRets is a hyper-secure, open-source application designed to protect your most
 
 To restore your original secret, you must bring a specific number of these Qards back together. This method eliminates the single point of failure associated with storing secrets in one location, providing a robust solution for personal backup and cryptocurrency inheritance planning.
 
-v1.8.3 "Spark" — Available as a web app (Next.js) and native desktop app (Tauri).
+v1.9.0 "Liftoff" — Available as a web app (Next.js) and native desktop app (Tauri).
 
 ## Core Features
 
@@ -135,7 +135,7 @@ const cryptoDetails = `
     *   Applied before encryption to reduce payload size.
 
 *   **Processing Order:**
-    *   Secret -> Compress (gzip) -> Encrypt (XChaCha20-Poly1305) -> Split (Shamir's) -> Distribute
+    *   Secret -> Compress (gzip) -> Encrypt (XChaCha20-Poly1305) -> Split (Shamir's) -> SHA-256 Hash -> Distribute
     *   Each Qard contains a fragment of the *encrypted* ciphertext — never raw plaintext.
 
 *   **Secret Splitting:**
@@ -143,6 +143,15 @@ const cryptoDetails = `
     *   **Library:** shamir-secret-sharing (by Privy) — zero dependencies, independently audited by Cure53 and Zellic
     *   The splitting happens *after* encryption. The raw, unencrypted secret is never split directly.
     *   This is a critical security design choice — a stolen Qard is computationally indistinguishable from random noise.
+
+*   **SHA-256 Integrity Hash (v1.9.0+):**
+    *   Each share embeds a SHA-256 hash as an optional 4th pipe-delimited segment: seQRets|salt|data|sha256:<64hex>
+    *   The hash covers the first 3 segments (the share data itself). It cannot be reversed to recover the share.
+    *   **At generation:** All shares are hashed and verified round-trip before being presented to the user.
+    *   **At restore (desktop):** Shares are automatically verified when scanned or imported. A green shield icon confirms integrity. If a hash mismatch is detected, the user is warned before proceeding.
+    *   **Backward compatible:** Legacy 3-part shares (without a hash) are still accepted on restore — they just skip verification.
+    *   **Printed Qards:** Display a truncated fingerprint (first 8 + last 8 hex chars) for visual spot-checking.
+    *   **Manual verification:** Users can verify a share's hash in a terminal: echo -n "seQRets|salt|data" | shasum -a 256
 
 *   **Quantum Resistance (IMPORTANT — answer honestly, don't oversell):**
     The seQRets scheme is quantum-resistant under its own assumptions. Use the following scheme-level framing when users ask about quantum attacks, Grover's algorithm, Shor's algorithm, or post-quantum security:

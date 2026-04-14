@@ -16,7 +16,7 @@ seQRets encrypts your most sensitive secrets — seed phrases, private keys, pas
 
 ## ⚠️ Warning
 
-> 🚧 **Beta Software — No Independent Security Audit.** seQRets v1.8.3 has not undergone a formal third-party security audit. Do not use seQRets as your only backup for high-value secrets. Always maintain independent backups (hardware wallet, paper backup in a fireproof safe, etc.) until a formal audit has been completed.
+> 🚧 **Beta Software — No Independent Security Audit.** seQRets v1.9.0 has not undergone a formal third-party security audit. Do not use seQRets as your only backup for high-value secrets. Always maintain independent backups (hardware wallet, paper backup in a fireproof safe, etc.) until a formal audit has been completed.
 
 **Your security is your responsibility.** Misplacing your password or the required number of Qards can result in the **permanent loss** of your secret. The developers have no access to your data.
 
@@ -51,6 +51,7 @@ Official release: **<a href="https://seqrets.app" target="_blank" rel="noopener 
 - **JavaCard smart card** storage (desktop only) — shares, vaults, keyfiles, or plans on JCOP3 hardware with optional PIN protection
 - **Optional keyfile** as a second factor in addition to the password
 - **Helper tools** — CSPRNG password generator, BIP-39 seed generator, Bitcoin ticker, Bob AI assistant (optional, user-provided Gemini key)
+- **SHA-256 share integrity** (desktop only) — each Qard embeds a SHA-256 hash, verified automatically at generation and on restore. Printed cards display a truncated fingerprint for visual spot-checking.
 - **100% offline-capable** — the only optional network call is Bob
 
 ## 🔐 Security
