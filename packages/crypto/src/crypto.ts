@@ -1,9 +1,10 @@
 
 import { xchacha20poly1305 } from '@noble/ciphers/chacha';
 import { argon2id } from '@noble/hashes/argon2';
+import { sha256 } from '@noble/hashes/sha256';
 import { randomBytes, concatBytes } from '@noble/hashes/utils';
 import { split, combine } from 'shamir-secret-sharing';
-import { CreateSharesRequest, CreateSharesResult, RestoreSecretResult, RestoreSecretRequest, EncryptedInstruction, DecryptInstructionRequest, DecryptInstructionResult, RawInstruction } from './types';
+import { CreateSharesRequest, CreateSharesResult, RestoreSecretResult, RestoreSecretRequest, EncryptedInstruction, DecryptInstructionRequest, DecryptInstructionResult, RawInstruction, ParsedShare } from './types';
 import { Buffer } from 'buffer';
 import { gzip, ungzip } from 'pako';
 import { mnemonicToEntropy, entropyToMnemonic, validateMnemonic } from '@scure/bip39';
@@ -91,6 +92,55 @@ function getSetIdForShare(salt: Uint8Array): string {
     return saltBase64.substring(0, 8);
 }
 
+// ── SHA-256 share integrity helpers ──
+
+export function computeShareHash(threePartShare: string): string {
+    const bytes = textEncoder.encode(threePartShare);
+    const hashBytes = sha256(bytes);
+    return Array.from(hashBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+export function appendShareHash(threePartShare: string): string {
+    const hash = computeShareHash(threePartShare);
+    return `${threePartShare}|sha256:${hash}`;
+}
+
+export function truncateHash(fullHex: string): string {
+    return `${fullHex.slice(0, 8)}...${fullHex.slice(-8)}`;
+}
+
+export function parseShare(shareString: string): ParsedShare {
+    const parts = shareString.split('|');
+
+    if (parts[0] !== 'seQRets') {
+        throw new Error('Invalid or corrupted share format.');
+    }
+
+    if (parts.length === 4 && parts[3].startsWith('sha256:')) {
+        const coreString = parts.slice(0, 3).join('|');
+        const embeddedHash = parts[3].slice(7); // strip "sha256:" prefix
+        const computedHash = computeShareHash(coreString);
+        return {
+            coreString,
+            salt: parts[1],
+            data: parts[2],
+            hash: embeddedHash,
+            hashValid: embeddedHash === computedHash,
+        };
+    }
+
+    if (parts.length === 3) {
+        return {
+            coreString: shareString,
+            salt: parts[1],
+            data: parts[2],
+            hash: null,
+            hashValid: null,
+        };
+    }
+
+    throw new Error('Invalid or corrupted share format.');
+}
 
 export async function createShares(request: CreateSharesRequest): Promise<CreateSharesResult> {
     const { secret, password, totalShares, requiredShares, label, keyfile } = request;
@@ -145,8 +195,17 @@ export async function createShares(request: CreateSharesRequest): Promise<Create
         const saltBase64 = Buffer.from(salt).toString('base64');
         const formattedShares = encryptedShares.map(shareData => {
             const shareDataBase64 = Buffer.from(shareData).toString('base64');
-            return `seQRets|${saltBase64}|${shareDataBase64}`;
+            const threePartShare = `seQRets|${saltBase64}|${shareDataBase64}`;
+            return appendShareHash(threePartShare);
         });
+
+        // Round-trip integrity verification
+        for (const share of formattedShares) {
+            const parsed = parseShare(share);
+            if (parsed.hashValid !== true) {
+                throw new Error('Internal integrity check failed: a generated share did not pass hash verification.');
+            }
+        }
 
         const setId = getSetIdForShare(salt);
 
@@ -175,12 +234,13 @@ export async function restoreSecret(request: RestoreSecretRequest): Promise<Rest
     const encryptedShares: Uint8Array[] = [];
 
     for (const share of shares) {
-        const parts = share.split('|');
-        if (parts.length !== 3 || parts[0] !== 'seQRets') {
-             throw new Error('Invalid or corrupted share format.');
+        const parsed = parseShare(share);
+
+        if (parsed.hashValid === false) {
+            throw new Error('Share integrity check failed. The share data may be corrupted or tampered with.');
         }
 
-        const currentSaltBase64 = parts[1];
+        const currentSaltBase64 = parsed.salt;
 
         if (saltBase64 === null) {
             saltBase64 = currentSaltBase64;
@@ -188,7 +248,7 @@ export async function restoreSecret(request: RestoreSecretRequest): Promise<Rest
             throw new Error('Inconsistent salts found across shares. Shares might be from different secrets.');
         }
 
-        const encryptedShareData = new Uint8Array(Buffer.from(parts[2], 'base64'));
+        const encryptedShareData = new Uint8Array(Buffer.from(parsed.data, 'base64'));
         encryptedShares.push(encryptedShareData);
     }
 

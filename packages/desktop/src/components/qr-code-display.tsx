@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { SmartCardDialog, SmartCardMode } from '@/components/smartcard-dialog';
 import { saveFileNative, saveTextFileNative, dataUrlToUint8Array, PNG_FILTERS, TXT_FILTERS, ZIP_FILTERS, SEQRETS_FILTERS } from '@/lib/native-save';
 import { encryptVault } from '@/lib/desktop-crypto';
+import { computeShareHash, truncateHash } from '@seqrets/crypto';
 import { writeTextFile } from '@tauri-apps/plugin-fs';
 import { openPath } from '@tauri-apps/plugin-opener';
 import { tempDir, join } from '@tauri-apps/api/path';
@@ -104,20 +105,20 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
             </div>
 
             <div>
-                <h2 style="font-size: 20px; font-weight: 700; margin: 20px 0 5px 0; color: #231f20;">Qard #${index + 1}</h2>
-                <p style="font-size: 14px; color: #6b6567; margin: 0 0 10px 0;">Set: <b style="font-weight: 500;">${escapeHtml(setId)}</b></p>
+                <h2 style="font-size: 20px; font-weight: 700; margin: 20px 0 8px 0; color: #231f20;">Qard #${index + 1}</h2>
 
-                <div style="font-size: 14px; color: #3e3739; line-height: 1.6; margin-bottom: 20px;">
-                    ${label ? `Label: <b style="font-weight: 500;">${escapeHtml(label)}</b><br/>` : ''}
-                    Created: <b style="font-weight: 500;">${createdDate}</b>
-                </div>
+                ${label ? `<p style="font-size: 14px; color: #3e3739; margin: 0 0 6px 0;">Label: <b style="font-weight: 500;">${escapeHtml(label)}</b></p>` : ''}
+
+                <p style="font-size: 14px; color: #2E7D32; margin: 0 0 6px 0;">Set: ${escapeHtml(setId)}  &middot;  ${createdDate}</p>
+
+                <p style="font-size: 12px; color: #1565C0; margin: 0 0 16px 0;">SHA-256: ${(() => { const core = shares[index].split('|').slice(0, 3).join('|'); const h = computeShareHash(core); return truncateHash(h); })()}</p>
 
                 <div style="display: flex; align-items: center; justify-content: center; color: #DC2626; font-weight: 500; font-size: 14px; margin-bottom: 10px;">
                     <span style="margin-right: 6px; font-size: 16px;">⚠️</span>
                     <span>Store securely and separately from other qards</span>
                 </div>
 
-                <p style="font-size: 12px; color: #6b6567; margin: 0;">Scan QR with seQRets App to recover secret.</p>
+                <p style="font-size: 12px; color: #6b6567; margin: 0;">Scan with seQRets App to recover &mdash; seqrets.app</p>
             </div>
 
         </div>
@@ -252,24 +253,29 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
         ctx.fillText(`Qard #${index + 1}`, W / 2, y);
         y += 28;
 
-        // Set ID
-        ctx.fillStyle = '#6b6567';
-        ctx.font = '14px Inter, system-ui, -apple-system, sans-serif';
-        ctx.fillText(`Set: ${setId}`, W / 2, y);
-        y += 24;
-
         // Label (optional)
-        ctx.fillStyle = '#3e3739';
-        ctx.font = '14px Inter, system-ui, -apple-system, sans-serif';
         if (label) {
+          ctx.fillStyle = '#3e3739';
+          ctx.font = '14px Inter, system-ui, -apple-system, sans-serif';
           ctx.fillText(`Label: ${label}`, W / 2, y);
-          y += 22;
+          y += 24;
         }
 
-        // Created date
+        // Set ID · Date (combined line)
         const dateStr = new Date().toLocaleDateString('en-US');
-        ctx.fillText(`Created: ${dateStr}`, W / 2, y);
-        y += 30;
+        ctx.fillStyle = '#2E7D32';
+        ctx.font = '14px Inter, system-ui, -apple-system, sans-serif';
+        ctx.fillText(`Set: ${setId}  \u00B7  ${dateStr}`, W / 2, y);
+        y += 24;
+
+        // SHA-256 fingerprint
+        const coreShare = shares[index].split('|').slice(0, 3).join('|');
+        const fullHash = computeShareHash(coreShare);
+        const displayHash = truncateHash(fullHash);
+        ctx.fillStyle = '#1565C0';
+        ctx.font = '12px Inter, system-ui, -apple-system, sans-serif';
+        ctx.fillText(`SHA-256: ${displayHash}`, W / 2, y);
+        y += 28;
 
         // Warning
         ctx.fillStyle = '#DC2626';
@@ -280,7 +286,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
         // Footer
         ctx.fillStyle = '#6b6567';
         ctx.font = '12px Inter, system-ui, -apple-system, sans-serif';
-        ctx.fillText('Scan QR with seQRets App to recover secret.', W / 2, y);
+        ctx.fillText('Scan with seQRets App to recover  \u2014  seqrets.app', W / 2, y);
 
         resolve(canvas.toDataURL('image/png'));
       };
@@ -636,6 +642,10 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
                 </div>
             </div>
           ))}
+        </div>
+        <div className="flex items-center justify-center gap-2 mt-4 text-green-600 dark:text-green-500">
+          <ShieldCheck className="h-4 w-4" />
+          <span className="text-sm font-medium">All shares integrity verified (SHA-256)</span>
         </div>
         <div className="mt-8 border-t pt-6">
             <div className="max-w-md mx-auto text-center space-y-3">

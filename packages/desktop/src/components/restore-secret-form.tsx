@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { FileUpload } from './file-upload';
-import { KeyRound, Combine, Loader2, CheckCircle2, Eye, EyeOff, XCircle, Copy, RefreshCcw, X, Paperclip, HelpCircle, Lock, ArrowDown, QrCode, Sprout } from 'lucide-react';
+import { KeyRound, Combine, Loader2, CheckCircle2, Eye, EyeOff, XCircle, Copy, RefreshCcw, X, Paperclip, HelpCircle, Lock, ArrowDown, QrCode, Sprout, ShieldCheck, TriangleAlert } from 'lucide-react';
 import QRCode from 'qrcode';
 import { wordlist } from '@scure/bip39/wordlists/english';
 import { tryGetEntropy } from '@/lib/crypto';
+import { parseShare } from '@seqrets/crypto';
 import jsQR from 'jsqr';
 import { useToast } from '@/hooks/use-toast';
 import { EncryptedVaultFile } from '@/lib/types';
@@ -31,6 +32,7 @@ interface DecodedShare {
     data: string;
     fileName: string;
     success: boolean;
+    verified: boolean | null; // true = hash match, false = mismatch, null = legacy (no hash)
 }
 
 export function RestoreSecretForm() {
@@ -114,7 +116,20 @@ export function RestoreSecretForm() {
       });
       return;
     }
-    const newShare: DecodedShare = { id: `${Date.now()}-${Math.random()}`, data, fileName, success };
+
+    // Determine SHA-256 verification status
+    let verified: boolean | null = null;
+    if (success && data) {
+      try {
+        const parsed = parseShare(data);
+        verified = parsed.hashValid;
+      } catch {
+        // parseShare threw — treat as failed decode
+        success = false;
+      }
+    }
+
+    const newShare: DecodedShare = { id: `${Date.now()}-${Math.random()}`, data, fileName, success, verified };
     setDecodedShares(prev => [...prev, newShare]);
 
     if (success) {
@@ -241,11 +256,19 @@ export function RestoreSecretForm() {
     let addedCount = 0;
     vaultData.shares.forEach((shareData: string, index: number) => {
       if (shareData && typeof shareData === 'string') {
+        let verified: boolean | null = null;
+        try {
+          const parsed = parseShare(shareData);
+          verified = parsed.hashValid;
+        } catch {
+          // Invalid format — will still add but mark as unverified
+        }
         const newShare: DecodedShare = {
           id: `vault-${Date.now()}-${index}`,
           data: shareData,
           fileName: `${fileName} (Share ${index + 1})`,
           success: true,
+          verified,
         };
         setDecodedShares(prev => [...prev, newShare]);
         addedCount++;
@@ -667,17 +690,32 @@ export function RestoreSecretForm() {
 
                 {decodedShares.length > 0 && (
                     <div className="space-y-2">
-                        <Label>Added Shares ({uniqueSharesCount})</Label>
+                        {decodedShares.filter(s => s.success).length > 0 && decodedShares.filter(s => s.success).every(s => s.verified === true) ? (
+                            <Label className="flex items-center gap-1.5 text-green-600 dark:text-green-500">
+                                <ShieldCheck className="h-4 w-4" />
+                                Added and Verified Shares ({uniqueSharesCount})
+                            </Label>
+                        ) : (
+                            <Label>Added Shares ({uniqueSharesCount})</Label>
+                        )}
                         <div className="rounded-md border p-2 max-h-48 overflow-y-auto">
                             <ul className="space-y-1">
                             {decodedShares.map((share) => (
                                 <li key={share.id} className={cn("text-sm flex items-center justify-between p-1 rounded-md hover:bg-muted/50", !share.success && 'text-destructive')}>
                                     <div className="flex items-center flex-1 min-w-0">
-                                        {share.success ? <CheckCircle2 className="h-4 w-4 mr-2 text-green-500 flex-shrink-0" /> : <XCircle className="h-4 w-4 mr-2 text-destructive flex-shrink-0" />}
+                                        {!share.success ? (
+                                            <XCircle className="h-4 w-4 mr-2 text-destructive flex-shrink-0" />
+                                        ) : share.verified === false ? (
+                                            <TriangleAlert className="h-4 w-4 mr-2 text-amber-500 flex-shrink-0" />
+                                        ) : share.verified === true ? (
+                                            <ShieldCheck className="h-4 w-4 mr-2 text-green-500 flex-shrink-0" />
+                                        ) : (
+                                            <CheckCircle2 className="h-4 w-4 mr-2 text-green-500 flex-shrink-0" />
+                                        )}
                                         <span className="truncate" title={share.fileName}>{share.fileName}</span>
                                     </div>
                                     <div className='flex items-center gap-2'>
-                                        <span className="text-xs text-muted-foreground mr-2">{share.success ? 'Success' : 'Failed'}</span>
+                                        <span className="text-xs text-muted-foreground mr-2">{!share.success ? 'Failed' : share.verified === false ? 'Hash Mismatch' : share.verified === true ? 'Verified' : 'Success'}</span>
                                         <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveShare(share.id)}>
                                           <X className="h-4 w-4" />
                                           <span className="sr-only">Remove share</span>

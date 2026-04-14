@@ -9,13 +9,13 @@
  * symmetric encryption/decryption happen natively in Rust.
  *
  * Wire format is bit-for-bit identical to the @noble/* JS implementation:
- *   Share string : seQRets|<salt_base64>|<share_data_base64>
+ *   Share string : seQRets|<salt_base64>|<share_data_base64>|sha256:<64_hex_chars>
  *   Encrypted blob : base64( nonce[24] || xchacha20_ciphertext_with_tag )
  */
 
 import { invoke } from '@tauri-apps/api/core';
 import { split, combine } from 'shamir-secret-sharing';
-import { buildSharePayload, parseSharePayload } from '@seqrets/crypto';
+import { buildSharePayload, parseSharePayload, appendShareHash, parseShare } from '@seqrets/crypto';
 // buffer-setup provides a Buffer polyfill for WKWebView (macOS) which does not
 // expose globalThis.Buffer. We still need Buffer for base64 encoding/decoding.
 import { Buffer } from './buffer-setup';
@@ -72,10 +72,19 @@ export async function createShares(request: CreateSharesRequest): Promise<Create
         ? [encryptedBytes]
         : await split(encryptedBytes, totalShares, requiredShares);
 
-    // Step 4: Format shares. The salt is already base64 (returned from Rust).
-    const formattedShares = encryptedShares.map(
-        shareData => `seQRets|${salt}|${Buffer.from(shareData).toString('base64')}`
-    );
+    // Step 4: Format shares with SHA-256 integrity hash.
+    const formattedShares = encryptedShares.map(shareData => {
+        const threePartShare = `seQRets|${salt}|${Buffer.from(shareData).toString('base64')}`;
+        return appendShareHash(threePartShare);
+    });
+
+    // Round-trip integrity verification
+    for (const share of formattedShares) {
+        const parsed = parseShare(share);
+        if (parsed.hashValid !== true) {
+            throw new Error('Internal integrity check failed: a generated share did not pass hash verification.');
+        }
+    }
 
     // The setId is the first 8 characters of the base64 salt (matches JS implementation).
     const setId = salt.substring(0, 8);
@@ -112,17 +121,19 @@ export async function restoreSecret(request: RestoreSecretRequest): Promise<Rest
     const shareBuffers: Uint8Array[] = [];
 
     for (const share of shares) {
-        const parts = share.split('|');
-        if (parts.length !== 3 || parts[0] !== 'seQRets') {
-            throw new Error('Invalid or corrupted share format.');
+        const parsed = parseShare(share);
+
+        if (parsed.hashValid === false) {
+            throw new Error('Share integrity check failed. The share data may be corrupted or tampered with.');
         }
-        const currentSalt = parts[1];
+
+        const currentSalt = parsed.salt;
         if (saltBase64 === null) {
             saltBase64 = currentSalt;
         } else if (saltBase64 !== currentSalt) {
             throw new Error('Inconsistent salts found across shares. Shares might be from different secrets.');
         }
-        shareBuffers.push(new Uint8Array(Buffer.from(parts[2], 'base64')));
+        shareBuffers.push(new Uint8Array(Buffer.from(parsed.data, 'base64')));
     }
 
     if (!saltBase64) {

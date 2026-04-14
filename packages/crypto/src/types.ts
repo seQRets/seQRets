@@ -58,3 +58,11 @@ export interface EncryptedVaultFile {
     salt: string;   // base64
     data: string;   // base64(nonce + ciphertext of gzipped JSON)
 }
+
+export interface ParsedShare {
+    coreString: string;        // 3-part string without hash segment
+    salt: string;              // base64 salt
+    data: string;              // base64 share data
+    hash: string | null;       // full 64-char hex, or null if legacy
+    hashValid: boolean | null; // true = match, false = mismatch, null = legacy (no hash)
+}
