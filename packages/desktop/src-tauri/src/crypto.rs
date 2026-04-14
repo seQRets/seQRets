@@ -96,7 +96,7 @@ fn gzip_decompress(data: &[u8]) -> Result<Vec<u8>, String> {
 /// Returns `base64(random_nonce[24] || ciphertext_with_tag)`.
 fn encrypt(plaintext: &[u8], key: &[u8; KEY_LENGTH]) -> Result<String, String> {
     let mut nonce_bytes = [0u8; NONCE_LENGTH];
-    rand::thread_rng().fill_bytes(&mut nonce_bytes);
+    rand::rng().fill_bytes(&mut nonce_bytes);
 
     let cipher = XChaCha20Poly1305::new_from_slice(key)
         .map_err(|_| "Cipher init error (invalid key length)".to_string())?;
@@ -155,7 +155,7 @@ pub fn crypto_create(
     let compressed = Zeroizing::new(gzip_compress(json_payload.as_bytes())?);
 
     let mut salt = [0u8; SALT_LENGTH];
-    rand::thread_rng().fill_bytes(&mut salt);
+    rand::rng().fill_bytes(&mut salt);
 
     let key = derive_key(password.as_str(), &salt, keyfile_b64.as_deref())?;
     let data = encrypt(&compressed, &key)?;
@@ -215,7 +215,7 @@ pub fn crypto_encrypt_blob(
     let compressed = Zeroizing::new(gzip_compress(json.as_bytes())?);
 
     let mut salt = [0u8; SALT_LENGTH];
-    rand::thread_rng().fill_bytes(&mut salt);
+    rand::rng().fill_bytes(&mut salt);
 
     let key = derive_key(password.as_str(), &salt, keyfile_b64.as_deref())?;
     let data = encrypt(&compressed, &key)?;
