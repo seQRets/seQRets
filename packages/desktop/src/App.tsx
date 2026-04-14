@@ -20,6 +20,23 @@ export default function App() {
     void maybeFireLaunchNotification();
   }, []);
 
+  // Block file drops outside of explicit drop zones. Without this, a file
+  // dropped on the window body (missing the drop target) causes the Tauri
+  // WebView to attempt navigation to the file:// URL — stranding the app.
+  // Legitimate drop zones call stopPropagation(), so they still receive
+  // their events before these window-level handlers fire.
+  useEffect(() => {
+    const blockDefault = (e: DragEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener('dragover', blockDefault);
+    window.addEventListener('drop', blockDefault);
+    return () => {
+      window.removeEventListener('dragover', blockDefault);
+      window.removeEventListener('drop', blockDefault);
+    };
+  }, []);
+
   return (
     <ThemeProvider defaultTheme="system">
       <Routes>
