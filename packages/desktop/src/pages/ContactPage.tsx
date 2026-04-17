@@ -140,7 +140,7 @@ export default function ContactPage() {
                         <p>
                             Our AI assistant Bob is an expert on seQRets and can help with most questions about encryption, Qard management, inheritance planning, smart cards, and more.
                         </p>
-                        <Button asChild variant="outline">
+                        <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                             <Link to="/support">
                                 <Bot className="mr-2 h-4 w-4" />
                                 Ask Bob AI
