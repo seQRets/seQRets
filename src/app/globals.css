@@ -76,12 +76,6 @@
   border: 1px solid hsl(38, 35%, 45%);
 }
 
-/* Dropzone default: match Recover's surface-subtle + border-strong. Hover
-   stays driven by the component's existing `dark:hover:bg-black` utility. */
-.dark .border-dashed {
-  background-color: hsl(28 8% 14%);
-  border-color: hsl(28 6% 32%);
-}
 
 @media print {
   body * {
