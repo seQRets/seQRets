@@ -13,7 +13,7 @@ export function AppFooter() {
                 <span className="text-muted-foreground">·</span>
                 <Link to="/contact" className="hover:text-primary transition-colors">Contact Us</Link>
             </div>
-            <p className="mt-1"><ConnectionStatus /></p>
+            <p className="mt-3"><ConnectionStatus /></p>
         </footer>
     );
 }

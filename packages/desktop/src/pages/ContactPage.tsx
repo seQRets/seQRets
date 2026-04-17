@@ -49,7 +49,7 @@ export default function ContactPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <Card className="dark:bg-[#2b2728]">
+                    <Card>
                         <CardHeader>
                             <div className="flex items-center gap-3">
                                 <Mail className="h-6 w-6 text-primary" />
@@ -85,7 +85,7 @@ export default function ContactPage() {
                         </CardContent>
                     </Card>
 
-                    <Card className="dark:bg-[#2b2728]">
+                    <Card>
                         <CardHeader>
                             <div className="flex items-center gap-3">
                                 <ShieldCheck className="h-6 w-6 text-primary" />
@@ -131,7 +131,7 @@ export default function ContactPage() {
                     </Card>
                 </div>
 
-                <Card className="mb-8 dark:bg-[#2b2728]">
+                <Card className="mb-8">
                     <CardHeader>
                         <CardTitle>Before You Email</CardTitle>
                         <CardDescription>You might find your answer faster with Bob AI</CardDescription>

@@ -55,7 +55,7 @@ export function ConnectionStatus() {
   return (
     <span
       suppressHydrationWarning
-      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-medium transition-colors ${
+      className={`inline-flex items-center gap-2 px-3 py-1 rounded-md border text-xs font-medium transition-colors ${
         online
           ? 'bg-red-500/10 border-red-500/30 text-red-500'
           : 'bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-500'
