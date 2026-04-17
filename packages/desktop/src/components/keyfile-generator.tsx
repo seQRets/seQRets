@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { CheckCircle, CreditCard, Download, File, Loader2, Pencil, RefreshCw, TriangleAlert, Wand2, X } from 'lucide-react';
+import { CheckCircle, CreditCard, Download, Pencil, Wand2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Buffer } from 'buffer';
 import { saveFileNative, base64ToUint8Array, BIN_FILTERS } from '@/lib/native-save';
 
@@ -20,12 +19,8 @@ export function KeyfileGenerator({ onKeyfileGenerated, onSmartCardSave }: Keyfil
   const [keyfileLabel, setKeyfileLabel] = useState('seqrets-keyfile.bin');
   const [isEditingLabel, setIsEditingLabel] = useState(false);
   const { toast } = useToast();
-  const hasGenerated = useRef(false);
 
-  // Auto-generate keyfile on mount
-  useEffect(() => {
-    if (hasGenerated.current) return;
-    hasGenerated.current = true;
+  const handleGenerate = () => {
     try {
       const randomBytes = window.crypto.getRandomValues(new Uint8Array(KEYFILE_BYTE_LENGTH));
       const base64Keyfile = Buffer.from(randomBytes).toString('base64');
@@ -46,7 +41,7 @@ export function KeyfileGenerator({ onKeyfileGenerated, onSmartCardSave }: Keyfil
         description: 'Could not generate a secure keyfile. Your browser may not support the required cryptographic functions.',
       });
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  };
 
   const handleDownload = async (base64Data: string | null) => {
     if (!base64Data) return;
@@ -134,9 +129,14 @@ export function KeyfileGenerator({ onKeyfileGenerated, onSmartCardSave }: Keyfil
   }
 
   return (
-    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-      <Loader2 className="h-4 w-4 animate-spin" />
-      Generating keyfile...
+    <div className="space-y-3">
+      <p className="text-sm text-muted-foreground">
+        A keyfile is a file containing random data that acts as a second password. It provides a massive security boost.
+      </p>
+      <Button onClick={handleGenerate} className="w-full whitespace-normal bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
+        <Wand2 className="mr-2 h-4 w-4 shrink-0" />
+        Generate &amp; Download Secure Keyfile
+      </Button>
     </div>
   );
 }
