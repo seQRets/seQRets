@@ -633,7 +633,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
                             setSmartCardWriteLabel(getShareTitle(index));
                             setIsSmartCardOpen(true);
                           }}
-                          className={cn("col-span-full border-accent text-foreground hover:bg-accent/20 dark:text-foreground dark:hover:bg-accent/10")}
+                          className="col-span-full"
                         >
                           <CreditCard className="mr-2 h-4 w-4" />
                           Smart Card
@@ -667,7 +667,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
                       setSmartCardWriteLabel(qrCodeData.label || 'Vault');
                       setIsSmartCardOpen(true);
                     }}
-                    className="w-full sm:w-auto border-accent text-foreground hover:bg-accent/20 dark:text-foreground dark:hover:bg-accent/10"
+                    className="w-full sm:w-auto"
                   >
                     <CreditCard className="mr-2 h-5 w-5" /> Write Vault to Smart Card
                   </Button>
