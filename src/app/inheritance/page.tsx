@@ -20,7 +20,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { playChime } from '@/lib/chime';
 import type { RawInstruction, DecryptInstructionRequest } from '@/lib/types';
 import { AppFooter } from '../components/app-footer';
 import { AppNavTabs } from '../components/app-nav-tabs';
@@ -170,7 +169,12 @@ export default function InstructionsPage() {
     if (file && file.type === 'application/json') {
       setDecryptFile(file);
       setDecryptFileName(file.name);
-      playChime();
+      try {
+        const audio = new Audio('/sound.mp3');
+        audio.play().catch(e => console.error('Audio playback failed:', e));
+      } catch (error) {
+        console.error('Error playing sound:', error);
+      }
     } else {
       toast({ variant: 'destructive', title: 'Invalid File Type', description: 'Please upload a .json instructions file.' });
     }

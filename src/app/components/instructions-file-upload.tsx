@@ -28,6 +28,12 @@ export function InstructionsFileUpload({ onFileSelected, selectedFile }: Instruc
         return;
     }
     onFileSelected(file);
+    try {
+      const audio = new Audio('/sound.mp3');
+      audio.play().catch(e => console.error('Audio playback failed:', e));
+    } catch (error) {
+      console.error('Error playing sound:', error);
+    }
     toast({
       title: 'Instructions File Selected',
       description: `${file.name} has been loaded and is ready for encryption.`,

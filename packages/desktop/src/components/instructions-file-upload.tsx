@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { FileUp, FileText, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import successSound from '@/assets/sound.mp3';
 
 interface InstructionsFileUploadProps {
   onFileSelected: (file: File | null) => void;
@@ -25,6 +26,12 @@ export function InstructionsFileUpload({ onFileSelected, selectedFile }: Instruc
         return;
     }
     onFileSelected(file);
+    try {
+      const audio = new Audio(successSound);
+      audio.play().catch(e => console.error('Audio playback failed:', e));
+    } catch (error) {
+      console.error('Error playing sound:', error);
+    }
     toast({
       title: 'Instructions File Selected',
       description: `${file.name} has been loaded and is ready for encryption.`,

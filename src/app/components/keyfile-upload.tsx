@@ -6,7 +6,6 @@ import { File, FileUp, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { DragDropZone } from './drag-drop-zone';
-import { playChime } from '@/lib/chime';
 
 interface KeyfileUploadProps {
   onFileRead: (fileContent: string | null) => void;
@@ -43,7 +42,12 @@ export function KeyfileUpload({ onFileRead, onFileNameChange, fileName }: Keyfil
 
       onFileRead(b64);
       onFileNameChange(file.name);
-      playChime();
+      try {
+        const audio = new Audio('/sound.mp3');
+        audio.play().catch(e => console.error('Audio playback failed:', e));
+      } catch (error) {
+        console.error('Error playing sound:', error);
+      }
       toast({
         title: 'Keyfile Selected',
         description: `${file.name} has been loaded.`,

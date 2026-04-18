@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { FileUp, File, X, CreditCard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { playChime } from '@/lib/chime';
+import successSound from '@/assets/sound.mp3';
 
 interface KeyfileUploadProps {
   onFileRead: (fileContent: string | null) => void;
@@ -41,7 +41,12 @@ export function KeyfileUpload({ onFileRead, onFileNameChange, fileName, onSmartC
 
       onFileRead(b64);
       onFileNameChange(file.name);
-      playChime();
+      try {
+        const audio = new Audio(successSound);
+        audio.play().catch(e => console.error('Audio playback failed:', e));
+      } catch (error) {
+        console.error('Error playing sound:', error);
+      }
       toast({
         title: 'Keyfile Selected',
         description: `${file.name} has been loaded.`,
