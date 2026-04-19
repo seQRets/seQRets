@@ -8,13 +8,13 @@
        Body is a warm off-white (not pure white), cards lift slightly with a
        subtle paper-like shadow, and a muted gold is reserved for step
        indicators and other accent touches so the UI reads as mature and sober. */
-    --background: 37 14% 91%;           /* warm off-white, enough contrast from cards */
+    --background: 37 22% 89%;           /* warm off-white, enough contrast from cards */
     --foreground: 30 12% 14%;           /* warm near-black */
-    --card: 0 0% 100%;                  /* crisp white card */
+    --card: 36 30% 98%;                 /* cream-tinted card — still reads white but picks up the body's warmth */
     --card-foreground: 30 12% 14%;
-    --popover: 0 0% 100%;
+    --popover: 36 30% 98%;
     --popover-foreground: 30 12% 14%;
-    --primary: 30 12% 14%;              /* warm near-black — solid CTAs */
+    --primary: 25 24% 16%;              /* warm espresso — solid CTAs, reads deliberate rather than flat black */
     --primary-foreground: 40 14% 94%;
     --secondary: 40 14% 88%;            /* warm tan surface */
     --secondary-foreground: 30 12% 14%;
@@ -24,8 +24,8 @@
     --accent-foreground: 30 12% 14%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 99%;
-    --border: 40 14% 82%;               /* warm tan border, slightly deeper for definition */
-    --input: 40 14% 82%;
+    --border: 35 22% 78%;               /* warm tan border, slightly deeper for definition */
+    --input: 35 22% 78%;
     --ring: 38 42% 50%;                 /* muted gold focus ring */
     --radius: 0.5rem;
   }

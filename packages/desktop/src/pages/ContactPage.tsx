@@ -52,7 +52,7 @@ export default function ContactPage() {
                     <Card>
                         <CardHeader>
                             <div className="flex items-center gap-3">
-                                <Mail className="h-6 w-6 text-primary" />
+                                <Mail className="h-6 w-6 text-[hsl(42_85%_45%)] dark:text-primary" />
                                 <CardTitle>Send Email</CardTitle>
                             </div>
                             <CardDescription>General questions, feedback, and support</CardDescription>
@@ -64,7 +64,7 @@ export default function ContactPage() {
                             <div className="flex items-center gap-2">
                                 <a
                                     href="mailto:hello@seqrets.app?subject=seQRets Support Request"
-                                    className="inline-flex items-center gap-2 rounded-md px-4 py-2 font-medium bg-primary text-primary-foreground transition-all hover:bg-primary/80 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+                                    className="inline-flex items-center gap-2 rounded-md px-4 py-2 font-medium bg-primary text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[0.98] active:translate-y-0"
                                 >
                                     <Mail className="h-4 w-4" />
                                     hello@seqrets.app
@@ -76,7 +76,7 @@ export default function ContactPage() {
                                         toast({ description: "Email address copied to clipboard" });
                                         setTimeout(() => setCopied(null), 2000);
                                     }}
-                                    className="inline-flex items-center justify-center rounded-md border p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                    className="inline-flex items-center justify-center rounded-md border border-border p-2 text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground hover:border-primary/40 hover:shadow-sm hover:scale-[1.05] active:scale-[0.95]"
                                     aria-label="Copy email address"
                                 >
                                     {copied === 'hello@seqrets.app' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -88,7 +88,7 @@ export default function ContactPage() {
                     <Card>
                         <CardHeader>
                             <div className="flex items-center gap-3">
-                                <ShieldCheck className="h-6 w-6 text-primary" />
+                                <ShieldCheck className="h-6 w-6 text-[hsl(42_85%_45%)] dark:text-primary" />
                                 <CardTitle>Send Encrypted Email</CardTitle>
                             </div>
                             <CardDescription>PGP-encrypted for sensitive inquiries</CardDescription>
@@ -100,7 +100,7 @@ export default function ContactPage() {
                             <div className="flex items-center gap-2 flex-wrap">
                                 <a
                                     href="mailto:seqrets@proton.me?subject=seQRets Support Request (Encrypted)"
-                                    className="inline-flex items-center gap-2 rounded-md px-4 py-2 font-medium bg-primary text-primary-foreground transition-all hover:bg-primary/80 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+                                    className="inline-flex items-center gap-2 rounded-md px-4 py-2 font-medium bg-primary text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[0.98] active:translate-y-0"
                                 >
                                     <ShieldCheck className="h-4 w-4" />
                                     seqrets@proton.me
@@ -112,7 +112,7 @@ export default function ContactPage() {
                                         toast({ description: "Email address copied to clipboard" });
                                         setTimeout(() => setCopied(null), 2000);
                                     }}
-                                    className="inline-flex items-center justify-center rounded-md border p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                    className="inline-flex items-center justify-center rounded-md border border-border p-2 text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground hover:border-primary/40 hover:shadow-sm hover:scale-[1.05] active:scale-[0.95]"
                                     aria-label="Copy encrypted email address"
                                 >
                                     {copied === 'seqrets@proton.me' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
@@ -121,7 +121,7 @@ export default function ContactPage() {
                                     href="https://seqrets.app/pgp"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 rounded-md px-4 py-2 font-medium bg-primary text-primary-foreground transition-all hover:bg-primary/80 hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+                                    className="inline-flex items-center gap-2 rounded-md border border-border bg-transparent px-4 py-2 font-medium text-foreground transition-all duration-200 hover:border-primary hover:text-primary hover:shadow-md hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[0.98] active:translate-y-0"
                                 >
                                     PGP Key
                                     <ExternalLink className="h-3 w-3" />
@@ -140,7 +140,7 @@ export default function ContactPage() {
                         <p>
                             Our AI assistant Bob is an expert on seQRets and can help with most questions about encryption, Qard management, inheritance planning, smart cards, and more.
                         </p>
-                        <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
+                        <Button asChild className="bg-primary text-primary-foreground transition-all duration-200 hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 hover:scale-[1.03] active:scale-[0.98] active:translate-y-0">
                             <Link to="/support">
                                 <Bot className="mr-2 h-4 w-4" />
                                 Ask Bob AI

@@ -108,7 +108,8 @@ export interface InheritancePlan {
 }
 
 const DEFAULT_RESTORE_STEPS = `1. Download seQRets from seqrets.app or use the web app.
-2. Open the app and click "Restore Secret".
+   Fallback: if seQRets is unavailable, use the standalone recovery tool — a single offline HTML file that performs the same restore in any browser. Download recover.html from https://github.com/seQRets/seQRets-Recover/releases/latest/download/recover.html, or use the hosted version at https://seqrets.github.io/seQRets-Recover/
+2. Open the app (or recover.html) and click "Restore Secret".
 3. Gather the required Qards from the locations listed in the Secret Sets section above.
 4. Import the Qards (scan QR, drag & drop, smart card, vault file, or paste text).
 5. Enter the password from the matching Secret Set in this plan.
@@ -117,6 +118,10 @@ const DEFAULT_RESTORE_STEPS = `1. Download seQRets from seqrets.app or use the w
 8. Write down the restored secret on paper immediately. Do not save it digitally.
 9. Use the restored secret to access your assets per the Digital Asset Inventory.
 10. After securing all assets, delete all unencrypted copies of this document.`;
+
+const DEFAULT_EMERGENCY_ACCESS_PROCEDURE = `1. Follow the steps in "How to Restore Your Secret" above to recover the encrypted secrets needed for this emergency.
+2. If the seQRets app cannot be installed on the available computer, use the standalone recovery tool referenced in Section 6 (recover.html) — it runs offline in any browser.
+3. [Add any emergency-specific steps: where hardware is kept, who to contact first, which assets to access in what order, etc.]`;
 
 export function createBlankSecretSet(): SecretSet {
   return {
@@ -175,7 +180,7 @@ export function createBlankPlan(): InheritancePlan {
     emergencyAccess: {
       emergencyContact: '',
       triggerConditions: '',
-      accessProcedure: '',
+      accessProcedure: DEFAULT_EMERGENCY_ACCESS_PROCEDURE,
       immediateActions: '',
       scopeLimitations: '',
     },
