@@ -59,7 +59,7 @@ function MobileMenu({ activeTab, onTabChange }: HeaderProps) {
             <Menu className="h-5 w-5" />
             <span className="sr-only">Open main menu</span>
           </Button>
-          <span className="absolute -top-0.5 -right-0.5 pointer-events-none">
+          <span className="absolute -top-0.5 -right-0.5">
             <ConnectionDot />
           </span>
         </div>
@@ -200,7 +200,7 @@ function DesktopMenu({ activeTab, onTabChange }: HeaderProps) {
               <Menu className="h-5 w-5" />
               <span className="sr-only">Open menu</span>
             </Button>
-            <span className="absolute -top-1 -right-1 pointer-events-none">
+            <span className="absolute -top-1 -right-1">
               <ConnectionDot />
             </span>
           </div>
