@@ -1,6 +1,6 @@
 {
   "name": "seqrets",
-  "version": "1.10.4",
+  "version": "1.10.5",
   "private": true,
   "workspaces": [
     "packages/*"
@@ -18,7 +18,8 @@
     "deps:update": "npm update",
     "build:analyze": "ANALYZE=true npm run build",
     "desktop:dev": "npm run build:crypto && npm run tauri:dev:fresh --workspace=@seqrets/desktop",
-    "desktop:build": "npm run build:crypto && npm run tauri:build --workspace=@seqrets/desktop"
+    "desktop:build": "npm run build:crypto && npm run tauri:build --workspace=@seqrets/desktop",
+    "bump": "node scripts/bump-version.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",

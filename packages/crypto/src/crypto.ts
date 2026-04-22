@@ -7,8 +7,9 @@ import { split, combine } from 'shamir-secret-sharing';
 import { CreateSharesRequest, CreateSharesResult, RestoreSecretResult, RestoreSecretRequest, EncryptedInstruction, DecryptInstructionRequest, DecryptInstructionResult, RawInstruction, ParsedShare } from './types';
 import { Buffer } from 'buffer';
 import { gzip, ungzip } from 'pako';
-import { mnemonicToEntropy, entropyToMnemonic, validateMnemonic } from '@scure/bip39';
+import { mnemonicToEntropy, entropyToMnemonic, validateMnemonic, mnemonicToSeedSync } from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english';
+import { HDKey } from '@scure/bip32';
 
 const SALT_LENGTH = 16;
 const ARGON2_MEM_COST = 65536; // 64MB
@@ -90,6 +91,22 @@ async function deriveKey(password: string, salt: Uint8Array, keyfile?: Uint8Arra
 function getSetIdForShare(salt: Uint8Array): string {
     const saltBase64 = Buffer.from(salt).toString('base64');
     return saltBase64.substring(0, 8);
+}
+
+// ── BIP-32 master fingerprint (XFP) ──
+// Computes the 4-byte BIP-32 master fingerprint shown by most hardware wallets
+// on their home screen after import. Uses an empty BIP-39 passphrase — if the
+// user adds a passphrase at wallet-import time, the on-device fingerprint will
+// differ. Returns 8 uppercase hex characters (e.g. "ABCD1234"), or null if the
+// phrase is not a valid BIP-39 mnemonic.
+export function masterFingerprint(mnemonic: string): string | null {
+    const normalized = mnemonic.trim().split(/\s+/).join(' ');
+    if (!validateMnemonic(normalized, wordlist)) return null;
+    const seed = mnemonicToSeedSync(normalized, '');
+    const hd = HDKey.fromMasterSeed(seed);
+    seed.fill(0);
+    const fp = hd.fingerprint >>> 0;
+    return fp.toString(16).padStart(8, '0').toUpperCase();
 }
 
 // ── SHA-256 share integrity helpers ──

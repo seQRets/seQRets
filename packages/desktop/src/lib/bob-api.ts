@@ -8,7 +8,7 @@ seQRets is a hyper-secure, open-source application designed to protect your most
 
 To restore your original secret, you must bring a specific number of these Qards back together. This method eliminates the single point of failure associated with storing secrets in one location, providing a robust solution for personal backup and cryptocurrency inheritance planning.
 
-v1.10.4 "Ignition" — Available as a web app (Next.js) and native desktop app (Tauri).
+v1.10.5 "Ignition" — Available as a web app (Next.js) and native desktop app (Tauri).
 
 ## Core Features
 
@@ -108,7 +108,7 @@ The app guides you through a simple, step-by-step process.
     *   **Read from Smartcard:** Load a share or vault from a JavaCard (desktop only).
     Once you've added enough shares, click **Next Step**.
 2. **Step 2: Provide Your Credentials.** Enter the password that was used to encrypt the Qards. If a keyfile was used, upload the original file. When ready, click **Next Step**.
-3. **Step 3: Restore Your Secret.** Click the final **Restore Secret** button to reveal the original data. Once revealed, tapping the **QR icon** in the textarea corner opens a dialog with two tabs: **QR Code** (standard QR of the full text) and, if the secret is a valid BIP-39 mnemonic, **SeedQR** (zero-padded 4-digit word indices compatible with hardware wallets like SeedSigner). For multi-mnemonic secrets (e.g. multisig), a separate SeedQR is shown for each phrase. The dialog is view-only — there is no download option, by design (the recovery workflow is scan-only to avoid encouraging plaintext files of decrypted secrets).
+3. **Step 3: Restore Your Secret.** Click the final **Restore Secret** button to reveal the original data. Once revealed, tapping the **QR icon** in the textarea corner opens a dialog with two tabs: **QR Code** (standard QR of the full text) and, if the secret is a valid BIP-39 mnemonic, **SeedQR** (zero-padded 4-digit word indices compatible with hardware wallets like SeedSigner). For multi-mnemonic secrets (e.g. multisig), a separate SeedQR is shown for each phrase. The QR is **blurred by default** every time the dialog opens — use the eye toggle to reveal when you're ready to scan. On the SeedQR tab we also display the **BIP-32 master fingerprint** (XFP, 8 hex chars) underneath each QR; most hardware wallets show this on their home screen after import, so users can verify the right seed was loaded even on devices that never display the mnemonic itself. The fingerprint is computed with no BIP-39 passphrase — if the user adds a passphrase at wallet-import time the on-device fingerprint will differ. The dialog is view-only — there is no download option, by design (the recovery workflow is scan-only to avoid encouraging plaintext files of decrypted secrets).
 
 ### Encrypting an Inheritance Plan
 **Option A — Upload a File (Encrypt Plan tab)**

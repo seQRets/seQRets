@@ -9,7 +9,7 @@ import { FileUpload } from './file-upload';
 import { KeyRound, Combine, Loader2, CheckCircle2, Eye, EyeOff, XCircle, Copy, RefreshCcw, X, Paperclip, HelpCircle, Lock, ArrowDown, QrCode, Sprout, ShieldCheck, TriangleAlert } from 'lucide-react';
 import QRCode from 'qrcode';
 import { wordlist } from '@scure/bip39/wordlists/english';
-import { tryGetEntropy } from '@/lib/crypto';
+import { tryGetEntropy, masterFingerprint } from '@/lib/crypto';
 import { parseShare } from '@seqrets/crypto';
 import jsQR from 'jsqr';
 import { useToast } from '@/hooks/use-toast';
@@ -491,6 +491,9 @@ export function RestoreSecretForm() {
 
   const mnemonicResult = restoredSecret ? tryGetEntropy(restoredSecret) : null;
   const isMnemonic = mnemonicResult !== null;
+  const fingerprints = mnemonicResult
+    ? mnemonicResult.chunks.map(chunk => masterFingerprint(chunk))
+    : [];
 
   const ensureDataQr = async () => {
     if (qrDataUri) return;
@@ -643,29 +646,45 @@ export function RestoreSecretForm() {
                       </div>
                     )}
                     <div className="relative py-2">
-                      <div className={cn("transition-all duration-300", !isQrRevealed && "blur-lg")}>
-                        {qrTab === 'data' && (
-                          qrDataUri
-                            ? <img src={qrDataUri} alt="QR Code" className="mx-auto w-full max-w-[280px] rounded bg-white p-2" />
-                            : <div className="flex h-[280px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
-                        )}
-                        {qrTab === 'seed' && (
-                          seedQrUris.length > 0
-                            ? <div className="space-y-3">
-                                {seedQrUris.map((uri, i) => (
-                                  <div key={i}>
-                                    <img src={uri} alt={`SeedQR ${i + 1}`} className="mx-auto w-full max-w-[280px] rounded bg-white p-2" />
-                                    {seedQrUris.length > 1 && (
-                                      <p className="mt-1 text-center text-xs text-muted-foreground">
-                                        {i + 1} of {seedQrUris.length}
-                                      </p>
+                      {qrTab === 'data' && (
+                        qrDataUri
+                          ? <img
+                              src={qrDataUri}
+                              alt="QR Code"
+                              className={cn(
+                                "mx-auto w-full max-w-[280px] rounded bg-white p-2 transition-all duration-300",
+                                !isQrRevealed && "blur-lg"
+                              )}
+                            />
+                          : <div className="flex h-[280px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+                      )}
+                      {qrTab === 'seed' && (
+                        seedQrUris.length > 0
+                          ? <div className="space-y-3">
+                              {seedQrUris.map((uri, i) => (
+                                <div key={i}>
+                                  <img
+                                    src={uri}
+                                    alt={`SeedQR ${i + 1}`}
+                                    className={cn(
+                                      "mx-auto w-full max-w-[280px] rounded bg-white p-2 transition-all duration-300",
+                                      !isQrRevealed && "blur-lg"
                                     )}
-                                  </div>
-                                ))}
-                              </div>
-                            : <div className="flex h-[280px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
-                        )}
-                      </div>
+                                  />
+                                  {fingerprints[i] && (
+                                    <p
+                                      className="mt-2 text-center text-xs text-muted-foreground"
+                                      title="BIP-32 master fingerprint with no BIP-39 passphrase. Most hardware wallets display this after import — it should match. Adding a BIP-39 passphrase at import time will produce a different fingerprint."
+                                    >
+                                      Fingerprint: <span className="font-mono font-semibold text-foreground">{fingerprints[i]}</span>
+                                      {seedQrUris.length > 1 && <span className="ml-2">· {i + 1} of {seedQrUris.length}</span>}
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          : <div className="flex h-[280px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"

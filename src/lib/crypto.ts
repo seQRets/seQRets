@@ -1,1 +1,1 @@
-export { tryGetEntropy, createShares, restoreSecret, decryptInstructions, encryptVault, decryptVault, encryptInstructions, computeShareHash, appendShareHash, parseShare, truncateHash } from '@seqrets/crypto';
+export { tryGetEntropy, createShares, restoreSecret, decryptInstructions, encryptVault, decryptVault, encryptInstructions, computeShareHash, appendShareHash, parseShare, truncateHash, masterFingerprint } from '@seqrets/crypto';
