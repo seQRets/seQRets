@@ -44,6 +44,7 @@ export function RestoreSecretForm() {
   const audioRef = useRef(typeof window !== 'undefined' ? new Audio('/sound.mp3') : null);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
   const [isQrDialogOpen, setIsQrDialogOpen] = useState(false);
+  const [isQrRevealed, setIsQrRevealed] = useState(false);
   const [qrTab, setQrTab] = useState<'data' | 'seed'>('data');
   const [qrDataUri, setQrDataUri] = useState<string | null>(null);
   const [seedQrUris, setSeedQrUris] = useState<string[]>([]);
@@ -413,6 +414,7 @@ export function RestoreSecretForm() {
     setKeyfile(null);
     setKeyfileName(null);
     setIsQrDialogOpen(false);
+    setIsQrRevealed(false);
     setQrTab('data');
     setQrDataUri(null);
     setSeedQrUris([]);
@@ -451,6 +453,7 @@ export function RestoreSecretForm() {
   const openQrDialog = () => {
     const initial: 'data' | 'seed' = isMnemonic ? 'seed' : 'data';
     setQrTab(initial);
+    setIsQrRevealed(false);
     setIsQrDialogOpen(true);
     if (initial === 'data') ensureDataQr(); else ensureSeedQr();
   };
@@ -539,13 +542,19 @@ export function RestoreSecretForm() {
                         </Button>
                     </div>
                 </div>
-                <Dialog open={isQrDialogOpen} onOpenChange={setIsQrDialogOpen}>
+                <Dialog
+                  open={isQrDialogOpen}
+                  onOpenChange={(open) => {
+                    setIsQrDialogOpen(open);
+                    if (!open) setIsQrRevealed(false);
+                  }}
+                >
                   <DialogContent className="max-w-sm">
                     <DialogHeader>
                       <DialogTitle>
                         {qrTab === 'seed' ? 'SeedQR' : 'QR Code'}
                       </DialogTitle>
-                      <DialogDescription>
+                      <DialogDescription className="min-h-[2.5rem]">
                         {qrTab === 'seed'
                           ? 'Scan with a SeedQR-compatible signer to import your seed.'
                           : 'Scan this code to transfer the decrypted secret.'}
@@ -571,28 +580,39 @@ export function RestoreSecretForm() {
                         </Button>
                       </div>
                     )}
-                    <div className="py-2">
-                      {qrTab === 'data' && (
-                        qrDataUri
-                          ? <img src={qrDataUri} alt="QR Code" className="mx-auto w-full max-w-[280px] rounded bg-white p-2" />
-                          : <div className="flex h-[280px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
-                      )}
-                      {qrTab === 'seed' && (
-                        seedQrUris.length > 0
-                          ? <div className="space-y-3">
-                              {seedQrUris.map((uri, i) => (
-                                <div key={i}>
-                                  <img src={uri} alt={`SeedQR ${i + 1}`} className="mx-auto w-full max-w-[280px] rounded bg-white p-2" />
-                                  {seedQrUris.length > 1 && (
-                                    <p className="mt-1 text-center text-xs text-muted-foreground">
-                                      {i + 1} of {seedQrUris.length}
-                                    </p>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          : <div className="flex h-[280px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
-                      )}
+                    <div className="relative py-2">
+                      <div className={cn("transition-all duration-300", !isQrRevealed && "blur-lg")}>
+                        {qrTab === 'data' && (
+                          qrDataUri
+                            ? <img src={qrDataUri} alt="QR Code" className="mx-auto w-full max-w-[280px] rounded bg-white p-2" />
+                            : <div className="flex h-[280px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+                        )}
+                        {qrTab === 'seed' && (
+                          seedQrUris.length > 0
+                            ? <div className="space-y-3">
+                                {seedQrUris.map((uri, i) => (
+                                  <div key={i}>
+                                    <img src={uri} alt={`SeedQR ${i + 1}`} className="mx-auto w-full max-w-[280px] rounded bg-white p-2" />
+                                    {seedQrUris.length > 1 && (
+                                      <p className="mt-1 text-center text-xs text-muted-foreground">
+                                        {i + 1} of {seedQrUris.length}
+                                      </p>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            : <div className="flex h-[280px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-4 right-2 z-10 h-8 w-8 text-foreground bg-background/80 hover:bg-background shadow-sm"
+                        onClick={() => setIsQrRevealed(v => !v)}
+                        aria-label={isQrRevealed ? 'Hide QR code' : 'Show QR code'}
+                      >
+                        {isQrRevealed ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </Button>
                     </div>
                   </DialogContent>
                 </Dialog>
