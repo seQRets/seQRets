@@ -43,8 +43,8 @@ export function RestoreSecretForm() {
   const { toast } = useToast();
   const audioRef = useRef(typeof window !== 'undefined' ? new Audio('/sound.mp3') : null);
   const [isSecretVisible, setIsSecretVisible] = useState(false);
-  const [isQrVisible, setIsQrVisible] = useState(false);
-  const [qrMode, setQrMode] = useState<'none' | 'data' | 'seed'>('none');
+  const [isQrDialogOpen, setIsQrDialogOpen] = useState(false);
+  const [qrTab, setQrTab] = useState<'data' | 'seed'>('data');
   const [qrDataUri, setQrDataUri] = useState<string | null>(null);
   const [seedQrUris, setSeedQrUris] = useState<string[]>([]);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -412,7 +412,8 @@ export function RestoreSecretForm() {
     setUseKeyfile(false);
     setKeyfile(null);
     setKeyfileName(null);
-    setQrMode('none');
+    setIsQrDialogOpen(false);
+    setQrTab('data');
     setQrDataUri(null);
     setSeedQrUris([]);
     setStep(1);
@@ -427,18 +428,16 @@ export function RestoreSecretForm() {
   const mnemonicResult = restoredSecret ? tryGetEntropy(restoredSecret) : null;
   const isMnemonic = mnemonicResult !== null;
 
-  const handleDataQr = async () => {
-    if (qrMode === 'data') { setQrMode('none'); setIsQrVisible(false); return; }
+  const ensureDataQr = async () => {
+    if (qrDataUri) return;
     try {
       const uri = await QRCode.toDataURL(restoredSecret, { errorCorrectionLevel: 'L', margin: 2, width: 800 });
       setQrDataUri(uri);
-      setQrMode('data');
     } catch { /* QR generation failed — secret may be too long */ }
   };
 
-  const handleSeedQr = async () => {
-    if (qrMode === 'seed') { setQrMode('none'); setIsQrVisible(false); return; }
-    if (!mnemonicResult) return;
+  const ensureSeedQr = async () => {
+    if (seedQrUris.length > 0 || !mnemonicResult) return;
     try {
       const uris = await Promise.all(
         mnemonicResult.chunks.map(chunk =>
@@ -446,8 +445,19 @@ export function RestoreSecretForm() {
         )
       );
       setSeedQrUris(uris);
-      setQrMode('seed');
     } catch { /* QR generation failed */ }
+  };
+
+  const openQrDialog = () => {
+    const initial: 'data' | 'seed' = isMnemonic ? 'seed' : 'data';
+    setQrTab(initial);
+    setIsQrDialogOpen(true);
+    if (initial === 'data') ensureDataQr(); else ensureSeedQr();
+  };
+
+  const selectQrTab = (tab: 'data' | 'seed') => {
+    setQrTab(tab);
+    if (tab === 'data') ensureDataQr(); else ensureSeedQr();
   };
 
   const handleCopy = () => {
@@ -518,59 +528,74 @@ export function RestoreSecretForm() {
                         >
                             <Copy className="h-5 w-5" />
                         </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground"
+                            onClick={openQrDialog}
+                            aria-label="Show QR code"
+                        >
+                            <QrCode className="h-5 w-5" />
+                        </Button>
                     </div>
                 </div>
-                <div className="flex justify-center gap-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className={cn(qrMode === 'data' && "border-primary text-primary")}
-                        onClick={handleDataQr}
-                    >
-                        <QrCode className="mr-2 h-4 w-4" />
-                        QR Code
-                    </Button>
+                <Dialog open={isQrDialogOpen} onOpenChange={setIsQrDialogOpen}>
+                  <DialogContent className="max-w-sm">
+                    <DialogHeader>
+                      <DialogTitle>
+                        {qrTab === 'seed' ? 'SeedQR' : 'QR Code'}
+                      </DialogTitle>
+                      <DialogDescription>
+                        {qrTab === 'seed'
+                          ? 'Scan with a SeedQR-compatible signer to import your seed.'
+                          : 'Scan this code to transfer the decrypted secret.'}
+                      </DialogDescription>
+                    </DialogHeader>
                     {isMnemonic && (
-                      <Button
-                          variant="outline"
+                      <div className="grid grid-cols-2 gap-1 rounded-md bg-muted p-1">
+                        <Button
+                          variant={qrTab === 'data' ? 'default' : 'ghost'}
                           size="sm"
-                          className={cn(qrMode === 'seed' && "border-primary text-primary")}
-                          onClick={handleSeedQr}
-                      >
+                          onClick={() => selectQrTab('data')}
+                        >
+                          <QrCode className="mr-2 h-4 w-4" />
+                          QR Code
+                        </Button>
+                        <Button
+                          variant={qrTab === 'seed' ? 'default' : 'ghost'}
+                          size="sm"
+                          onClick={() => selectQrTab('seed')}
+                        >
                           <Sprout className="mr-2 h-4 w-4" />
                           SeedQR
-                      </Button>
-                    )}
-                </div>
-                {qrMode !== 'none' && (qrDataUri || seedQrUris.length > 0) && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground mx-auto"
-                    onClick={() => setIsQrVisible(!isQrVisible)}
-                    title={isQrVisible ? 'Hide QR code' : 'Show QR code'}
-                  >
-                    {isQrVisible ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  </Button>
-                )}
-                {qrMode === 'data' && qrDataUri && (
-                  <div className={cn("transition-all duration-300", !isQrVisible && "blur-md")}>
-                    <img src={qrDataUri} alt="QR Code" className="mx-auto max-w-[250px] rounded" />
-                    <p className="text-xs text-muted-foreground mt-1">Data QR</p>
-                  </div>
-                )}
-                {qrMode === 'seed' && seedQrUris.length > 0 && (
-                  <div className={cn("space-y-3 transition-all duration-300", !isQrVisible && "blur-md")}>
-                    {seedQrUris.map((uri, i) => (
-                      <div key={i}>
-                        <img src={uri} alt={`SeedQR ${i + 1}`} className="mx-auto max-w-[250px] rounded" />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          SeedQR{seedQrUris.length > 1 ? ` ${i + 1} of ${seedQrUris.length}` : ''}
-                        </p>
+                        </Button>
                       </div>
-                    ))}
-                  </div>
-                )}
+                    )}
+                    <div className="py-2">
+                      {qrTab === 'data' && (
+                        qrDataUri
+                          ? <img src={qrDataUri} alt="QR Code" className="mx-auto w-full max-w-[280px] rounded bg-white p-2" />
+                          : <div className="flex h-[280px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+                      )}
+                      {qrTab === 'seed' && (
+                        seedQrUris.length > 0
+                          ? <div className="space-y-3">
+                              {seedQrUris.map((uri, i) => (
+                                <div key={i}>
+                                  <img src={uri} alt={`SeedQR ${i + 1}`} className="mx-auto w-full max-w-[280px] rounded bg-white p-2" />
+                                  {seedQrUris.length > 1 && (
+                                    <p className="mt-1 text-center text-xs text-muted-foreground">
+                                      {i + 1} of {seedQrUris.length}
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          : <div className="flex h-[280px] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
                 <Button onClick={handleReset} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
                   <RefreshCcw className="mr-2 h-4 w-4" /> Start Over
                 </Button>
