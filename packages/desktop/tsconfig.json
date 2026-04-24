@@ -16,6 +16,7 @@
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "@/components/ui/*": ["../shared-ui/src/*"],
       "@/*": ["./src/*"]
     }
   },

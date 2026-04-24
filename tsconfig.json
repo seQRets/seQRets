@@ -23,6 +23,9 @@
       }
     ],
     "paths": {
+      "@/components/ui/*": [
+        "./packages/shared-ui/src/*"
+      ],
       "@/*": [
         "./src/*"
       ]

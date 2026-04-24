@@ -6,6 +6,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
+      // More specific alias must come first; Vite matches in order.
+      '@/components/ui': path.resolve(__dirname, '../shared-ui/src'),
       '@': path.resolve(__dirname, './src'),
       buffer: 'buffer/',
     },
