@@ -1,6 +1,6 @@
 # seQRets Desktop App — Security Analysis
 
-> **Audit Date:** March 2026 · **App Version:** 1.10.5 · **Auditor:** Independent code review via Claude (Anthropic)
+> **Audit Date:** March 2026 · **App Version:** 1.10.6 · **Auditor:** Independent code review via Claude (Anthropic)
 > **Scope:** Full source audit of `packages/desktop/`, `packages/crypto/`, and `src-tauri/` (Rust backend)
 
 ---
@@ -210,7 +210,7 @@ The desktop app runs all cryptographic operations in native Rust, providing guar
 | Threat Vector | Web App | Desktop App | Notes |
 |:--------------|:-------:|:-----------:|:------|
 | Malicious browser extensions | ❌ **Exposed** | ✅ **Immune** | Tauri WebView loads no extensions |
-| JavaScript supply-chain attack | ⚠️ Possible (CDN at load) | ✅ **Eliminated** | Bundled, code-signed binary |
+| JavaScript supply-chain attack | ⚠️ Mitigated (strict CSP, no `unsafe-eval`, narrow allowlist) | ✅ **Eliminated** | Bundled, code-signed binary |
 | Memory persistence | ⚠️ JS GC — timing unpredictable | ✅ **Rust zeroize** | Compiler-fence ensures erasure |
 | Binary tampering | N/A | ✅ **Detected** | Code-signed, integrity verified at install |
 | Offline operation | ⚠️ After initial load only | ✅ **Always** | No network required |
@@ -502,6 +502,48 @@ Recover mitigates but does not eliminate long-horizon risk. Users are still resp
   │  • API key removable at any time                   │
   └───────────────────────────────────────────────────┘
 ```
+
+---
+
+## Web App HTTP Security Hardening (Cloudflare Proxy)
+
+### Background
+
+The audit above focused on the desktop app and the shared cryptographic library. The web app at `app.seqrets.app` is hosted on **GitHub Pages**, which serves a fixed, minimal set of HTTP response headers and does not honor custom header configuration. This left the web app's HTTP layer thinner than the desktop app's WebView policy, with its security depending entirely on the in-document `<meta http-equiv="Content-Security-Policy">` tag defined in `src/app/layout.tsx`.
+
+A March 2026 attempt to migrate the web app to Cloudflare Pages — which would have enabled the repo's `public/_headers` file natively — was abandoned after the build broke in ways that could not be reconciled with the project's Next.js static-export configuration.
+
+### Solution: Cloudflare proxy in front of GitHub Pages (April 2026)
+
+Rather than migrating hosting, `app.seqrets.app` was switched from grey-cloud (DNS only) to orange-cloud (proxied) in Cloudflare. GitHub Pages continues to serve the static bundle as origin; Cloudflare sits at the edge and injects security headers via a **Response Header Transform Rule** scoped to `(http.host eq "app.seqrets.app")`. The rule does not affect the landing page at the apex.
+
+### Headers now served at the HTTP layer
+
+| Header | Value | Purpose |
+|---|---|---|
+| `Content-Security-Policy` | `default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.coinbase.com https://generativelanguage.googleapis.com; worker-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'` | Identical to `layout.tsx` meta CSP; belt-and-suspenders. No `unsafe-eval`, narrow `connect-src` allowlist. |
+| `X-Frame-Options` | `DENY` | Clickjacking protection (header-only directive, not available via meta) |
+| `X-Content-Type-Options` | `nosniff` | Blocks MIME sniffing |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Limits referrer leakage |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` | Forces HTTPS on all subdomains for 1 year (preload not submitted — see note below) |
+| `Permissions-Policy` | `camera=(self), microphone=(), geolocation=()` | Same-origin camera for QR scan; mic and geolocation fully denied |
+| `X-Permitted-Cross-Domain-Policies` | `none` | Legacy Flash/Silverlight hardening |
+
+### Additional hardening
+
+- **SSL/TLS mode: Full (strict).** Cloudflare validates the origin's certificate chain (GitHub Pages serves a valid Let's Encrypt cert with auto-renewal).
+- **Cloudflare Web Analytics disabled.** Prior to this work, Cloudflare was auto-injecting a `cloudflareinsights.com` beacon script into proxied pages, violating both the app's strict CSP and the README's "no telemetry" claim. The site was removed from Web Analytics entirely. Zero third-party beacons are now injected.
+- **`public/_headers` in repo kept in sync** with the live Cloudflare rule, marked as reference-only documentation.
+
+### Operational notes
+
+- **Reversibility.** The entire setup rolls back with a single DNS toggle: set the `app` CNAME from orange-cloud back to grey-cloud in Cloudflare DNS. Within ~60 seconds the site returns to direct GitHub Pages serving. No code, no build, no deploy pipeline is involved.
+- **Scope isolation.** The Transform Rule is filtered by hostname, so the landing page at `seqrets.app` (hosted on Cloudflare Pages with its own `_headers` file) is completely unaffected by this change.
+- **HSTS preload.** The `preload` directive was deliberately omitted. Modern browsers auto-upgrade HTTP→HTTPS regardless, making preload a marginal security improvement in exchange for a permanent, hard-to-reverse commitment across all subdomains. Revisit when the subdomain topology is stable.
+
+### What this closes
+
+This addresses F-06 from the v1.7.0 audit ("No CSP for web app on GitHub Pages") — previously marked as *Won't fix / accepted risk*, now **resolved**. The web app's HTTP-layer security is no longer gated by the hosting platform's limitations.
 
 ---
 
