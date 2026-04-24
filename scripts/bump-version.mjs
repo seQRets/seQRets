@@ -1,13 +1,15 @@
 #!/usr/bin/env node
-// Bump all version-bearing files in the monorepo in one shot.
+// Bump the version + codename across the 5 mechanical files that a release
+// actually needs touched, then regenerate lockfiles.
 //
 // Usage:
-//   npm run bump -- 1.10.5           # keep current codename
-//   npm run bump -- 1.10.5 Liftoff   # change codename
+//   npm run bump -- 1.10.7            # keep current codename
+//   npm run bump -- 1.10.7 Liftoff    # change codename
 //
-// Touches 15 source files, then regenerates package-lock.json and Cargo.lock.
-// Patterns are anchored so dependency versions (e.g. "^1.10.3" in package.json)
-// and historical references (e.g. "as of v1.10.3" in Bob prompts) stay intact.
+// Everything else (UI footers, about pages, service worker, Bob prompts) now
+// reads the version from scripts/generate-version.mjs output at build time,
+// so this script no longer touches those files. Prose docs that need human
+// judgment per release are printed as an advisory checklist at the end.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
@@ -25,14 +27,13 @@ if (!newVersion || !/^\d+\.\d+\.\d+$/.test(newVersion)) {
 
 const rootPkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
 const oldVersion = rootPkg.version;
+const oldCodename = rootPkg.codename;
 
-const footer = readFileSync(join(ROOT, 'src/app/components/app-footer.tsx'), 'utf8');
-const codenameMatch = footer.match(/v\d+\.\d+\.\d+ 🔥 (\w+)/);
-if (!codenameMatch) {
-  console.error('Could not detect current codename from src/app/components/app-footer.tsx');
+if (!oldCodename) {
+  console.error('Root package.json is missing the `codename` field.');
   process.exit(1);
 }
-const oldCodename = codenameMatch[1];
+
 const newCodename = newCodenameArg || oldCodename;
 
 if (oldVersion === newVersion && oldCodename === newCodename) {
@@ -42,33 +43,24 @@ if (oldVersion === newVersion && oldCodename === newCodename) {
 
 console.log(`\nBumping v${oldVersion} "${oldCodename}" → v${newVersion} "${newCodename}"\n`);
 
+// The five files below are the ONLY files that need mechanical edits per
+// release. Workspaces need their own `version` (for `workspace:*` resolution
+// and npm publish semantics), Cargo.toml has its own versioning, and
+// tauri.conf.json is read by the Tauri updater. Everything else derives from
+// the root package.json at build time.
 const edits = [
-  // ── Package manifests (5) ──
-  ['package.json',                                   `"version": "${oldVersion}"`,                              `"version": "${newVersion}"`],
-  ['packages/crypto/package.json',                   `"version": "${oldVersion}"`,                              `"version": "${newVersion}"`],
-  ['packages/desktop/package.json',                  `"version": "${oldVersion}"`,                              `"version": "${newVersion}"`],
-  ['packages/desktop/src-tauri/Cargo.toml',          `version = "${oldVersion}"`,                               `version = "${newVersion}"`],
-  ['packages/desktop/src-tauri/tauri.conf.json',     `"version": "${oldVersion}"`,                              `"version": "${newVersion}"`],
+  // Root package: version + codename (the only two lines anyone should ever
+  // edit on release day; generate-version.mjs picks both up).
+  ['package.json',                                `"version": "${oldVersion}"`,                `"version": "${newVersion}"`],
+  ['package.json',                                `"codename": "${oldCodename}"`,              `"codename": "${newCodename}"`],
 
-  // ── UI (footer + about, web + desktop) (4) ──
-  ['src/app/components/app-footer.tsx',              `v${oldVersion} 🔥 ${oldCodename}`,                        `v${newVersion} 🔥 ${newCodename}`],
-  ['packages/desktop/src/components/app-footer.tsx', `v${oldVersion} 🔥 ${oldCodename}`,                        `v${newVersion} 🔥 ${newCodename}`],
-  ['src/app/about/page.tsx',                         `v${oldVersion} 🔥 ${oldCodename}`,                        `v${newVersion} 🔥 ${newCodename}`],
-  ['packages/desktop/src/pages/AboutPage.tsx',       `v${oldVersion} 🔥 ${oldCodename}`,                        `v${newVersion} 🔥 ${newCodename}`],
+  // Workspace manifests.
+  ['packages/crypto/package.json',                `"version": "${oldVersion}"`,                `"version": "${newVersion}"`],
+  ['packages/desktop/package.json',               `"version": "${oldVersion}"`,                `"version": "${newVersion}"`],
 
-  // ── Bob AI prompt header (2) — pattern includes " — Available" to avoid
-  //    touching historical "as of vX.Y.Z" references in the same file.
-  ['src/ai/flows/ask-bob-flow.ts',                   `v${oldVersion} "${oldCodename}" — Available`,             `v${newVersion} "${newCodename}" — Available`],
-  ['packages/desktop/src/lib/bob-api.ts',            `v${oldVersion} "${oldCodename}" — Available`,             `v${newVersion} "${newCodename}" — Available`],
-
-  // ── Docs (3) ──
-  ['README.md',                                      `seQRets v${oldVersion} has not`,                          `seQRets v${newVersion} has not`],
-  ['docs/BUILDING.md',                               `seQRets_${oldVersion}_aarch64.dmg`,                       `seQRets_${newVersion}_aarch64.dmg`],
-  ['docs/SECURITY_ANALYSIS.md',                      `**App Version:** ${oldVersion}`,                          `**App Version:** ${newVersion}`],
-
-  // ── Service worker (2 occurrences on different lines) ──
-  ['public/sw.js',                                   `// seQRets Service Worker — v${oldVersion}`,              `// seQRets Service Worker — v${newVersion}`],
-  ['public/sw.js',                                   `const CACHE_VERSION = 'seqrets-v${oldVersion}';`,         `const CACHE_VERSION = 'seqrets-v${newVersion}';`],
+  // Rust / Tauri (Cargo can't read JSON, so these stay scripted).
+  ['packages/desktop/src-tauri/Cargo.toml',       `version = "${oldVersion}"`,                 `version = "${newVersion}"`],
+  ['packages/desktop/src-tauri/tauri.conf.json',  `"version": "${oldVersion}"`,                `"version": "${newVersion}"`],
 ];
 
 const failures = [];
@@ -99,4 +91,19 @@ execSync('npm install --package-lock-only', { cwd: ROOT, stdio: 'inherit' });
 console.log('\nRegenerating Cargo.lock...');
 execSync('cargo generate-lockfile', { cwd: join(ROOT, 'packages/desktop/src-tauri'), stdio: 'inherit' });
 
-console.log(`\n✅ Bumped to v${newVersion} "${newCodename}". Review with \`git diff\`, then commit.`);
+console.log(`\n✅ Bumped to v${newVersion} "${newCodename}".`);
+
+console.log(`
+Stale-doc review checklist — these aren't auto-updated, please eyeball
+before releasing:
+
+  [ ] README.md                  — "seQRets v${newVersion} has not undergone..."
+                                    (beta-audit note; update if wording shifts)
+  [ ] docs/BUILDING.md           — DMG filename example (cosmetic)
+  [ ] docs/SECURITY_ANALYSIS.md  — Audit Date header + "App Version" line
+  [ ] docs/ARCHITECTURE.md       — any version-tied claims still accurate?
+  [ ] SECURITY.md                — Supported Versions table — any rows to retire?
+  [ ] CLAUDE.md                  — sync rules still accurate?
+
+Review \`git diff\`, then commit.
+`);
