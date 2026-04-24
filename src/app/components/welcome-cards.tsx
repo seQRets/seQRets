@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Lock, FileText, Combine, ShieldCheck, WifiOff } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
+import { VERSION_STRING } from "@/generated/version";
 
 const SKIP_WELCOME_KEY = 'seQRets_skipWelcome';
 
@@ -131,23 +132,26 @@ export function WelcomeCards({ onSelect, variant = 'web' }: WelcomeCardsProps) {
         </div>
       </motion.div>
 
-      {/* ── Skip preference ── */}
-      <motion.label
+      {/* ── Skip preference + version footer ── */}
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5, duration: 0.3 }}
-        className="flex items-center justify-center gap-2 cursor-pointer select-none"
+        className="flex flex-col items-center gap-2"
       >
-        <input
-          type="checkbox"
-          checked={skipNext}
-          onChange={(e) => handleSkipChange(e.target.checked)}
-          className="h-4 w-4 rounded border-border accent-primary"
-        />
-        <span className="text-sm text-muted-foreground">
-          Don&rsquo;t show this screen on startup
-        </span>
-      </motion.label>
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={skipNext}
+            onChange={(e) => handleSkipChange(e.target.checked)}
+            className="h-4 w-4 rounded border-border accent-primary"
+          />
+          <span className="text-sm text-muted-foreground">
+            Don&rsquo;t show this screen on startup
+          </span>
+        </label>
+        <p className="text-xs text-muted-foreground">{VERSION_STRING}</p>
+      </motion.div>
     </motion.div>
   );
 }
