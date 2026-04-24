@@ -118,7 +118,7 @@ export function WelcomeCards({ onSelect }: WelcomeCardsProps) {
           <div className="flex items-start gap-2.5 flex-1">
             <Lock className="h-5 w-5 shrink-0 mt-0.5 text-primary" />
             <p className="text-muted-foreground">
-              <strong className="text-card-foreground">Zero knowledge</strong> — no servers, no recovery.
+              <strong className="text-card-foreground">Zero knowledge</strong> — no KYC, no data collection.
             </p>
           </div>
         </div>
