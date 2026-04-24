@@ -4,13 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "generate:version": "node ../../scripts/generate-version.mjs",
+    "dev": "npm run generate:version && vite",
+    "build": "npm run generate:version && tsc && vite build",
+    "type-check": "npm run generate:version && tsc --noEmit",
     "preview": "vite preview",
     "tauri": "tauri",
-    "tauri:dev": "tauri dev",
-    "tauri:dev:fresh": "rm -rf node_modules/.vite && tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:dev": "npm run generate:version && tauri dev",
+    "tauri:dev:fresh": "npm run generate:version && rm -rf node_modules/.vite && tauri dev",
+    "tauri:build": "npm run generate:version && tauri build"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

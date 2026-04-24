@@ -1,24 +1,26 @@
 {
   "name": "seqrets",
   "version": "1.10.6",
+  "codename": "Ignition",
   "private": true,
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
+    "generate:version": "node scripts/generate-version.mjs",
     "build:crypto": "npm run build --workspace=@seqrets/crypto",
-    "dev": "npm run build:crypto && next dev --port 9002",
-    "build": "npm run build:crypto && next build",
-    "start": "next start",
-    "type-check": "tsc --noEmit",
+    "dev": "npm run generate:version && npm run build:crypto && next dev --port 9002",
+    "build": "npm run generate:version && npm run build:crypto && next build",
+    "start": "npm run generate:version && next start",
+    "type-check": "npm run generate:version && tsc --noEmit",
     "test": "echo \"No test runner configured\" && exit 0",
     "security-audit": "npm audit",
     "security-audit:fix": "npm audit fix",
     "deps:outdated": "npm outdated",
     "deps:update": "npm update",
     "build:analyze": "ANALYZE=true npm run build",
-    "desktop:dev": "npm run build:crypto && npm run tauri:dev:fresh --workspace=@seqrets/desktop",
-    "desktop:build": "npm run build:crypto && npm run tauri:build --workspace=@seqrets/desktop",
+    "desktop:dev": "npm run generate:version && npm run build:crypto && npm run tauri:dev:fresh --workspace=@seqrets/desktop",
+    "desktop:build": "npm run generate:version && npm run build:crypto && npm run tauri:build --workspace=@seqrets/desktop",
     "bump": "node scripts/bump-version.mjs"
   },
   "dependencies": {
