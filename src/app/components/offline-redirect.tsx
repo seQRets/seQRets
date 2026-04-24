@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, WifiOff, ExternalLink } from 'lucide-react';
+import { ArrowLeft, WifiOff } from 'lucide-react';
 import Link from 'next/link';
 import { Header } from './header';
 import { AppFooter } from './app-footer';
@@ -15,11 +15,13 @@ export function OfflineRedirect({ url, title }: Props) {
 
     useEffect(() => {
         if (navigator.onLine) {
-            window.location.href = url;
+            window.location.replace(url);
         } else {
             setStatus('offline');
         }
     }, [url]);
+
+    if (status === 'pending') return null;
 
     return (
         <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 md:p-12">
@@ -42,29 +44,14 @@ export function OfflineRedirect({ url, title }: Props) {
 
                 <Card>
                     <CardContent className="pt-8 pb-8 text-center space-y-4">
-                        {status === 'offline' ? (
-                            <>
-                                <WifiOff className="h-10 w-10 text-primary mx-auto" />
-                                <h2 className="text-lg font-semibold text-foreground">You're offline</h2>
-                                <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                                    Our {title.toLowerCase()} lives on our website. Reconnect to the internet and try again, or visit the URL below from any device:
-                                </p>
-                                <p className="font-mono text-sm text-foreground break-all bg-muted/40 rounded-md px-3 py-2 inline-block">
-                                    {url}
-                                </p>
-                            </>
-                        ) : (
-                            <>
-                                <ExternalLink className="h-10 w-10 text-primary mx-auto animate-pulse" />
-                                <h2 className="text-lg font-semibold text-foreground">Redirecting&hellip;</h2>
-                                <p className="text-sm text-muted-foreground">
-                                    Taking you to {url}
-                                </p>
-                                <Button asChild variant="outline" size="sm">
-                                    <a href={url}>Go there now</a>
-                                </Button>
-                            </>
-                        )}
+                        <WifiOff className="h-10 w-10 text-primary mx-auto" />
+                        <h2 className="text-lg font-semibold text-foreground">You're offline</h2>
+                        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                            Our {title.toLowerCase()} lives on our website. Reconnect to the internet and try again, or visit the URL below from any device:
+                        </p>
+                        <p className="font-mono text-sm text-foreground break-all bg-muted/40 rounded-md px-3 py-2 inline-block">
+                            {url}
+                        </p>
                     </CardContent>
                 </Card>
 
