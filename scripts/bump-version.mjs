@@ -63,8 +63,8 @@ const edits = [
 
   // ── Docs (3) ──
   ['README.md',                                      `seQRets v${oldVersion} has not`,                          `seQRets v${newVersion} has not`],
-  ['BUILDING.md',                                    `seQRets_${oldVersion}_aarch64.dmg`,                       `seQRets_${newVersion}_aarch64.dmg`],
-  ['SECURITY_ANALYSIS.md',                           `**App Version:** ${oldVersion}`,                          `**App Version:** ${newVersion}`],
+  ['docs/BUILDING.md',                               `seQRets_${oldVersion}_aarch64.dmg`,                       `seQRets_${newVersion}_aarch64.dmg`],
+  ['docs/SECURITY_ANALYSIS.md',                      `**App Version:** ${oldVersion}`,                          `**App Version:** ${newVersion}`],
 
   // ── Service worker (2 occurrences on different lines) ──
   ['public/sw.js',                                   `// seQRets Service Worker — v${oldVersion}`,              `// seQRets Service Worker — v${newVersion}`],

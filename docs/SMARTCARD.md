@@ -22,7 +22,7 @@ The desktop app supports storing Shamir shares, encrypted vaults, keyfiles, and 
 
 ## Applet Installation
 
-The seQRets applet must be installed on each card before use. See [BUILDING.md](../BUILDING.md#-javacard-applet-installation) for build and installation instructions.
+The seQRets applet must be installed on each card before use. See [BUILDING.md](BUILDING.md#-javacard-applet-installation) for build and installation instructions.
 
 ## Applet AID
 

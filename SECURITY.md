@@ -72,4 +72,4 @@ All derived keys, keyfile buffers, and intermediate decrypted/decompressed buffe
 
 ## Security Design
 
-For details on the cryptographic architecture, threat model, and security trade-offs, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md).
+For details on the cryptographic architecture, threat model, and security trade-offs, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).

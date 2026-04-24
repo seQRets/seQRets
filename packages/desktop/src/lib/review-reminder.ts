@@ -19,7 +19,7 @@
 //   decrypt" property, and it catches the realistic case where an
 //   attacker has faked a recent review in the sidecar.
 //
-// Security: see review_reminder.rs and docs/THREAT_MODEL.md.
+// Security: see review_reminder.rs and docs/ARCHITECTURE.md#review-reminder-sidecar.
 
 import { invoke } from '@tauri-apps/api/core';
 

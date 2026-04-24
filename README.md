@@ -38,7 +38,7 @@ seQRets encrypts your most sensitive secrets — seed phrases, private keys, pas
 | **Smart card** | ✗ | ✓ Included |
 | **Portable card reader** | ✗ | ✓ Included |
 
-Build from source: see [BUILDING.md](BUILDING.md).
+Build from source: see [docs/BUILDING.md](docs/BUILDING.md).
 Official release: **<a href="https://seqrets.app" target="_blank" rel="noopener noreferrer">seqrets.app</a>**.
 
 ## ✨ Features
@@ -77,17 +77,14 @@ seQRets uses industry-standard primitives entirely client-side. **All cryptograp
 - **RNG:** OS-backed CSPRNG (Rust `rand` on desktop, `crypto.getRandomValues` on web)
 - **Memory:** Rust `zeroize` on desktop; `fill(0)` + finally blocks on web
 
-For the full cryptographic design, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-For the web vs desktop threat model, see [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md).
+For the full cryptographic design and threat model, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ## 📚 Further Reading
 
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — cryptographic design, encrypt-first ordering, quantum resistance, RNG
-- [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) — web vs desktop threat model, offline behavior
-- [docs/INHERITANCE.md](docs/INHERITANCE.md) — split trust model, distribution examples, legal considerations
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — cryptographic design, encrypt-first ordering, quantum resistance, RNG, and the web vs desktop threat model
 - [docs/SMARTCARD.md](docs/SMARTCARD.md) — JavaCard hardware, features, applet AID
-- [BUILDING.md](BUILDING.md) — build instructions for web, desktop, and the JavaCard applet
+- [docs/BUILDING.md](docs/BUILDING.md) — build instructions for web, desktop, and the JavaCard applet
 - [SECURITY.md](SECURITY.md) — vulnerability reporting policy
 - [CONTRIBUTING.md](CONTRIBUTING.md) — contribution guide and CLA
 

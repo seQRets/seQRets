@@ -5,7 +5,7 @@
 //! policy (intervals, snooze logic, state machine) lives in TypeScript —
 //! this module is a dumb, hardened file I/O bridge.
 //!
-//! Security posture (intentional, see docs/THREAT_MODEL.md):
+//! Security posture (intentional, see docs/ARCHITECTURE.md#review-reminder-sidecar):
 //! - Contents are plaintext. The sidecar stores only a date, not plan data.
 //! - `deny_unknown_fields` on the serde struct so malformed / attacker-crafted
 //!   JSON is rejected at the parse boundary instead of silently absorbed.
