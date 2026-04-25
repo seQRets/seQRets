@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://app.seqrets.app/icons/og-image.png',
+        url: 'https://app.seqrets.app/icons/og-image-app.png',
         width: 1200,
         height: 630,
         alt: 'seQRets — Secure. Split. Share.',
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'seQRets — Secure. Split. Share.',
     description: 'Encrypt, split, and secure your secrets with QR codes using Shamir\'s Secret Sharing.',
-    images: ['https://app.seqrets.app/icons/og-image.png'],
+    images: ['https://app.seqrets.app/icons/og-image-app.png'],
   },
 };
 
