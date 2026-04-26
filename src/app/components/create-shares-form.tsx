@@ -301,9 +301,9 @@ export function CreateSharesForm() {
                           </PopoverContent>
                       </Popover>
                   </div>
-                  <Button size="sm" onClick={() => setShowSeedGenerator(!showSeedGenerator)} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
-                      <Wand className="mr-1.5 h-3.5 w-3.5" />
-                      {showSeedGenerator ? 'Hide' : 'Generate Seed'}
+                  <Button onClick={() => setShowSeedGenerator(!showSeedGenerator)} className="bg-primary text-primary-foreground hover:bg-primary/80 hover:shadow-md">
+                      <Wand className="mr-2 h-4 w-4" />
+                      {showSeedGenerator ? 'Hide Generator' : 'Generate Seed Phrase'}
                   </Button>
                 </div>
                 {showSeedGenerator && (
