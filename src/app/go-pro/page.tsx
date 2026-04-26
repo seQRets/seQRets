@@ -14,6 +14,7 @@ const features = [
     { name: "Shamir's Secret Sharing", web: true, desktop: true },
     { name: 'Argon2id password hashing', web: true, desktop: true },
     { name: 'Optional keyfile (second factor)', web: true, desktop: true },
+    { name: 'Built-in 209-bit password generator', web: true, desktop: true },
     { name: 'BIP-39 seed phrase support', web: true, desktop: true },
     { name: 'Inheritance Plan (file upload)', web: true, desktop: true },
     { name: 'Camera QR scanning', web: true, desktop: true },
