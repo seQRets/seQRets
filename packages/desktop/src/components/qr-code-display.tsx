@@ -109,9 +109,9 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
 
                 ${label ? `<p style="font-size: 14px; color: #3e3739; margin: 0 0 6px 0;">Label: <b style="font-weight: 500;">${escapeHtml(label)}</b></p>` : ''}
 
-                <p style="font-size: 14px; color: #2E7D32; margin: 0 0 6px 0;">Set: ${escapeHtml(setId)}  &middot;  ${createdDate}</p>
+                <p style="font-size: 14px; color: #3e3739; margin: 0 0 6px 0;">Set: ${escapeHtml(setId)}  &middot;  ${createdDate}</p>
 
-                <p style="font-size: 12px; color: #1565C0; margin: 0 0 16px 0;">SHA-256: ${(() => { const core = shares[index].split('|').slice(0, 3).join('|'); const h = computeShareHash(core); return truncateHash(h); })()}</p>
+                <p style="font-size: 12px; color: #3e3739; margin: 0 0 16px 0;">SHA-256: ${(() => { const core = shares[index].split('|').slice(0, 3).join('|'); const h = computeShareHash(core); return truncateHash(h); })()}</p>
 
                 <div style="display: flex; align-items: center; justify-content: center; color: #DC2626; font-weight: 500; font-size: 14px; margin-bottom: 10px;">
                     <span style="margin-right: 6px; font-size: 16px;">⚠️</span>
@@ -263,7 +263,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
 
         // Set ID · Date (combined line)
         const dateStr = new Date().toLocaleDateString('en-US');
-        ctx.fillStyle = '#2E7D32';
+        ctx.fillStyle = '#3e3739';
         ctx.font = '14px Inter, system-ui, -apple-system, sans-serif';
         ctx.fillText(`Set: ${setId}  \u00B7  ${dateStr}`, W / 2, y);
         y += 24;
@@ -272,7 +272,7 @@ export function QrCodeDisplay({ qrCodeData, keyfileUsed }: QrCodeDisplayProps) {
         const coreShare = shares[index].split('|').slice(0, 3).join('|');
         const fullHash = computeShareHash(coreShare);
         const displayHash = truncateHash(fullHash);
-        ctx.fillStyle = '#1565C0';
+        ctx.fillStyle = '#3e3739';
         ctx.font = '12px Inter, system-ui, -apple-system, sans-serif';
         ctx.fillText(`SHA-256: ${displayHash}`, W / 2, y);
         y += 28;
