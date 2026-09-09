@@ -70,7 +70,7 @@ Even if **seQRets disappears** — the website goes down, the company dissolves,
 
 ## 🔐 Security
 
-seQRets uses industry-standard primitives entirely client-side. **The core cryptographic primitives live in a single ~750-line file: [`packages/crypto/src/crypto.ts`](packages/crypto/src/crypto.ts)** (with share-metadata and SeedQR helpers in [`restore.ts`](packages/crypto/src/restore.ts), and validation-only SLIP-39 share detection in [`slip39.ts`](packages/crypto/src/slip39.ts)). The desktop app additionally runs Argon2id + XChaCha20-Poly1305 natively in Rust via Tauri, so derived keys never enter the JS runtime.
+seQRets uses industry-standard primitives entirely client-side. **The core cryptographic primitives live in a single 824-line file: [`packages/crypto/src/crypto.ts`](packages/crypto/src/crypto.ts)** (with share-metadata and SeedQR helpers in [`restore.ts`](packages/crypto/src/restore.ts), and validation-only SLIP-39 share detection in [`slip39.ts`](packages/crypto/src/slip39.ts)). The desktop app additionally runs Argon2id + XChaCha20-Poly1305 natively in Rust via Tauri, so derived keys never enter the JS runtime.
 
 - **Key derivation:** Argon2id (64MB memory, 4 iterations)
 - **Encryption:** XChaCha20-Poly1305 (AEAD)

@@ -2,7 +2,7 @@
 
 All cryptographic operations in seQRets run **entirely on your device**. Your secrets never leave your machine.
 
-> 📂 **All cryptography lives in a single ~750-line file:** [`packages/crypto/src/crypto.ts`](../packages/crypto/src/crypto.ts). Reviewers and auditors: start there. The desktop app delegates the hot path (Argon2id + XChaCha20-Poly1305) to native Rust — see [`packages/desktop/src-tauri/src/crypto.rs`](../packages/desktop/src-tauri/src/crypto.rs). The crypto package's companion modules contain no encryption code: [`restore.ts`](../packages/crypto/src/restore.ts) holds share-metadata/SeedQR helpers and [`slip39.ts`](../packages/crypto/src/slip39.ts) holds validation-only SLIP-39 share detection (wordlist + RS1024 checksum).
+> 📂 **All cryptography lives in a single 824-line file:** [`packages/crypto/src/crypto.ts`](../packages/crypto/src/crypto.ts). Reviewers and auditors: start there. The desktop app delegates the hot path (Argon2id + XChaCha20-Poly1305) to native Rust — see [`packages/desktop/src-tauri/src/crypto.rs`](../packages/desktop/src-tauri/src/crypto.rs). The crypto package's companion modules contain no encryption code: [`restore.ts`](../packages/crypto/src/restore.ts) holds share-metadata/SeedQR helpers and [`slip39.ts`](../packages/crypto/src/slip39.ts) holds validation-only SLIP-39 share detection (wordlist + RS1024 checksum).
 
 ## How seQRets Works
 
