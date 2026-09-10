@@ -5,8 +5,6 @@
 module.exports = {
   fontFamily: {
     body: ['Inter', 'sans-serif'],
-    headline: ['Space Grotesk', 'sans-serif'],
-    poppins: ['Poppins', 'sans-serif'],
     code: ['monospace'],
   },
   colors: {

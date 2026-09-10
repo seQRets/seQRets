@@ -609,6 +609,9 @@ dialog-close scroll-lock stall-retry fix.
   extensions in `$TEMP`. (Tier-2 — moving write+open into a Rust command to drop the general-purpose
   fs/opener primitives entirely — deferred; it wouldn't fully close the "open app HTML in browser"
   vector inherent to the print design, so low extra value for the work.)
+  **Addendum 2026-09-10:** Poppins and Space Grotesk were declared but never used by any
+  component, so both were dropped (8 → 4 woff2 files, ~55 KB less per load). Inter is now the
+  only face; the `headline`/`poppins` Tailwind tokens are gone too.
 
 ## Very Optional — nice-to-smooth-out, not launch-blocking
 
